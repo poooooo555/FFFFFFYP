@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>普通話練習平台 - 智能學習系統</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+    <style>
+
+    </style>
+</head>
+<body>
+<div class="side-function-menu">
+    <button class="side-menu-toggle" onclick="toggleSideMenu()">
+        <span class="side-menu-text">功能選單</span>
+        <span id="sideMenuArrow" class="side-menu-arrow">▶</span>
+    </button>
+
+    <div id="sideMenuPanel" class="side-menu-panel">
+
+        <a href="/" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏠</div>
+                <span>主頁</span>
+            </div>
+        </a>
+
+        <a href="/listening" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon listening-icon side-icon"></div>
+                <span>聆聽練習</span>
+            </div>
+        </a>
+
+        <a href="/speaking" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon speaking-icon side-icon"></div>
+                <span>說話練習</span>
+            </div>
+        </a>
+
+        <a href="/prose_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon prose-icon side-icon"></div>
+                <span>散文朗讀</span>
+            </div>
+        </a>
+
+        <a href="/tones" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon tones-icon side-icon"></div>
+                <span>聲調</span>
+            </div>
+        </a>
+
+        <a href="/pinyin" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon pinyin-icon side-icon"></div>
+                <span>拼音</span>
+            </div>
+        </a>
+
+        <a href="/dictionary" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon dictionary-icon side-icon"></div>
+                <span>字典查詢</span>
+            </div>
+        </a>
+
+        <a href="/wrong_questions" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon wrong_questions side-icon"></div>
+                <span>錯題庫</span>
+            </div>
+        </a>
+
+        <a href="/custom_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon custom-icon side-icon"></div>
+                <span>自訂文章</span>
+            </div>
+        </a>
+
+        <a href="/pinyinTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔤</div>
+                <span>拼音訓練</span>
+            </div>
+        </a>
+
+        <a href="/tonesTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎵</div>
+                <span>聲調訓練</span>
+            </div>
+        </a>
+
+        <a href="/initialsTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎙️</div>
+                <span>聲母訓練</span>
+            </div>
+        </a>
+
+        <a href="/rank" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                <span>查看排名</span>
+            </div>
+        </a>
+
+        <a href="/password" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔒</div>
+                <span>更改密碼</span>
+            </div>
+        </a>
+
+        <a href="/contactus" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">📩</div>
+                <span>聯繫我們</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+    <div class="container">
+
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <div class="auth-tabs">
+                    <button class="tab-btn active" onclick="switchTab('login')">用戶登入</button>
+                    <button class="tab-btn" onclick="switchTab('register')">用戶註冊</button>
+                    <button class="tab-btn staff-tab" onclick="openStaffLogin()">職員登入</button>
+                </div>
+
+
+                <form id="loginForm" class="auth-form active">
+                    <h3>歡迎回來</h3>
+                    <div class="form-group">
+                        <input type="text" id="loginUsername" placeholder="用戶名" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="loginPassword" placeholder="密碼" required>
+                    </div>
+                    <div class="form-footer">
+                        <a href="#" onclick="switchTab('forgot')" style="font-size: 0.8em; color: #3498db;">忘記密碼？</a>
+                    </div>
+                    <br>
+                    <button type="submit" class="auth-btn">登入</button>
+                    <div id="loginMessage" class="message"></div>
+                </form>
+
+
+                <form id="registerForm" class="auth-form">
+                    <h3>創建新帳戶</h3>
+                    <div class="form-group">
+                        <input type="text" id="registerUsername" placeholder="用戶名" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="registerEmail" placeholder="電子郵件" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="registerPassword" placeholder="密碼" required>
+                    </div>
+                    <button type="submit" class="auth-btn">註冊</button>
+                    <div id="registerMessage" class="message"></div>
+                </form>
+
+                <form id="forgotForm" class="auth-form">
+                    <h3>重設密碼</h3>
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">請輸入註冊時的 Email，系統將發送新密碼至您的信箱。</p>
+                    <div class="form-group">
+                        <input type="email" id="forgotEmail" placeholder="註冊電郵 (Email)" required>
+                    </div>
+                    <button type="submit">發送新密碼</button>
+                    <div class="form-footer" style="margin-top: 15px;">
+                        <a href="#" onclick="switchTab('login')" style="font-size: 0.8em; color: #3498db;">返回登入</a>
+                    </div>
+                    <div id="forgotMessage" style="margin-top: 10px; font-size: 0.9em;"></div>
+                </form>
+
+
+                <form id="staffLoginForm" class="auth-form" style="display: none;">
+                    <h3>職員登入</h3>
+                    <div class="form-group">
+                        <input type="text" id="staffUsername" placeholder="職員用戶名" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="staffPassword" placeholder="職員密碼" required>
+                    </div>
+                    <div class="form-footer">
+                        <a href="#" onclick="switchTab('forgot')" style="font-size: 0.8em; color: #3498db;">忘記密碼？</a>
+                    </div>
+                    <br>
+                    <button type="submit" class="auth-btn staff-btn">職員登入</button>
+                    <div id="staffLoginMessage" class="message"></div>
+                </form>
+
+                <button class="close-btn" onclick="closeAuthModal()">×</button>
+            </div>
+        </div>
+
+
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1>普通話練習平台</h1>
+                    <p class="subtitle">智能學習系統 | 個人化學習路徑 | 即時發音評估</p>
+                </div>
+                <div class="user-section">
+                    <button id="authBtn" class="auth-action-btn" onclick="openAuthModal()">登入 / 註冊</button>
+                    <div id="userInfo" class="user-info" style="display: none;">
+                        <span id="welcomeText"></span>
+                        <button onclick="logout()" class="logout-btn">登出</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+        <div id="dailyTaskPanel" class="daily-task-panel" style="display: none;">
+            <div class="task-header">
+                <h3>
+                    今日學習任務
+                    <span class="level-badge" id="currentLevelBadge">Level 1</span>
+                </h3>
+                <span id="taskDate"></span>
+            </div>
+            <div id="taskList" class="task-list">
+                <div style="text-align: center; padding: 20px;">載入任務中...</div>
+            </div>
+            <div class="learning-path">
+                <strong>學習進度：</strong> <span id="currentLevelText">Level 1 / 4</span>
+                <div class="level-bar">
+                    <div class="level-progress" id="levelProgressBar"></div>
+                </div>
+                <div id="encouragementMsg" class="encouragement"></div>
+                <div class="stats-row" id="accuracyStats"></div>
+            </div>
+        </div>
+
+
+        <div class="nav-menu">
+            <a href="/listening" class="nav-item">
+                <div class="nav-icon listening-icon"></div>
+                <span class="nav-text">聆聽練習</span>
+            </a>
+            <a href="/speaking" class="nav-item">
+                <div class="nav-icon speaking-icon"></div>
+                <span class="nav-text">說話練習</span>
+            </a>
+            <a href="/prose_reading" class="nav-item">
+                <div class="nav-icon prose-icon"></div>
+                <span class="nav-text">散文朗讀</span>
+            </a>
+            <a href="/tones" class="nav-item">
+                <div class="nav-icon tones-icon"></div>
+                <span class="nav-text">聲調</span>
+            </a>
+            <a href="/pinyin" class="nav-item">
+                <div class="nav-icon pinyin-icon"></div>
+                <span class="nav-text">拼音</span>
+            </a>
+            <a href="/dictionary" class="nav-item">
+                <div class="nav-icon dictionary-icon"></div>
+                <span class="nav-text">字典查詢</span>
+            </a>
+            <a href="/wrong_questions" class="nav-item">
+                <div class="nav-icon wrong_questions"></div>
+                <span class="nav-text">錯題庫</span>
+            </a>
+            <a href="/custom_reading" class="nav-item">
+                <div class="nav-icon custom-icon"></div>
+                <span class="nav-text">自訂文章</span>
+            </a>
+        </div>
+
+
+        <div class="quick-access">
+            <div class="quick-links-grid">
+                <a href="/pinyinTraining" class="quick-link">
+                    <div class="link-content">
+                        <div class="nav-icon pinyinTraining-icon" style="width:150px; height: 150px;"></div>
+                        <div class="link-text">
+                            <h4>拼音訓練</h4>
+                            <p>三個難度級別練習：單字拼音、詞語拼音、句子拼音完整輸入</p>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/tonesTraining" class="quick-link tone-training">
+                    <div class="link-content">
+                        <div class="nav-icon toneTrainin-icon" style="width:150px; height: 150px;"></div>
+                        <div class="link-text">
+                            <h4>聲調訓練</h4>
+                            <p>通過頻率分析視覺化學習普通話，實時檢測聲調準確度</p>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="/initialsTraining" class="quick-link">
+                    <div class="link-content">
+                        <div class="nav-icon initialsTraining-icon" style="width:150px; height: 150px;"></div>
+                        <div class="link-text">
+                            <h4>聲母訓練</h4>
+                            <p>21個聲母完整練習，包含ao、ai韻母組合</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+
+        <footer>
+            <p> 普通話練習平台 | 智能學習系統 | 讓學習更有效率</p>
+        </footer>
+    </div>
+
+    <script>
+
+        function toggleSideMenu() {
+            const panel = document.getElementById('sideMenuPanel');
+            const arrow = document.getElementById('sideMenuArrow');
+
+            panel.classList.toggle('open');
+            arrow.classList.toggle('rotate');
+        }
+
+        function openAuthModal() {
+            document.getElementById('authModal').style.display = 'flex';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+            clearMessages();
+        }
+
+        function openStaffLogin() {
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.style.display = 'none';
+            });
+            document.getElementById('staffLoginForm').style.display = 'block';
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            clearMessages();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.style.display = 'none';
+                form.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Form').style.display = 'block';
+            document.getElementById(tabName + 'Form').classList.add('active');
+            clearMessages();
+        }
+
+        function clearMessages() {
+            document.getElementById('loginMessage').textContent = '';
+            document.getElementById('registerMessage').textContent = '';
+            document.getElementById('staffLoginMessage').textContent = '';
+        }
+
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `message ${type}`;
+        }
+
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('registerUsername').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+
+            if (password.length < 6) {
+                showMessage('registerMessage', '密碼至少需要6個字符', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+
+                    document.getElementById('registerUsername').value = '';
+                    document.getElementById('registerEmail').value = '';
+                    document.getElementById('registerPassword').value = '';
+
+                    showMessage('registerMessage', '註冊成功！驗證郵件已發送，請檢查您的信箱後登入', 'success');
+
+
+                    setTimeout(() => {
+                        switchTab('login');
+                        showMessage('loginMessage', '請前往郵箱驗證您的帳號後登入', 'success');
+                    }, 2000);
+                } else {
+                    showMessage('registerMessage', result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('registerMessage', '網絡錯誤，請稍後再試', 'error');
+            }
+        });
+
+            document.getElementById('loginForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const username = document.getElementById('loginUsername').value;
+                const password = document.getElementById('loginPassword').value;
+
+                try {
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        localStorage.setItem('user_id', result.user_id);
+                        localStorage.setItem('username', result.username);
+                        localStorage.setItem('test_completed', result.test_completed ? 'true' : 'false');
+                        afterLoginSuccess();
+                        closeAuthModal();
+                        showMessage('loginMessage', '登入成功！', 'success');
+                    } else {
+                        showMessage('loginMessage', result.error, 'error');
+                    }
+                } catch (error) {
+                    showMessage('loginMessage', '網絡錯誤，請稍後再試', 'error');
+                }
+            });
+
+
+        document.getElementById('staffLoginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('staffUsername').value;
+            const password = document.getElementById('staffPassword').value;
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    const userRes = await fetch(`/user_info/${result.user_id}`);
+                    const userData = await userRes.json();
+
+                    if (userData.role === 'staff') {
+                        localStorage.setItem('user_id', result.user_id);
+                        localStorage.setItem('username', result.username);
+                        window.location.href = '/admin/dashboard';
+                    } else {
+                        showMessage('staffLoginMessage', '此帳號不是職員帳號', 'error');
+                    }
+                } else {
+                    showMessage('staffLoginMessage', result.error, 'error');
+                }
+            } catch (error) {
+                showMessage('staffLoginMessage', '網絡錯誤，請稍後再試', 'error');
+            }
+        });
+
+
+        async function loadUserLevel() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) return;
+
+            try {
+                const response = await fetch(`/user_level/${userId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const level = data.level || 1;
+                    const tasks = data.tasks || [];
+                    const currentLevel = data.current_level || 1;
+
+                    document.getElementById('dailyTaskPanel').style.display = 'block';
+                    document.getElementById('taskDate').textContent = new Date().toLocaleDateString('zh-HK');
+                    document.getElementById('currentLevelText').textContent = `Level ${currentLevel} / 4`;
+                    document.getElementById('currentLevelBadge').textContent = `Level ${currentLevel}`;
+
+                    const levelProgress = ((currentLevel - 1) / 4) * 100;
+                    document.getElementById('levelProgressBar').style.width = `${levelProgress}%`;
+
+                    const taskContainer = document.getElementById('taskList');
+                    if (!tasks || tasks.length === 0) {
+                        taskContainer.innerHTML = '<div style="text-align: center; padding: 20px;">恭喜 已完成所有等級</div>';
+                        document.getElementById('encouragementMsg').innerHTML = '你已經完成所有學習等級，非常優秀';
+                    } else {
+                        let taskHtml = '';
+                        tasks.forEach(task => {
+                            const levelIcon = task.level === 1 ? '' : task.level === 2 ? '' : task.level === 3 ? '' : '';
+                            taskHtml += `
+                                <div class="task-item">
+                                    <div class="task-icon">${levelIcon}</div>
+                                    <div class="task-info">
+                                        <div class="task-name">${task.name}</div>
+                                        <div class="task-desc">${task.description}</div>
+                                        <div class="task-target">目標：${task.target}</div>
+                                    </div>
+                                    <a href="${task.url}" class="task-btn">開始練習 →</a>
+                                </div>
+                            `;
+                        });
+                        taskContainer.innerHTML = taskHtml;
+
+                        if (currentLevel === 1) {
+                            document.getElementById('encouragementMsg').innerHTML = '完成拼音練習，準確率達到70%即可解鎖下一等級！';
+                        } else if (currentLevel === 2) {
+                            document.getElementById('encouragementMsg').innerHTML = '完成說話練習，準確率達到70%即可解鎖聆聽練習！';
+                        } else if (currentLevel === 3) {
+                            document.getElementById('encouragementMsg').innerHTML = '完成聆聽練習，準確率達到70%即可解鎖散文朗讀！';
+                        } else if (currentLevel === 4) {
+                            document.getElementById('encouragementMsg').innerHTML = '恭喜進入高階練習！繼續提升綜合表達能力！';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('載入用戶等級失敗:', error);
+            }
+        }
+
+
+        async function loadAccuracyStats() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) return;
+
+            try {
+
+                const pinyinRes = await fetch(`/get_pinyin_training_stats/${userId}`);
+                const pinyinData = await pinyinRes.json();
+
+
+                const recordsRes = await fetch(`/user_records/${userId}`);
+                const recordsData = await recordsRes.json();
+
+                let speakingTotal = 0;
+                let speakingCorrect = 0;
+                let listeningTotal = 0;
+                let listeningCorrect = 0;
+
+                if (recordsData.success) {
+                    const speakingRecords = recordsData.speaking_records || [];
+                    speakingTotal = speakingRecords.length;
+                    speakingCorrect = speakingRecords.filter(r => r.accuracy >= 70).length;
+
+                    const listeningRecords = recordsData.listening_records || [];
+                    listeningTotal = listeningRecords.length;
+                    listeningCorrect = listeningRecords.filter(r => r.is_correct === true).length;
+                }
+
+                const pinyinAccuracy = pinyinData.accuracy_rate || 0;
+                const speakingAccuracy = speakingTotal > 0 ? (speakingCorrect / speakingTotal * 100).toFixed(0) : 0;
+                const listeningAccuracy = listeningTotal > 0 ? (listeningCorrect / listeningTotal * 100).toFixed(0) : 0;
+
+                const statsHtml = `
+                    <div class="stat-chip">拼音: ${pinyinAccuracy}%</div>
+                    <div class="stat-chip">說話: ${speakingAccuracy}%</div>
+                    <div class="stat-chip">聆聽: ${listeningAccuracy}%</div>
+                `;
+                document.getElementById('accuracyStats').innerHTML = statsHtml;
+
+            } catch (error) {
+                console.error('載入統計失敗:', error);
+            }
+        }
+
+        async function afterLoginSuccess() {
+            const userId = localStorage.getItem('user_id');
+            const username = localStorage.getItem('username');
+            const testCompleted = localStorage.getItem('test_completed') === 'true';
+
+            document.getElementById('authBtn').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'flex';
+            document.getElementById('welcomeText').innerHTML = `歡迎，${username}`;
+
+            try {
+                const response = await fetch(`/user_info/${userId}`);
+                if (response.ok) {
+                    const userData = await response.json();
+                    if (userData.role === 'staff') {
+                        addAdminLink();
+                    }
+                }
+            } catch (error) {
+                console.log('無法獲取用戶角色:', error);
+            }
+
+            if (!testCompleted) {
+                alert('請先完成水平測試，系統將為您制定個人化學習路徑');
+                window.location.href = '/test';
+                return;
+            }
+
+            await loadUserLevel();
+            await loadAccuracyStats();
+        }
+
+        function addAdminLink() {
+            if (!document.getElementById('adminLinkBtn')) {
+                const adminBtn = document.createElement('button');
+                adminBtn.id = 'adminLinkBtn';
+                adminBtn.className = 'admin-link-btn';
+                adminBtn.innerHTML = '管理後台';
+                adminBtn.onclick = function() {
+                    window.location.href = '/admin/dashboard';
+                };
+                const welcomeText = document.getElementById('welcomeText');
+                welcomeText.parentNode.insertBefore(adminBtn, welcomeText.nextSibling);
+            }
+        }
+
+        function removeAdminLink() {
+            const adminBtn = document.getElementById('adminLinkBtn');
+            if (adminBtn) adminBtn.remove();
+        }
+
+        function logout() {
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('username');
+            document.getElementById('authBtn').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('dailyTaskPanel').style.display = 'none';
+            removeAdminLink();
+        }
+
+
+        async function updateUserInterface() {
+            const userId = localStorage.getItem('user_id');
+            const username = localStorage.getItem('username');
+
+            if (userId && username) {
+                document.getElementById('authBtn').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'flex';
+                document.getElementById('welcomeText').innerHTML = `歡迎，${username}`;
+
+                try {
+                    const response = await fetch(`/user_info/${userId}`);
+                    if (response.ok) {
+                        const userData = await response.json();
+                        if (userData.role === 'staff') {
+                            addAdminLink();
+                        }
+                    }
+                } catch (error) {
+                    console.log('無法獲取用戶角色:', error);
+                }
+
+                await loadUserLevel();
+                await loadAccuracyStats();
+            } else {
+                document.getElementById('authBtn').style.display = 'block';
+                document.getElementById('userInfo').style.display = 'none';
+                document.getElementById('dailyTaskPanel').style.display = 'none';
+            }
+        }
+
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('authModal');
+            if (event.target === modal) {
+                closeAuthModal();
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUserInterface();
+        });
+
+
+    document.getElementById('forgotForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('forgotEmail').value;
+        const msgDiv = document.getElementById('forgotMessage');
+
+        msgDiv.style.color = "blue";
+        msgDiv.innerText = "處理中...";
+
+        try {
+            const response = await fetch('/api/forgot_password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            });
+            const result = await response.json();
+
+            if (result.success) {
+                msgDiv.style.color = "green";
+                msgDiv.innerText = "新密碼已發送！請檢查您的郵箱。";
+            } else {
+                msgDiv.style.color = "red";
+                msgDiv.innerText = "錯誤: " + result.error;
+            }
+        } catch (err) {
+            msgDiv.style.color = "red";
+            msgDiv.innerText = "網絡錯誤，請稍後再試。";
+        }
+    };
+    </script>
+</body>
+</html>

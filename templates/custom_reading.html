@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成文章 - 普通話練習平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: rgba(244, 247, 253, 0.91);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 頁首 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .page-header h1 {
+            color: #5382e6;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .page-header h1 i {
+            margin-right: 10px;
+            color: #5382E6FF;
+        }
+
+        .page-header p {
+            color: #4a5568;
+            margin-top: 5px;
+            font-size: 0.95rem;
+        }
+
+        .back-btn {
+            background: #5382E6FF;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .back-btn:hover {
+            background: #5382E6FF;
+            transform: translateY(-2px);
+        }
+
+        /* 卡片樣式 */
+        .card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .card-header {
+            background: white;
+            padding: 20px 25px;
+            border-bottom: 2px solid #5382E6FF;
+        }
+
+        .card-header h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #5382E6FF;
+        }
+
+        .card-header h3 i {
+            margin-right: 10px;
+            color: #5382E6FF;
+        }
+
+        .card-header p {
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+        .card-body {
+            padding: 25px;
+        }
+
+        /* 表單樣式 */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1a202c;
+            font-size: 0.9rem;
+        }
+
+        .topic-input, .title-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .topic-input:focus, .title-input:focus {
+            outline: none;
+            border-color: #5382E6FF;
+            box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #5382E6FF;
+            box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1);
+        }
+
+        /* 按鈕樣式 */
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #5382E6FF;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5382E6FF;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            transform: none;
+        }
+
+        .btn-success {
+            background: #5382E6FF;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #5382E6FF;
+            transform: translateY(-2px);
+        }
+
+        .btn-success:disabled {
+            opacity: 0.6;
+            transform: none;
+        }
+
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* 載入動畫 */
+        .loading-area {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #5382E6FF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 結果區域 */
+        .result-area {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .article-preview {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .article-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .badge {
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #5382E6FF;
+            color: white;
+        }
+
+        .word-count {
+            font-size: 12px;
+            color: #4a5568;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .article-content {
+            line-height: 1.8;
+            color: #2d3748;
+            font-size: 1rem;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* 我的文章列表 */
+        .my-articles {
+            margin-top: 25px;
+        }
+
+        .my-articles h3 {
+            margin-bottom: 15px;
+            color: #5382E6FF;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .my-articles h3 i {
+            margin-right: 10px;
+        }
+
+        .article-item {
+            background: white;
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #e2e8f0;
+        }
+
+        .article-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #5382E6FF;
+        }
+
+        .article-info h4 {
+            margin-bottom: 6px;
+            color: #1a202c;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .article-info p {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .article-info p i {
+            margin-right: 4px;
+        }
+
+        .practice-btn {
+            background: #5382E6FF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .practice-btn:hover {
+            background: #0e3f9e;
+            transform: scale(1.02);
+        }
+
+        /* 空狀態 */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            color: #a0aec0;
+            border: 1px dashed #cbd5e0;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            color: #cbd5e0;
+        }
+
+        /* 響應式 */
+        @media (max-width: 640px) {
+            .page-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .article-item {
+                flex-direction: column;
+                text-align: center;
+                gap: 12px;
+            }
+
+            .practice-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        .side-function-menu {
+    position: fixed;
+    top: 180px;
+    left: 0;
+    z-index: 999;
+    display: flex;
+    align-items: flex-start;
+}
+
+/* 收起时显示的按钮 */
+.side-menu-toggle {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    border: none;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 16px 10px;
+    border-radius: 0 14px 14px 0;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 140px;
+}
+
+.side-menu-toggle:hover {
+    background: linear-gradient(135deg, #2980b9, #1f6fa5);
+}
+
+.side-menu-text {
+    letter-spacing: 2px;
+}
+
+.side-menu-arrow {
+    writing-mode: initial;
+    text-orientation: initial;
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.side-menu-arrow.rotate {
+    transform: rotate(90deg);
+}
+
+/* 展开的面板 */
+.side-menu-panel {
+    width: 0;
+    overflow: hidden;
+    background: white;
+    border-radius: 0 16px 16px 0;
+    box-shadow: 6px 8px 24px rgba(0, 0, 0, 0.12);
+    transition: width 0.3s ease, padding 0.3s ease;
+    padding: 0;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* 展开状态 */
+.side-menu-panel.open {
+    width: 240px;
+    padding: 14px;
+}
+
+/* 每个项目 */
+.side-menu-item {
+    display: block;
+    text-decoration: none;
+    color: #2c3e50;
+    background: #f8fbff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+}
+
+.side-menu-item:last-child {
+    margin-bottom: 0;
+}
+
+.side-menu-item:hover {
+    background: #eef6ff;
+    border-color: #3498db;
+    transform: translateX(4px);
+}
+
+.side-menu-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.side-menu-item-left span {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* 左侧菜单图示尺寸，不影响你原本 nav-icon */
+.side-icon {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+/* 手机版避免遮挡内容 */
+@media (max-width: 768px) {
+    .side-function-menu {
+        top: 140px;
+    }
+
+    .side-menu-panel.open {
+        width: 200px;
+    }
+
+    .side-menu-toggle {
+        min-height: 120px;
+        font-size: 14px;
+        padding: 12px 8px;
+    }
+
+    .side-menu-item-left span {
+        font-size: 14px;
+    }
+
+    .side-icon {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+.listening-icon {
+    background-image: url("/static/images/listening-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.speaking-icon {
+    background-image: url("/static/images/speaking-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.tones-icon {
+    background-image: url("/static/images/tones-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.prose-icon {
+    background-image: url("/static/images/prose-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.pinyin-icon {
+    background-image: url("/static/images/initials-finals-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.dictionary-icon {
+    background-image: url("/static/images/dictionary-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.wrong_questions {
+    background-image: url("/static/images/wrong-questions.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.custom-icon{
+    background-image: url("/static/images/custom-article.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.pinyinTraining-icon{
+    background-image: url("/static/images/pinyinTraining-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.toneTrainin-icon{
+    background-image: url("/static/images/toneTrainin-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.initialsTraining-icon{
+    background-image: url("/static/images/initialsTraining-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+    </style>
+</head>
+<body>
+
+<div class="side-function-menu">
+    <button class="side-menu-toggle" onclick="toggleSideMenu()">
+        <span class="side-menu-text">功能選單</span>
+        <span id="sideMenuArrow" class="side-menu-arrow">▶</span>
+    </button>
+
+    <div id="sideMenuPanel" class="side-menu-panel">
+
+        <a href="/" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏠</div>
+                <span>主頁</span>
+            </div>
+        </a>
+
+        <a href="/listening" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon listening-icon side-icon"></div>
+                <span>聆聽練習</span>
+            </div>
+        </a>
+
+        <a href="/speaking" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon speaking-icon side-icon"></div>
+                <span>說話練習</span>
+            </div>
+        </a>
+
+        <a href="/prose_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon prose-icon side-icon"></div>
+                <span>散文朗讀</span>
+            </div>
+        </a>
+
+        <a href="/tones" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon tones-icon side-icon"></div>
+                <span>聲調</span>
+            </div>
+        </a>
+
+        <a href="/pinyin" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon pinyin-icon side-icon"></div>
+                <span>拼音</span>
+            </div>
+        </a>
+
+        <a href="/dictionary" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon dictionary-icon side-icon"></div>
+                <span>字典查詢</span>
+            </div>
+        </a>
+
+        <a href="/wrong_questions" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon wrong_questions side-icon"></div>
+                <span>錯題庫</span>
+            </div>
+        </a>
+
+        <a href="/custom_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon custom-icon side-icon"></div>
+                <span>自訂文章</span>
+            </div>
+        </a>
+
+        <a href="/pinyinTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔤</div>
+                <span>拼音訓練</span>
+            </div>
+        </a>
+
+        <a href="/tonesTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎵</div>
+                <span>聲調訓練</span>
+            </div>
+        </a>
+
+        <a href="/initialsTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎙️</div>
+                <span>聲母訓練</span>
+            </div>
+        </a>
+
+        <a href="/rank" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                <span>查看排名</span>
+            </div>
+        </a>
+
+        <a href="/password" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔒</div>
+                <span>更改密碼</span>
+            </div>
+        </a>
+
+        <a href="/contactus" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">📩</div>
+                <span>聯繫我們</span>
+            </div>
+        </a>
+    </div>
+</div>
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1>生成文章</h1>
+                <p>輸入主題讓 AI 生成文章，或自己貼上文章進行朗讀練習</p>
+            </div>
+            <a href="/" class="back-btn"><i class="fas fa-arrow-left"></i> 返回首頁</a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3>AI 生成文章</h3>
+                <p>輸入一個主題，AI 會為你生成一篇約200字的文章</p>
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <label><i class="fas fa-tag"></i> 主題：</label>
+                    <input type="text" id="topicInput" placeholder="例如：中秋節、環保、我的夢想..." class="topic-input">
+                </div>
+                <button onclick="generateArticle()" class="btn btn-primary" id="generateBtn">
+                    生成文章
+                </button>
+
+                <div id="loadingArea" class="loading-area" style="display: none;">
+                    <div class="spinner"></div>
+                    <p style="color: #4a5568;">AI 正在生成文章...</p>
+                </div>
+
+                <div id="resultArea" class="result-area" style="display: none;">
+                    <div class="article-preview">
+                        <div class="article-header">
+                            <span class="badge"><i class="fas fa-robot"></i> AI 生成</span>
+                            <span id="wordCount" class="word-count"></span>
+                        </div>
+                        <div id="generatedArticle" class="article-content"></div>
+                    </div>
+                    <div class="action-buttons">
+                        <input type="text" id="aiTitle" placeholder="文章標題（可選）" class="title-input">
+                        <button onclick="saveAndPractice('ai')" class="btn btn-success">
+                            <i class="fas fa-play"></i> 開始練習
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3> 手動輸入文章</h3>
+                <p>貼上你想要練習的文章內容</p>
+            </div>
+            <div class="card-body">
+                <div class="input-group">
+                    <label>文章標題：</label>
+                    <input type="text" id="manualTitle" placeholder="例如：我的家鄉" class="title-input">
+                </div>
+                <div class="input-group">
+                    <label>文章內容：</label>
+                    <textarea id="manualContent" rows="8" placeholder="請在此輸入或貼上你的文章內容..."></textarea>
+                </div>
+                <button onclick="saveAndPractice('manual')" class="btn btn-success">
+                    開始練習
+                </button>
+            </div>
+        </div>
+
+        <div class="my-articles">
+            <h3>我的文章</h3>
+            <div id="myArticlesList">
+                <div class="empty-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>載入中...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentGeneratedArticle = null;
+        let currentTopic = '';
+
+        function checkLogin() {
+            const userId = localStorage.getItem('user_id');
+            const username = localStorage.getItem('username');
+            if (!userId) {
+                alert('請先登入才能使用此功能');
+                window.location.href = '/';
+                return false;
+            }
+            return { userId, username };
+        }
+
+        async function loadMyArticles() {
+            const loginInfo = checkLogin();
+            if (!loginInfo) return;
+
+            const container = document.getElementById('myArticlesList');
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>載入中...</p></div>';
+
+            try {
+                const response = await fetch(`/api/get_user_custom_articles/${loginInfo.userId}`);
+                const data = await response.json();
+
+                if (data.success && data.articles.length > 0) {
+                    let html = '';
+                    data.articles.forEach(article => {
+                        const date = new Date(article.created_at).toLocaleDateString('zh-TW');
+                        html += `
+                            <div class="article-item" onclick="practiceArticle('${article._id}')">
+                                <div class="article-info">
+                                    <h4><i class="fas fa-file-alt"></i> ${escapeHtml(article.title || '未命名文章')}</h4>
+                                    <p><i class="fas fa-calendar"></i> ${date} &nbsp;|&nbsp; <i class="fas fa-text-height"></i> ${article.word_count}字 &nbsp;|&nbsp; <i class="fas fa-microphone"></i> 練習${article.practice_count || 0}次</p>
+                                </div>
+                                <button class="practice-btn" onclick="event.stopPropagation(); practiceArticle('${article._id}')">
+                                    開始練習 <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><p>暫無文章，請在上方新增文章</p></div>';
+                }
+            } catch (error) {
+                console.error('載入文章失敗:', error);
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>載入失敗，請刷新頁面</p></div>';
+            }
+        }
+
+        async function generateArticle() {
+            const topic = document.getElementById('topicInput').value.trim();
+            if (!topic) {
+                alert('請輸入主題');
+                return;
+            }
+
+            currentTopic = topic;
+
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('loadingArea').style.display = 'block';
+            document.getElementById('resultArea').style.display = 'none';
+
+            try {
+                const response = await fetch('/api/generate_article', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic: topic })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentGeneratedArticle = data.article;
+                    document.getElementById('generatedArticle').innerHTML = escapeHtml(data.article).replace(/\n/g, '<br>');
+                    document.getElementById('wordCount').innerHTML = `<i class="fas fa-text-height"></i> 字數：${data.word_count}字`;
+                    document.getElementById('resultArea').style.display = 'block';
+                } else {
+                    alert('生成失敗：' + data.error);
+                }
+            } catch (error) {
+                console.error('生成文章失敗:', error);
+                alert('生成失敗，請稍後再試');
+            } finally {
+                document.getElementById('generateBtn').disabled = false;
+                document.getElementById('loadingArea').style.display = 'none';
+            }
+        }
+
+        async function saveAndPractice(type) {
+            const loginInfo = checkLogin();
+            if (!loginInfo) return;
+
+            let title, content, topic = '';
+
+            if (type === 'ai') {
+                if (!currentGeneratedArticle) {
+                    alert('請先生成文章');
+                    return;
+                }
+                title = document.getElementById('aiTitle').value.trim() || `${currentTopic} - ${new Date().toLocaleDateString()}`;
+                content = currentGeneratedArticle;
+                topic = currentTopic;
+            } else {
+                content = document.getElementById('manualContent').value.trim();
+                if (!content) {
+                    alert('請輸入文章內容');
+                    return;
+                }
+                title = document.getElementById('manualTitle').value.trim() || `我的文章 - ${new Date().toLocaleDateString()}`;
+            }
+
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 保存中...';
+
+            try {
+                const response = await fetch('/api/save_custom_article', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: loginInfo.userId,
+                        username: loginInfo.username,
+                        title: title,
+                        topic: topic,
+                        content: content,
+                        source_type: type
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = `/prose_reading?custom_id=${data.article_id}`;
+                } else {
+                    alert('保存失敗：' + data.error);
+                    btn.disabled = false;
+                    btn.innerHTML = type === 'ai' ? '<i class="fas fa-play"></i> 開始練習' : '<i class="fas fa-play"></i> 開始練習';
+                }
+            } catch (error) {
+                console.error('保存文章失敗:', error);
+                alert('保存失敗，請稍後再試');
+                btn.disabled = false;
+                btn.innerHTML = type === 'ai' ? '<i class="fas fa-play"></i> 開始練習' : '<i class="fas fa-play"></i> 開始練習';
+            }
+        }
+
+        function practiceArticle(articleId) {
+            window.location.href = `/prose_reading?custom_id=${articleId}`;
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        function toggleSideMenu() {
+            const panel = document.getElementById('sideMenuPanel');
+            const arrow = document.getElementById('sideMenuArrow');
+
+            panel.classList.toggle('open');
+            arrow.classList.toggle('rotate');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkLogin()) {
+                loadMyArticles();
+            }
+
+            document.getElementById('topicInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    generateArticle();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

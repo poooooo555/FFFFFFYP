@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聲母韻母 - 普通話練習平台</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/pinyin.css') }}">
+</head>
+<body>
+<div class="side-function-menu">
+    <button class="side-menu-toggle" onclick="toggleSideMenu()">
+        <span class="side-menu-text">功能選單</span>
+        <span id="sideMenuArrow" class="side-menu-arrow">▶</span>
+    </button>
+
+    <div id="sideMenuPanel" class="side-menu-panel">
+
+        <a href="/" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏠</div>
+                <span>主頁</span>
+            </div>
+        </a>
+
+        <a href="/listening" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon listening-icon side-icon"></div>
+                <span>聆聽練習</span>
+            </div>
+        </a>
+
+        <a href="/speaking" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon speaking-icon side-icon"></div>
+                <span>說話練習</span>
+            </div>
+        </a>
+
+        <a href="/prose_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon prose-icon side-icon"></div>
+                <span>散文朗讀</span>
+            </div>
+        </a>
+
+        <a href="/tones" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon tones-icon side-icon"></div>
+                <span>聲調</span>
+            </div>
+        </a>
+
+        <a href="/pinyin" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon pinyin-icon side-icon"></div>
+                <span>拼音</span>
+            </div>
+        </a>
+
+        <a href="/dictionary" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon dictionary-icon side-icon"></div>
+                <span>字典查詢</span>
+            </div>
+        </a>
+
+        <a href="/wrong_questions" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon wrong_questions side-icon"></div>
+                <span>錯題庫</span>
+            </div>
+        </a>
+
+        <a href="/custom_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon custom-icon side-icon"></div>
+                <span>自訂文章</span>
+            </div>
+        </a>
+
+        <a href="/pinyinTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔤</div>
+                <span>拼音訓練</span>
+            </div>
+        </a>
+
+        <a href="/tonesTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎵</div>
+                <span>聲調訓練</span>
+            </div>
+        </a>
+
+        <a href="/initialsTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎙️</div>
+                <span>聲母訓練</span>
+            </div>
+        </a>
+
+        <a href="/rank" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                <span>查看排名</span>
+            </div>
+        </a>
+
+        <a href="/password" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔒</div>
+                <span>更改密碼</span>
+            </div>
+        </a>
+
+        <a href="/contactus" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">📩</div>
+                <span>聯繫我們</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+    <div class="container">
+        <header class="page-header">
+            <a href="/" class="back-btn">返回首頁</a>
+            <h1>聲母與韻母</h1>
+        </header>
+
+        <div class="content-area">
+            <div class="section">
+                <h2>聲母 (Initials) - 23個</h2>
+                <p>聲母是音節開頭的輔音，普通話中共有23個聲母。</p>
+                <div class="pinyin-grid">
+                    {% for initial in initials %}
+                    <div class="pinyin-item initials" onclick="playPinyinSound('initials', '{{ initial }}')">
+                        {{ initial }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>韻母 (Finals) - 24個</h2>
+                <p>韻母是音節中聲母後面的部分，普通話中共有24個韻母。</p>
+                <div class="pinyin-grid">
+                    {% for final in finals %}
+                    <div class="pinyin-item finals" onclick="playPinyinSound('finals', '{{ final }}')">
+                        {{ final }}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="demo-controls">
+                <button onclick="playAllInitials()" class="demo-btn">連續播放所有聲母</button>
+                <button onclick="playAllFinals()" class="demo-btn">連續播放所有韻母</button>
+            </div>
+
+            <div class="audio-controls">
+                <audio id="audioPlayer" controls></audio>
+            </div>
+
+            <div id="userGuideModal" class="modal">
+              <div class="modal-content">
+                <h2>使用指南</h2>
+                <ol>
+                  <li>點擊聲母或韻母</li>
+                  <li>會讀出對應的聲母或韻母</li>
+                </ol>
+                <button onclick="closeGuide()">我知道了</button>
+                <label>
+                  <input type="checkbox" id="dontShowAgain"> 不再顯示
+                </label>
+              </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Pinyin to audio files
+        const pinyinMap = {
+            'initials': {
+                'ü': 'v'
+            },
+            'finals': {
+                'ü': 'v',
+                'üe': 've',
+                'ün': 'vn'
+            }
+        };
+
+        function playPinyinSound(type, pinyin) {
+            // Handel special character
+            let audioFile = pinyin;
+            if (type in pinyinMap && pinyin in pinyinMap[type]) {
+                audioFile = pinyinMap[type][pinyin];
+            }
+
+            const audioPath = `/static/audio/pinyin/${type}/${audioFile}.mp3`;
+            const audioPlayer = document.getElementById('audioPlayer');
+
+            console.log(`播放音頻: ${audioPath}`);
+
+            audioPlayer.src = audioPath;
+            audioPlayer.play().catch(error => {
+                console.error('播放失敗:', error);
+                alert(`音頻文件未找到: ${audioFile}.mp3\n請確保文件已放置在正確位置。`);
+            });
+        }
+
+        // Play all initials continuously
+        function playAllInitials() {
+            const initials = {{ initials | tojson }};
+            playSequence('initials', initials, 0);
+        }
+
+        // Play all vowels continuously
+        function playAllFinals() {
+            const finals = {{ finals | tojson }};
+            playSequence('finals', finals, 0);
+        }
+
+        function playSequence(type, items, index) {
+            if (index >= items.length) return;
+
+            const item = items[index];
+            playPinyinSound(type, item);
+
+            // Highlight currently playing item
+            highlightCurrentItem(type, item);
+
+            // Set the next playback
+            setTimeout(() => {
+                playSequence(type, items, index + 1);
+            }, 2000);
+        }
+
+        function highlightCurrentItem(type, item) {
+            // delete highlight
+            document.querySelectorAll('.pinyin-item').forEach(el => {
+                el.classList.remove('playing');
+            });
+
+            // Highlight current item
+            const selector = `.pinyin-item.${type}[onclick*="${item}"]`;
+            const element = document.querySelector(selector);
+            if (element) {
+                element.classList.add('playing');
+
+                // delete highlight
+                setTimeout(() => {
+                    element.classList.remove('playing');
+                }, 1900);
+            }
+        }
+
+        // Keyboard shortcut support
+        document.addEventListener('keydown', function(event) {
+            // Spacebar pause/play
+            if (event.code === 'Space') {
+                event.preventDefault();
+                const audioPlayer = document.getElementById('audioPlayer');
+                if (audioPlayer.paused) {
+                    audioPlayer.play();
+                } else {
+                    audioPlayer.pause();
+                }
+            }
+        });
+
+       function showGuide() {
+            if (localStorage.getItem("hideGuide") !== "true") {
+                const modal = document.getElementById("userGuideModal");
+                modal.style.display = "flex";  // 關鍵：使用 flex 而不是 block
+            }
+        }
+
+        function closeGuide() {
+          if (document.getElementById("dontShowAgain").checked) {
+            localStorage.setItem("hideGuide", "true");
+          }
+          document.getElementById("userGuideModal").style.display = "none";
+        }
+
+        window.onload = showGuide;
+
+        function toggleSideMenu() {
+            const panel = document.getElementById('sideMenuPanel');
+            const arrow = document.getElementById('sideMenuArrow');
+
+            panel.classList.toggle('open');
+            arrow.classList.toggle('rotate');
+        }
+
+    </script>
+</body>
+</html>

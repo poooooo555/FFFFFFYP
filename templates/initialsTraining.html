@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>普通話聲母發音訓練</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft JhengHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+
+        .instructions {
+            background: #e8f4fc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid #3498db;
+        }
+
+        .instructions h3 {
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .filter-section h3 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            background: #ecf0f1;
+            border: 2px solid #bdc3c7;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: #d5dbdb;
+        }
+
+        .filter-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .initials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .initial-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .initial-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .initial-symbol {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .initial-name {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        .example-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .example-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.3rem;
+            border-left: 4px solid #3498db;
+            transition: background 0.2s ease;
+        }
+
+        .example-item:hover {
+            background: #e9f7fe;
+        }
+
+        .pinyin {
+            display: block;
+            font-size: 0.9rem;
+            color: #e74c3c;
+            margin-top: 5px;
+            font-weight: bold;
+        }
+
+        .pronunciation-hint {
+            margin-top: 15px;
+            padding: 12px;
+            background: #fef9e7;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            border-left: 4px solid #f1c40f;
+        }
+
+        .pronunciation-hint h4 {
+            color: #d35400;
+            margin-bottom: 8px;
+        }
+
+        .practice-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.3s ease;
+        }
+
+        .practice-btn:hover {
+            background: #27ae60;
+        }
+
+        .audio-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f4f6f6;
+            border-radius: 8px;
+        }
+
+        .audio-btn {
+            padding: 10px 20px;
+            background: #9b59b6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-right: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .audio-btn:hover {
+            background: #8e44ad;
+        }
+
+        .highlight-ao {
+            background-color: #e8f6f3;
+            border-left-color: #1abc9c;
+        }
+
+        .highlight-ai {
+            background-color: #fdedec;
+            border-left-color: #e74c3c;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #3498db;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+
+        @media (max-width: 768px) {
+            .initials-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+
+            .example-list {
+                grid-template-columns: 1fr;
+            }
+        }
+        .side-function-menu {
+    position: fixed;
+    top: 180px;
+    left: 0;
+    z-index: 999;
+    display: flex;
+    align-items: flex-start;
+}
+
+/* 收起时显示的按钮 */
+.side-menu-toggle {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    border: none;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 16px 10px;
+    border-radius: 0 14px 14px 0;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 140px;
+}
+
+.side-menu-toggle:hover {
+    background: linear-gradient(135deg, #2980b9, #1f6fa5);
+}
+
+.side-menu-text {
+    letter-spacing: 2px;
+}
+
+.side-menu-arrow {
+    writing-mode: initial;
+    text-orientation: initial;
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.side-menu-arrow.rotate {
+    transform: rotate(90deg);
+}
+
+/* 展开的面板 */
+.side-menu-panel {
+    width: 0;
+    overflow: hidden;
+    background: white;
+    border-radius: 0 16px 16px 0;
+    box-shadow: 6px 8px 24px rgba(0, 0, 0, 0.12);
+    transition: width 0.3s ease, padding 0.3s ease;
+    padding: 0;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* 展开状态 */
+.side-menu-panel.open {
+    width: 240px;
+    padding: 14px;
+}
+
+/* 每个项目 */
+.side-menu-item {
+    display: block;
+    text-decoration: none;
+    color: #2c3e50;
+    background: #f8fbff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+}
+
+.side-menu-item:last-child {
+    margin-bottom: 0;
+}
+
+.side-menu-item:hover {
+    background: #eef6ff;
+    border-color: #3498db;
+    transform: translateX(4px);
+}
+
+.side-menu-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.side-menu-item-left span {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* 左侧菜单图示尺寸，不影响你原本 nav-icon */
+.side-icon {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+/* 手机版避免遮挡内容 */
+@media (max-width: 768px) {
+    .side-function-menu {
+        top: 140px;
+    }
+
+    .side-menu-panel.open {
+        width: 200px;
+    }
+
+    .side-menu-toggle {
+        min-height: 120px;
+        font-size: 14px;
+        padding: 12px 8px;
+    }
+
+    .side-menu-item-left span {
+        font-size: 14px;
+    }
+
+    .side-icon {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+    </style>
+</head>
+<body>
+<div class="side-function-menu">
+    <button class="side-menu-toggle" onclick="toggleSideMenu()">
+        <span class="side-menu-text">功能選單</span>
+        <span id="sideMenuArrow" class="side-menu-arrow">▶</span>
+    </button>
+
+    <div id="sideMenuPanel" class="side-menu-panel">
+
+        <a href="/" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏠</div>
+                <span>主頁</span>
+            </div>
+        </a>
+
+        <a href="/listening" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon listening-icon side-icon"></div>
+                <span>聆聽練習</span>
+            </div>
+        </a>
+
+        <a href="/speaking" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon speaking-icon side-icon"></div>
+                <span>說話練習</span>
+            </div>
+        </a>
+
+        <a href="/prose_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon prose-icon side-icon"></div>
+                <span>散文朗讀</span>
+            </div>
+        </a>
+
+        <a href="/tones" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon tones-icon side-icon"></div>
+                <span>聲調</span>
+            </div>
+        </a>
+
+        <a href="/pinyin" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon pinyin-icon side-icon"></div>
+                <span>拼音</span>
+            </div>
+        </a>
+
+        <a href="/dictionary" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon dictionary-icon side-icon"></div>
+                <span>字典查詢</span>
+            </div>
+        </a>
+
+        <a href="/wrong_questions" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon wrong_questions side-icon"></div>
+                <span>錯題庫</span>
+            </div>
+        </a>
+
+        <a href="/custom_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon custom-icon side-icon"></div>
+                <span>自訂文章</span>
+            </div>
+        </a>
+
+        <a href="/pinyinTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔤</div>
+                <span>拼音訓練</span>
+            </div>
+        </a>
+
+        <a href="/tonesTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎵</div>
+                <span>聲調訓練</span>
+            </div>
+        </a>
+
+        <a href="/initialsTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎙️</div>
+                <span>聲母訓練</span>
+            </div>
+        </a>
+
+        <a href="/rank" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                <span>查看排名</span>
+            </div>
+        </a>
+
+        <a href="/password" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔒</div>
+                <span>更改密碼</span>
+            </div>
+        </a>
+
+        <a href="/contactus" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">📩</div>
+                <span>聯繫我們</span>
+            </div>
+        </a>
+    </div>
+</div>
+    <div class="container">
+        <header>
+            <h1>普通話聲母發音訓練</h1>
+            <p class="subtitle">包含所有21個聲母，每個聲母提供10個範例字詞</p>
+            <a href="/" class="back-link">← 返回主頁</a>
+        </header>
+
+        <div class="instructions">
+            <h3>使用說明</h3>
+            <p>1. 每個聲母卡片包含10個範例字，涵蓋不同韻母組合（包括ao、ai等）</p>
+            <p>2. 點擊「播放發音」按鈕可聆聽標準普通話發音</p>
+            <p>3. 使用篩選按鈕可快速找到包含特定韻母的聲母練習</p>
+            <p>4. 每個範例字包含拼音標注，紅色拼音為ao/ai韻母</p>
+        </div>
+
+        <div class="filter-section">
+            <h3>快速篩選</h3>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">全部聲母</button>
+                <button class="filter-btn" data-filter="ao">包含 ao 韻母</button>
+                <button class="filter-btn" data-filter="ai">包含 ai 韻母</button>
+                <button class="filter-btn" data-filter="difficult">難點聲母(難點聲母) (zh/ch/sh/z/c/s)</button>
+            </div>
+        </div>
+
+        <div class="initials-grid" id="initialsContainer">
+
+        </div>
+
+        <footer>
+            <p>普通話水平測試訓練工具 | 專為粵語使用者設計</p>
+        </footer>
+    </div>
+
+    <script>
+        const initialsData = [
+            {
+                symbol: "b",
+                name: "雙唇不送氣清塞音",
+                examples: [
+                    { char: "包", pinyin: "bāo", hint: "包含ao韻母" },
+                    { char: "白", pinyin: "bái", hint: "包含ai韻母" },
+                    { char: "本", pinyin: "běn" },
+                    { char: "比", pinyin: "bǐ" },
+                    { char: "報", pinyin: "bào", hint: "包含ao韻母" },
+                    { char: "百", pinyin: "bǎi", hint: "包含ai韻母" },
+                    { char: "幫", pinyin: "bāng" },
+                    { char: "北", pinyin: "běi", hint: "包含ei韻母" },
+                    { char: "賓", pinyin: "bīn" },
+                    { char: "表", pinyin: "biǎo", hint: "包含iao韻母" }
+                ],
+                hint: "雙唇緊閉，然後突然打開，氣流衝出，聲帶不振動。"
+            },
+            {
+                symbol: "p",
+                name: "雙唇送氣清塞音",
+                examples: [
+                    { char: "跑", pinyin: "pǎo", hint: "包含ao韻母" },
+                    { char: "拍", pinyin: "pāi", hint: "包含ai韻母" },
+                    { char: "朋", pinyin: "péng" },
+                    { char: "皮", pinyin: "pí" },
+                    { char: "炮", pinyin: "pào", hint: "包含ao韻母" },
+                    { char: "排", pinyin: "pái", hint: "包含ai韻母" },
+                    { char: "旁", pinyin: "páng" },
+                    { char: "配", pinyin: "pèi", hint: "包含ei韻母" },
+                    { char: "品", pinyin: "pǐn" },
+                    { char: "票", pinyin: "piào", hint: "包含iao韻母" }
+                ],
+                hint: "發音部位與b相同，但氣流較強，送氣明顯。"
+            },
+            {
+                symbol: "m",
+                name: "雙唇鼻音",
+                examples: [
+                    { char: "貓", pinyin: "māo", hint: "包含ao韻母" },
+                    { char: "買", pinyin: "mǎi", hint: "包含ai韻母" },
+                    { char: "門", pinyin: "mén" },
+                    { char: "米", pinyin: "mǐ" },
+                    { char: "毛", pinyin: "máo", hint: "包含ao韻母" },
+                    { char: "賣", pinyin: "mài", hint: "包含ai韻母" },
+                    { char: "忙", pinyin: "máng" },
+                    { char: "美", pinyin: "měi", hint: "包含ei韻母" },
+                    { char: "民", pinyin: "mín" },
+                    { char: "苗", pinyin: "miáo", hint: "包含iao韻母" }
+                ],
+                hint: "雙唇緊閉，軟腭下降，氣流從鼻腔流出，聲帶振動。"
+            },
+            {
+                symbol: "f",
+                name: "唇齒清擦音",
+                examples: [
+                    { char: "飛", pinyin: "fēi", hint: "包含ei韻母" },
+                    { char: "方", pinyin: "fāng" },
+                    { char: "風", pinyin: "fēng" },
+                    { char: "佛", pinyin: "fó" },
+                    { char: "發", pinyin: "fā" },
+                    { char: "分", pinyin: "fēn" },
+                    { char: "服", pinyin: "fú" },
+                    { char: "反", pinyin: "fǎn" },
+                    { char: "富", pinyin: "fù" },
+                    { char: "飯", pinyin: "fàn" }
+                ],
+                hint: "上齒輕觸下唇，氣流從唇齒間摩擦而出，聲帶不振動。"
+            },
+            {
+                symbol: "d",
+                name: "舌尖中不送氣清塞音",
+                examples: [
+                    { char: "刀", pinyin: "dāo", hint: "包含ao韻母" },
+                    { char: "帶", pinyin: "dài", hint: "包含ai韻母" },
+                    { char: "的", pinyin: "de" },
+                    { char: "大", pinyin: "dà" },
+                    { char: "到", pinyin: "dào", hint: "包含ao韻母" },
+                    { char: "代", pinyin: "dài", hint: "包含ai韻母" },
+                    { char: "當", pinyin: "dāng" },
+                    { char: "得", pinyin: "dé" },
+                    { char: "點", pinyin: "diǎn" },
+                    { char: "掉", pinyin: "diào", hint: "包含iao韻母" }
+                ],
+                hint: "舌尖抵住上齒齦，然後突然打開，氣流衝出，聲帶不振動。"
+            },
+            {
+                symbol: "t",
+                name: "舌尖中送氣清塞音",
+                examples: [
+                    { char: "桃", pinyin: "táo", hint: "包含ao韻母" },
+                    { char: "太", pinyin: "tài", hint: "包含ai韻母" },
+                    { char: "天", pinyin: "tiān" },
+                    { char: "同", pinyin: "tóng" },
+                    { char: "套", pinyin: "tào", hint: "包含ao韻母" },
+                    { char: "台", pinyin: "tái", hint: "包含ai韻母" },
+                    { char: "糖", pinyin: "táng" },
+                    { char: "特", pinyin: "tè" },
+                    { char: "聽", pinyin: "tīng" },
+                    { char: "條", pinyin: "tiáo", hint: "包含iao韻母" }
+                ],
+                hint: "發音部位與d相同，但氣流較強，送氣明顯。"
+            },
+            {
+                symbol: "n",
+                name: "舌尖中鼻音",
+                examples: [
+                    { char: "腦", pinyin: "nǎo", hint: "包含ao韻母" },
+                    { char: "乃", pinyin: "nǎi", hint: "包含ai韻母" },
+                    { char: "你", pinyin: "nǐ" },
+                    { char: "年", pinyin: "nián" },
+                    { char: "鬧", pinyin: "nào", hint: "包含ao韻母" },
+                    { char: "耐", pinyin: "nài", hint: "包含ai韻母" },
+                    { char: "能", pinyin: "néng" },
+                    { char: "內", pinyin: "nèi", hint: "包含ei韻母" },
+                    { char: "女", pinyin: "nǚ" },
+                    { char: "鳥", pinyin: "niǎo", hint: "包含iao韻母" }
+                ],
+                hint: "舌尖抵住上齒齦，軟腭下降，氣流從鼻腔流出，聲帶振動。"
+            },
+            {
+                symbol: "l",
+                name: "舌尖中邊音",
+                examples: [
+                    { char: "老", pinyin: "lǎo", hint: "包含ao韻母" },
+                    { char: "來", pinyin: "lái", hint: "包含ai韻母" },
+                    { char: "了", pinyin: "le" },
+                    { char: "里", pinyin: "lǐ" },
+                    { char: "勞", pinyin: "láo", hint: "包含ao韻母" },
+                    { char: "賴", pinyin: "lài", hint: "包含ai韻母" },
+                    { char: "龍", pinyin: "lóng" },
+                    { char: "類", pinyin: "lèi", hint: "包含ei韻母" },
+                    { char: "兩", pinyin: "liǎng" },
+                    { char: "了", pinyin: "liǎo", hint: "包含iao韻母" }
+                ],
+                hint: "舌尖抵住上齒齦，氣流從舌頭兩邊流出，聲帶振動。"
+            },
+            {
+                symbol: "g",
+                name: "舌根不送氣清塞音",
+                examples: [
+                    { char: "高", pinyin: "gāo", hint: "包含ao韻母" },
+                    { char: "該", pinyin: "gāi", hint: "包含ai韻母" },
+                    { char: "個", pinyin: "gè" },
+                    { char: "國", pinyin: "guó" },
+                    { char: "告", pinyin: "gào", hint: "包含ao韻母" },
+                    { char: "改", pinyin: "gǎi", hint: "包含ai韻母" },
+                    { char: "剛", pinyin: "gāng" },
+                    { char: "給", pinyin: "gěi", hint: "包含ei韻母" },
+                    { char: "工", pinyin: "gōng" },
+                    { char: "關", pinyin: "guān" }
+                ],
+                hint: "舌根抵住軟腭，然後突然打開，氣流衝出，聲帶不振動。"
+            },
+            {
+                symbol: "k",
+                name: "舌根送氣清塞音",
+                examples: [
+                    { char: "考", pinyin: "kǎo", hint: "包含ao韻母" },
+                    { char: "開", pinyin: "kāi", hint: "包含ai韻母" },
+                    { char: "可", pinyin: "kě" },
+                    { char: "口", pinyin: "kǒu" },
+                    { char: "靠", pinyin: "kào", hint: "包含ao韻母" },
+                    { char: "凱", pinyin: "kǎi", hint: "包含ai韻母" },
+                    { char: "康", pinyin: "kāng" },
+                    { char: "克", pinyin: "kè" },
+                    { char: "空", pinyin: "kōng" },
+                    { char: "快", pinyin: "kuài", hint: "包含uai韻母" }
+                ],
+                hint: "發音部位與g相同，但氣流較強，送氣明顯。"
+            },
+            {
+                symbol: "h",
+                name: "舌根清擦音",
+                examples: [
+                    { char: "好", pinyin: "hǎo", hint: "包含ao韻母" },
+                    { char: "海", pinyin: "hǎi", hint: "包含ai韻母" },
+                    { char: "和", pinyin: "hé" },
+                    { char: "會", pinyin: "huì" },
+                    { char: "號", pinyin: "hào", hint: "包含ao韻母" },
+                    { char: "害", pinyin: "hài", hint: "包含ai韻母" },
+                    { char: "行", pinyin: "háng" },
+                    { char: "黑", pinyin: "hēi", hint: "包含ei韻母" },
+                    { char: "紅", pinyin: "hóng" },
+                    { char: "回", pinyin: "huí" }
+                ],
+                hint: "舌根接近軟腭，氣流從中間摩擦而出，聲帶不振動。"
+            },
+            {
+                symbol: "j",
+                name: "舌面不送氣清塞擦音",
+                examples: [
+                    { char: "叫", pinyin: "jiào", hint: "包含iao韻母" },
+                    { char: "家", pinyin: "jiā" },
+                    { char: "就", pinyin: "jiù" },
+                    { char: "見", pinyin: "jiàn" },
+                    { char: "教", pinyin: "jiāo", hint: "包含iao韻母" },
+                    { char: "街", pinyin: "jiē" },
+                    { char: "經", pinyin: "jīng" },
+                    { char: "覺", pinyin: "jué" },
+                    { char: "金", pinyin: "jīn" },
+                    { char: "決", pinyin: "jué" }
+                ],
+                hint: "舌面前部抵住硬腭前部，然後稍微離開，氣流從窄縫中擠出，聲帶不振動。"
+            },
+            {
+                symbol: "q",
+                name: "舌面送氣清塞擦音",
+                examples: [
+                    { char: "巧", pinyin: "qiǎo", hint: "包含iao韻母" },
+                    { char: "七", pinyin: "qī" },
+                    { char: "去", pinyin: "qù" },
+                    { char: "前", pinyin: "qián" },
+                    { char: "橋", pinyin: "qiáo", hint: "包含iao韻母" },
+                    { char: "氣", pinyin: "qì" },
+                    { char: "請", pinyin: "qǐng" },
+                    { char: "全", pinyin: "quán" },
+                    { char: "親", pinyin: "qīn" },
+                    { char: "卻", pinyin: "què" }
+                ],
+                hint: "發音部位與j相同，但氣流較強，送氣明顯。"
+            },
+            {
+                symbol: "x",
+                name: "舌面清擦音",
+                examples: [
+                    { char: "小", pinyin: "xiǎo", hint: "包含iao韻母" },
+                    { char: "西", pinyin: "xī" },
+                    { char: "學", pinyin: "xué" },
+                    { char: "想", pinyin: "xiǎng" },
+                    { char: "校", pinyin: "xiào", hint: "包含iao韻母" },
+                    { char: "下", pinyin: "xià" },
+                    { char: "新", pinyin: "xīn" },
+                    { char: "心", pinyin: "xīn" },
+                    { char: "選", pinyin: "xuǎn" },
+                    { char: "雪", pinyin: "xuě" }
+                ],
+                hint: "舌面前部接近硬腭前部，氣流從窄縫中摩擦而出，聲帶不振動。"
+            },
+            {
+                symbol: "zh",
+                name: "舌尖後不送氣清塞擦音",
+                examples: [
+                    { char: "找", pinyin: "zhǎo", hint: "包含ao韻母" },
+                    { char: "摘", pinyin: "zhāi", hint: "包含ai韻母" },
+                    { char: "這", pinyin: "zhè" },
+                    { char: "中", pinyin: "zhōng" },
+                    { char: "照", pinyin: "zhào", hint: "包含ao韻母" },
+                    { char: "債", pinyin: "zhài", hint: "包含ai韻母" },
+                    { char: "真", pinyin: "zhēn" },
+                    { char: "主", pinyin: "zhǔ" },
+                    { char: "正", pinyin: "zhèng" },
+                    { char: "轉", pinyin: "zhuǎn" }
+                ],
+                hint: "舌尖翹起抵住硬腭前部，然後稍微離開，氣流從窄縫中擠出，聲帶不振動。"
+            },
+            {
+                symbol: "ch",
+                name: "舌尖後送氣清塞擦音",
+                examples: [
+                    { char: "超", pinyin: "chāo", hint: "包含ao韻母" },
+                    { char: "柴", pinyin: "chái", hint: "包含ai韻母" },
+                    { char: "出", pinyin: "chū" },
+                    { char: "車", pinyin: "chē" },
+                    { char: "炒", pinyin: "chǎo", hint: "包含ao韻母" },
+                    { char: "拆", pinyin: "chāi", hint: "包含ai韻母" },
+                    { char: "成", pinyin: "chéng" },
+                    { char: "吃", pinyin: "chī" },
+                    { char: "長", pinyin: "cháng" },
+                    { char: "傳", pinyin: "chuán" }
+                ],
+                hint: "發音部位與zh相同，但氣流較強，送氣明顯。"
+            },
+            {
+                symbol: "sh",
+                name: "舌尖後清擦音",
+                examples: [
+                    { char: "少", pinyin: "shǎo", hint: "包含ao韻母" },
+                    { char: "曬", pinyin: "shài", hint: "包含ai韻母" },
+                    { char: "是", pinyin: "shì" },
+                    { char: "上", pinyin: "shàng" },
+                    { char: "紹", pinyin: "shào", hint: "包含ao韻母" },
+                    { char: "篩", pinyin: "shāi", hint: "包含ai韻母" },
+                    { char: "生", pinyin: "shēng" },
+                    { char: "說", pinyin: "shuō" },
+                    { char: "身", pinyin: "shēn" },
+                    { char: "水", pinyin: "shuǐ" }
+                ],
+                hint: "舌尖翹起接近硬腭前部，氣流從窄縫中摩擦而出，聲帶不振動。"
+            },
+            {
+                symbol: "r",
+                name: "舌尖後濁擦音",
+                examples: [
+                    { char: "繞", pinyin: "rào", hint: "包含ao韻母" },
+                    { char: "熱", pinyin: "rè" },
+                    { char: "人", pinyin: "rén" },
+                    { char: "日", pinyin: "rì" },
+                    { char: "讓", pinyin: "ràng" },
+                    { char: "如", pinyin: "rú" },
+                    { char: "容", pinyin: "róng" },
+                    { char: "軟", pinyin: "ruǎn" },
+                    { char: "認", pinyin: "rèn" },
+                    { char: "然", pinyin: "rán" }
+                ],
+                hint: "發音部位與sh相同，但聲帶振動，是濁音。"
+            },
+            {
+                symbol: "z",
+                name: "舌尖前不送氣清塞擦音",
+                examples: [
+                    { char: "早", pinyin: "zǎo", hint: "包含ao韻母" },
+                    { char: "在", pinyin: "zài", hint: "包含ai韻母" },
+                    { char: "子", pinyin: "zi" },
+                    { char: "走", pinyin: "zǒu" },
+                    { char: "造", pinyin: "zào", hint: "包含ao韻母" },
+                    { char: "災", pinyin: "zāi", hint: "包含ai韻母" },
+                    { char: "總", pinyin: "zǒng" },
+                    { char: "最", pinyin: "zuì", hint: "包含ui韻母" },
+                    { char: "作", pinyin: "zuò" },
+                    { char: "怎", pinyin: "zěn" }
+                ],
+                hint: "舌尖抵住上齒背，然後稍微離開，氣流從窄縫中擠出，聲帶不振動。"
+            },
+            {
+                symbol: "c",
+                name: "舌尖前送氣清塞擦音",
+                examples: [
+                    { char: "草", pinyin: "cǎo", hint: "包含ao韻母" },
+                    { char: "菜", pinyin: "cài", hint: "包含ai韻母" },
+                    { char: "次", pinyin: "cì" },
+                    { char: "從", pinyin: "cóng" },
+                    { char: "操", pinyin: "cāo", hint: "包含ao韻母" },
+                    { char: "才", pinyin: "cái", hint: "包含ai韻母" },
+                    { char: "層", pinyin: "céng" },
+                    { char: "村", pinyin: "cūn" },
+                    { char: "錯", pinyin: "cuò" },
+                    { char: "參", pinyin: "cān" }
+                ],
+                hint: "發音部位與z相同，但氣流較強，送氣明顯。"
+            },
+            {
+                symbol: "s",
+                name: "舌尖前清擦音",
+                examples: [
+                    { char: "掃", pinyin: "sǎo", hint: "包含ao韻母" },
+                    { char: "賽", pinyin: "sài", hint: "包含ai韻母" },
+                    { char: "四", pinyin: "sì" },
+                    { char: "三", pinyin: "sān" },
+                    { char: "嫂", pinyin: "sǎo", hint: "包含ao韻母" },
+                    { char: "腮", pinyin: "sāi", hint: "包含ai韻母" },
+                    { char: "送", pinyin: "sòng" },
+                    { char: "歲", pinyin: "suì", hint: "包含ui韻母" },
+                    { char: "色", pinyin: "sè" },
+                    { char: "所", pinyin: "suǒ" }
+                ],
+                hint: "舌尖接近上齒背，氣流從窄縫中摩擦而出，聲帶不振動。"
+            }
+        ];
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderInitials(initialsData);
+            setupFilterButtons();
+        });
+
+        // Rendering initial consonant cards
+        function renderInitials(data) {
+            const container = document.getElementById('initialsContainer');
+            container.innerHTML = '';
+
+            data.forEach(initial => {
+                const card = document.createElement('div');
+                card.className = 'initial-card';
+                card.dataset.initial = initial.symbol;
+
+                // Check if it contains the vowel letters ao or ai.
+                const hasAO = initial.examples.some(example =>
+                    example.pinyin.includes('ao') || example.pinyin.includes('āo') ||
+                    example.pinyin.includes('áo') || example.pinyin.includes('ǎo') ||
+                    example.pinyin.includes('ào')
+                );
+
+                const hasAI = initial.examples.some(example =>
+                    example.pinyin.includes('ai') || example.pinyin.includes('āi') ||
+                    example.pinyin.includes('ái') || example.pinyin.includes('ǎi') ||
+                    example.pinyin.includes('ài')
+                );
+
+                card.dataset.hasAO = hasAO;
+                card.dataset.hasAI = hasAI;
+
+                // Determine if it is a difficult initial consonant
+                const difficultInitials = ['zh', 'ch', 'sh', 'z', 'c', 's'];
+                card.dataset.isDifficult = difficultInitials.includes(initial.symbol);
+
+                // Build a sample character HTML
+                let examplesHTML = '';
+                initial.examples.forEach(example => {
+                    // Check if pinyin has "ao" or "ai"
+                    const isAO = example.pinyin.includes('ao') || example.pinyin.includes('āo') ||
+                                example.pinyin.includes('áo') || example.pinyin.includes('ǎo') ||
+                                example.pinyin.includes('ào');
+                    const isAI = example.pinyin.includes('ai') || example.pinyin.includes('āi') ||
+                                example.pinyin.includes('ái') || example.pinyin.includes('ǎi') ||
+                                example.pinyin.includes('ài');
+
+                    let exampleClass = 'example-item';
+                    if (isAO) exampleClass += ' highlight-ao';
+                    if (isAI) exampleClass += ' highlight-ai';
+
+                    examplesHTML += `
+                        <div class="${exampleClass}">
+                            ${example.char}
+                            <span class="pinyin">${example.pinyin}</span>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="initial-symbol">${initial.symbol}</div>
+                        <div class="initial-name">${initial.name}</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="example-list">
+                            ${examplesHTML}
+                        </div>
+                        <div class="pronunciation-hint">
+                            <h4>發音要領</h4>
+                            <p>${initial.hint}</p>
+                        </div>
+                        <div class="audio-section">
+                            <button class="audio-btn" onclick="playExamples(['${initial.examples.map(e => e.char).join("','")}'])">播放範例</button>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Set up filter button
+        function setupFilterButtons() {
+            const filterButtons = document.querySelectorAll('.filter-btn');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to current button
+                    this.classList.add('active');
+
+                    const filter = this.dataset.filter;
+                    filterInitials(filter);
+                });
+            });
+        }
+
+        // Filter initials
+        function filterInitials(filter) {
+            const cards = document.querySelectorAll('.initial-card');
+
+            cards.forEach(card => {
+                let showCard = true;
+
+                switch(filter) {
+                    case 'ao':
+                        showCard = card.dataset.hasAO === 'true';
+                        break;
+                    case 'ai':
+                        showCard = card.dataset.hasAI === 'true';
+                        break;
+                    case 'difficult':
+                        showCard = card.dataset.isDifficult === 'true';
+                        break;
+                    case 'all':
+                    default:
+                        showCard = true;
+                        break;
+                }
+
+                card.style.display = showCard ? 'block' : 'none';
+            });
+        }
+
+        // Play pronunciation function (mock)
+        function playInitial(initial) {
+            // Connect Voice API
+            const msg = new SpeechSynthesisUtterance(`${initial}`);
+            msg.lang = 'zh-CN';
+            msg.rate = 0.8;
+            window.speechSynthesis.speak(msg);
+
+        }
+
+        function playExamples(chars) {
+            // Connect Voice API
+            const words = Array.isArray(chars) ? chars : [chars];
+            words.forEach((char, index) => {
+                setTimeout(() => {
+                    const msg = new SpeechSynthesisUtterance(char);
+                    msg.lang = 'zh-CN';
+                    msg.rate = 0.8;
+                    window.speechSynthesis.speak(msg);
+                }, index * 800);
+            });
+
+        }
+        function showGuide() {
+  if (!localStorage.getItem("hideGuide")) {
+    document.getElementById("userGuideModal").style.display = "block";
+  }
+}
+
+function closeGuide() {
+  if (document.getElementById("dontShowAgain").checked) {
+    localStorage.setItem("hideGuide", "true");
+  }
+  document.getElementById("userGuideModal").style.display = "none";
+}
+
+window.onload = showGuide;
+
+        function toggleSideMenu() {
+            const panel = document.getElementById('sideMenuPanel');
+            const arrow = document.getElementById('sideMenuArrow');
+
+            panel.classList.toggle('open');
+            arrow.classList.toggle('rotate');
+        }
+
+    </script>
+</body>
+</html>

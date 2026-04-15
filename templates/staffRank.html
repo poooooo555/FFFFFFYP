@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>職員排名榜 - 普通話練習平台</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #eef5ff 0%, #d9eaff 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+
+        .rank-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 32px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(52, 152, 219, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #1e6f9f, #2980b9);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back {
+            background: #666;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background: #444;
+        }
+
+        .search-card {
+            background: white;
+            border-radius: 28px;
+            padding: 24px 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+            border: 1px solid #cde4f5;
+        }
+
+        .search-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #1f5e8c;
+            margin-bottom: 20px;
+        }
+
+        .selector-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: flex-end;
+        }
+
+        .selector-item {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .selector-item label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #2c6b9e;
+            margin-bottom: 8px;
+        }
+
+        .selector-item select {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 1rem;
+            border: 1.5px solid #cde0ed;
+            border-radius: 40px;
+            background: #fefefe;
+            outline: none;
+            color: #1f3e53;
+            cursor: pointer;
+        }
+
+        .selector-item select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .selector-item input {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 1rem;
+            border: 1.5px solid #cde0ed;
+            border-radius: 40px;
+            background: #fefefe;
+            outline: none;
+            color: #1f3e53;
+        }
+
+        .selector-item input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .btn-primary {
+            background: #2980b9;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #1f6392;
+        }
+
+        .search-hint {
+            font-size: 0.8rem;
+            color: #5dade2;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .leaderboard-section {
+            background: white;
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        .leaderboard-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-align: center;
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid;
+        }
+
+        .leaderboard-title.pinyin { border-bottom-color: #3b82f6; color: #3b82f6; }
+        .leaderboard-title.speaking { border-bottom-color: #2c7da0; color: #2c7da0; }
+        .leaderboard-title.listening { border-bottom-color: #5dade2; color: #5dade2; }
+
+        .rank-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .rank-table th {
+            background: #eef3fc;
+            padding: 12px 10px;
+            text-align: center;
+            font-weight: 600;
+            color: #1f5e8c;
+            border-bottom: 1px solid #cde0ed;
+        }
+
+        .rank-table td {
+            padding: 10px 10px;
+            text-align: center;
+            border-bottom: 1px solid #e2edf7;
+            color: #2c5a7a;
+        }
+
+        .rank-table tr:hover {
+            background: #f0f7fe;
+        }
+
+        .rank-table .highlight-row {
+            background: #d4e6f5 !important;
+            font-weight: 600;
+            box-shadow: inset 0 0 0 1px #2980b9;
+        }
+
+        .rank-num {
+            font-weight: 700;
+            color: #1f6392;
+        }
+
+        .username-cell {
+            font-weight: 500;
+            text-align: left;
+            cursor: pointer;
+            color: #2980b9;
+        }
+
+        .username-cell span {
+            cursor: pointer;
+        }
+
+        .username-cell span:hover {
+            text-decoration: underline;
+        }
+
+        .accuracy-cell {
+            font-weight: 600;
+            color: #1e6f9f;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            color: #2c6b9e;
+        }
+
+        .error-msg {
+            background: #ffe6e5;
+            color: #b33;
+            padding: 12px 20px;
+            border-radius: 60px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .empty-table {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #5483a3;
+            font-size: 0.75rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 28px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 85vh;
+            overflow: auto;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2edf7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8fafc;
+            border-radius: 28px 28px 0 0;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .modal-header h3 {
+            color: #1e4663;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .trend-section {
+            margin-bottom: 32px;
+        }
+
+        .trend-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f5e8c;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #cde0ed;
+        }
+
+        .chart-scroll-wrapper {
+            overflow-x: auto;
+            overflow-y: hidden;
+            width: 100%;
+            border-radius: 16px;
+        }
+
+        .chart-container {
+            position: relative;
+            min-width: 700px;
+            height: 280px;
+        }
+
+        .no-data-trend {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            background: #f8fafc;
+            border-radius: 20px;
+        }
+
+        .scroll-hint {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #7f8c8d;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .scroll-hint i {
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .rank-table th, .rank-table td {
+                padding: 8px 5px;
+                font-size: 0.7rem;
+            }
+            .selector-group {
+                flex-direction: column;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .chart-container {
+                min-width: 500px;
+                height: 220px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="rank-container">
+    <div class="header">
+        <h1>排名</h1>
+        <div class="header-actions">
+            <button class="btn btn-back" onclick="window.location.href='/admin/dashboard'">
+                返回管理
+            </button>
+        </div>
+    </div>
+
+    <div class="search-card">
+        <div class="search-title">排名查詢</div>
+        <div class="selector-group">
+            <div class="selector-item">
+                <label>選擇練習類型</label>
+                <select id="rankTypeSelect">
+                    <option value="pinyin">拼音排名</option>
+                    <option value="speaking">說話排名</option>
+                    <option value="listening">聆聽排名</option>
+                </select>
+            </div>
+            <div class="selector-item">
+                <label>搜尋用戶 (ID或用戶名)</label>
+                <input type="text" id="searchInput" placeholder="輸入後會高亮對應用戶">
+            </div>
+            <div class="selector-item" style="flex: 0 0 auto;">
+                <label>&nbsp;</label>
+                <button id="searchBtn" class="btn-primary"> 搜尋</button>
+            </div>
+        </div>
+        <div class="search-hint">點擊用戶名稱查看練習趨勢</div>
+        <div id="searchError" class="error-msg" style="display: none;"></div>
+    </div>
+
+    <div class="leaderboard-section">
+        <div id="leaderboardTitle" class="leaderboard-title pinyin">拼音排名</div>
+        <div id="tableLoading" class="loading-spinner" style="display: none;">載入排行榜中...</div>
+        <div id="tableContainer">
+            <table class="rank-table" id="rankTable">
+                <thead id="tableHeader">
+                    <tr>
+                        <th>排名</th>
+                        <th>用戶名稱</th>
+                        <th>平均分數</th>
+                        <th>練習次數</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="4" class="empty-table">載入中...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="trendModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">用戶練習趨勢</h3>
+            <button class="close-modal" onclick="closeTrendModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <div class="loading-spinner">載入中...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let pinyinRankingList = [];
+    let speakingRankingList = [];
+    let listeningRankingList = [];
+    let currentRankType = 'pinyin';
+    let currentHighlightUserId = null;
+    let charts = {};
+
+    function showError(msg) {
+        const errDiv = document.getElementById('searchError');
+        errDiv.innerText = msg;
+        errDiv.style.display = 'block';
+        setTimeout(() => { errDiv.style.display = 'none'; }, 3000);
+    }
+
+    function clearHighlight() {
+        const tbody = document.getElementById('tableBody');
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(row => {
+            row.classList.remove('highlight-row');
+        });
+        currentHighlightUserId = null;
+    }
+
+    function highlightUserInTable(searchTerm) {
+        if (!searchTerm) {
+            showError('請輸入用戶 ID 或用戶名');
+            return false;
+        }
+
+        const tbody = document.getElementById('tableBody');
+        const rows = tbody.querySelectorAll('tr');
+
+        let found = false;
+        let matchedRow = null;
+
+        rows.forEach(row => {
+            const usernameCell = row.cells[1];
+            const username = usernameCell ? usernameCell.innerText : '';
+            const userId = row.getAttribute('data-user-id') || '';
+
+            if (username === searchTerm || userId === searchTerm) {
+                found = true;
+                matchedRow = row;
+            }
+        });
+
+        if (found && matchedRow) {
+            clearHighlight();
+            matchedRow.classList.add('highlight-row');
+            currentHighlightUserId = matchedRow.getAttribute('data-user-id');
+            matchedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return true;
+        } else {
+            showError(`找不到用戶: ${searchTerm}`);
+            return false;
+        }
+    }
+
+    function renderRankingTable(rankType, highlightUserId = null) {
+        let rankingList = [];
+        let titleText = '';
+        let titleClass = '';
+        let headers = [];
+
+        switch(rankType) {
+            case 'pinyin':
+                rankingList = pinyinRankingList;
+                titleText = '拼音排名';
+                titleClass = 'pinyin';
+                headers = ['排名', '用戶名稱', '拼音平均分數', '練習次數'];
+                break;
+            case 'speaking':
+                rankingList = speakingRankingList;
+                titleText = '說話排名';
+                titleClass = 'speaking';
+                headers = ['排名', '用戶名稱', '說話平均分數', '練習次數'];
+                break;
+            case 'listening':
+                rankingList = listeningRankingList;
+                titleText = '聆聽排名';
+                titleClass = 'listening';
+                headers = ['排名', '用戶名稱', '聆聽平均分數', '練習次數'];
+                break;
+        }
+
+        const titleDiv = document.getElementById('leaderboardTitle');
+        titleDiv.textContent = titleText;
+        titleDiv.className = `leaderboard-title ${titleClass}`;
+
+        const headerRow = document.getElementById('tableHeader');
+        headerRow.innerHTML = '';
+        const tr = document.createElement('tr');
+        headers.forEach(header => {
+            const th = document.createElement('th');
+            th.textContent = header;
+            tr.appendChild(th);
+        });
+        headerRow.appendChild(tr);
+
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        if (!rankingList || rankingList.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" class="empty-table">暫無排名數據</td></tr>';
+            return;
+        }
+
+        rankingList.forEach((user, idx) => {
+            const row = tbody.insertRow();
+            row.setAttribute('data-user-id', user.user_id);
+            if (highlightUserId && user.user_id === highlightUserId) {
+                row.classList.add('highlight-row');
+            }
+            row.insertCell(0).innerHTML = `<span class="rank-num">${idx + 1}</span>`;
+            const usernameCell = row.insertCell(1);
+            usernameCell.className = 'username-cell';
+            usernameCell.innerHTML = `<span onclick="showUserTrend('${user.user_id}', '${escapeHtml(user.username)}')">${escapeHtml(user.username)}</span>`;
+            row.insertCell(2).className = 'accuracy-cell';
+            row.insertCell(2).innerText = (user.accuracy || 0) + '分';
+            row.insertCell(3).innerText = user.total || 0;
+        });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function destroyCharts() {
+        for (let key in charts) {
+            if (charts[key]) {
+                charts[key].destroy();
+                charts[key] = null;
+            }
+        }
+        charts = {};
+    }
+
+    function createLineChart(canvasId, labels, dataPoints, color, labelName) {
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return null;
+
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: labelName,
+                    data: dataPoints,
+                    borderColor: color,
+                    backgroundColor: color + '20',
+                    borderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: color,
+                    pointBorderColor: 'white',
+                    pointBorderWidth: 2,
+                    tension: 0.2,
+                    fill: true,
+                    spanGaps: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: '分數',
+                            color: '#4a6f8f'
+                        },
+                        grid: {
+                            color: '#e2edf7'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '練習次數 (由舊到新)',
+                            color: '#4a6f8f'
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45,
+                            autoSkip: true,
+                            maxTicksLimit: 15
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.raw}分`;
+                            }
+                        }
+                    },
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            boxWidth: 12,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    async function showUserTrend(userId, username) {
+        const modal = document.getElementById('trendModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+
+        modalTitle.innerHTML = `${escapeHtml(username)} 的近期練習趨勢`;
+        modalBody.innerHTML = '<div class="loading-spinner">載入練習記錄中...</div>';
+        modal.style.display = 'flex';
+
+        try {
+            const response = await fetch(`/user_records/${userId}`);
+            const data = await response.json();
+
+            if (!data.success) {
+                modalBody.innerHTML = `<div class="no-data-trend">無法載入練習記錄: ${data.error || '未知錯誤'}</div>`;
+                return;
+            }
+
+
+            const pinyinRecords = (data.pinyin_records || []).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            const speakingRecords = (data.speaking_records || []).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            const listeningRecords = (data.listening_records || []).sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+
+            function getRecentScores(records, scoreField = 'score', isCorrectField = null) {
+                const scores = [];
+                for (const record of records) {
+                    let score = null;
+                    if (record[scoreField] !== undefined && record[scoreField] !== null) {
+                        score = record[scoreField];
+                    } else if (isCorrectField && record[isCorrectField] !== undefined) {
+                        score = record[isCorrectField] ? 100 : 0;
+                    }
+                    if (score !== null) {
+                        scores.push(score);
+                    }
+                }
+                if (scores.length > 30) {
+                    return scores.slice(-30);
+                }
+                return scores;
+            }
+
+            const pinyinScores = getRecentScores(pinyinRecords, 'score', 'is_correct');
+            const speakingScores = getRecentScores(speakingRecords, 'accuracy');
+            const listeningScores = getRecentScores(listeningRecords, 'score', 'is_correct');
+
+            const pinyinLabels = pinyinScores.map((_, idx) => `第${idx + 1}次`);
+            const speakingLabels = speakingScores.map((_, idx) => `第${idx + 1}次`);
+            const listeningLabels = listeningScores.map((_, idx) => `第${idx + 1}次`);
+
+            const hasPinyin = pinyinScores.length > 0;
+            const hasSpeaking = speakingScores.length > 0;
+            const hasListening = listeningScores.length > 0;
+
+            let html = '';
+
+
+            html += `<div class="trend-section">
+                        <div class="trend-title">拼音練習趨勢 (最近${pinyinScores.length}次)</div>
+                        <div class="chart-scroll-wrapper">
+                            <div class="chart-container">
+                                <canvas id="pinyinChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="scroll-hint"><i class="fas fa-arrows-alt-h"></i> 左右滑動查看更早記錄</div>
+                    </div>`;
+
+
+            html += `<div class="trend-section">
+                        <div class="trend-title">說話練習趨勢 (最近${speakingScores.length}次)</div>
+                        <div class="chart-scroll-wrapper">
+                            <div class="chart-container">
+                                <canvas id="speakingChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="scroll-hint"><i class="fas fa-arrows-alt-h"></i> 左右滑動查看更早記錄</div>
+                    </div>`;
+
+
+            html += `<div class="trend-section">
+                        <div class="trend-title"> 聆聽練習趨勢 (最近${listeningScores.length}次)</div>
+                        <div class="chart-scroll-wrapper">
+                            <div class="chart-container">
+                                <canvas id="listeningChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="scroll-hint"><i class="fas fa-arrows-alt-h"></i> 左右滑動查看更早記錄</div>
+                    </div>`;
+
+            modalBody.innerHTML = html;
+            destroyCharts();
+
+            if (hasPinyin) {
+                charts.pinyin = createLineChart('pinyinChart', pinyinLabels, pinyinScores, '#3b82f6', '拼音分數');
+            } else {
+                const ctx = document.getElementById('pinyinChart');
+                if (ctx) {
+                    charts.pinyin = new Chart(ctx, {
+                        type: 'line',
+                        data: { labels: [], datasets: [{ label: '拼音分數', data: [], borderColor: '#3b82f6' }] },
+                        options: { responsive: true, maintainAspectRatio: true, plugins: { tooltip: { enabled: false } } }
+                    });
+                }
+            }
+
+            if (hasSpeaking) {
+                charts.speaking = createLineChart('speakingChart', speakingLabels, speakingScores, '#2c7da0', '說話分數');
+            } else {
+                const ctx = document.getElementById('speakingChart');
+                if (ctx) {
+                    charts.speaking = new Chart(ctx, {
+                        type: 'line',
+                        data: { labels: [], datasets: [{ label: '說話分數', data: [], borderColor: '#2c7da0' }] },
+                        options: { responsive: true, maintainAspectRatio: true, plugins: { tooltip: { enabled: false } } }
+                    });
+                }
+            }
+
+            if (hasListening) {
+                charts.listening = createLineChart('listeningChart', listeningLabels, listeningScores, '#5dade2', '聆聽分數');
+            } else {
+                const ctx = document.getElementById('listeningChart');
+                if (ctx) {
+                    charts.listening = new Chart(ctx, {
+                        type: 'line',
+                        data: { labels: [], datasets: [{ label: '聆聽分數', data: [], borderColor: '#5dade2' }] },
+                        options: { responsive: true, maintainAspectRatio: true, plugins: { tooltip: { enabled: false } } }
+                    });
+                }
+            }
+
+            if (!hasPinyin && !hasSpeaking && !hasListening) {
+                modalBody.innerHTML = '<div class="no-data-trend">暫無任何練習記錄</div>';
+            }
+
+        } catch (err) {
+            console.error(err);
+            modalBody.innerHTML = `<div class="no-data-trend">載入失敗: ${err.message}</div>`;
+        }
+    }
+
+    function closeTrendModal() {
+        document.getElementById('trendModal').style.display = 'none';
+        destroyCharts();
+    }
+
+    async function loadAllRankings() {
+        try {
+            document.getElementById('tableLoading').style.display = 'block';
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="4" class="empty-table">載入中...</td></tr>';
+
+            const [pinyinRes, speakingRes, listeningRes] = await Promise.all([
+                fetch('/api/all_pinyin_stats'),
+                fetch('/api/all_speaking_stats'),
+                fetch('/api/all_listening_stats')
+            ]);
+
+            const pinyinData = await pinyinRes.json();
+            const speakingData = await speakingRes.json();
+            const listeningData = await listeningRes.json();
+
+            if (pinyinData.success && pinyinData.stats) {
+                pinyinRankingList = pinyinData.stats.map(item => ({
+                    user_id: item.user_id,
+                    username: item.username,
+                    accuracy: item.accuracy,
+                    total: item.total || 0
+                })).sort((a, b) => b.accuracy - a.accuracy);
+            } else {
+                pinyinRankingList = [];
+            }
+
+            if (speakingData.success && speakingData.stats) {
+                speakingRankingList = speakingData.stats.map(item => ({
+                    user_id: item.user_id,
+                    username: item.username,
+                    accuracy: item.accuracy,
+                    total: item.total || 0
+                })).sort((a, b) => b.accuracy - a.accuracy);
+            } else {
+                speakingRankingList = [];
+            }
+
+            if (listeningData.success && listeningData.stats) {
+                listeningRankingList = listeningData.stats.map(item => ({
+                    user_id: item.user_id,
+                    username: item.username,
+                    accuracy: item.accuracy,
+                    total: item.total || 0
+                })).sort((a, b) => b.accuracy - a.accuracy);
+            } else {
+                listeningRankingList = [];
+            }
+
+            renderRankingTable(currentRankType, null);
+
+            document.getElementById('tableLoading').style.display = 'none';
+        } catch (err) {
+            console.error(err);
+            showError('網絡錯誤，請稍後重試');
+            document.getElementById('tableLoading').style.display = 'none';
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="4" class="empty-table">載入失敗，請刷新重試</td></tr>';
+        }
+    }
+
+    function onRankTypeChange() {
+        currentRankType = document.getElementById('rankTypeSelect').value;
+        renderRankingTable(currentRankType, currentHighlightUserId);
+    }
+
+    function onSearch() {
+        const searchTerm = document.getElementById('searchInput').value.trim();
+        if (!searchTerm) {
+            showError('請輸入用戶 ID 或用戶名');
+            return;
+        }
+        highlightUserInTable(searchTerm);
+        document.getElementById('searchInput').value = '';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('rankTypeSelect').addEventListener('change', onRankTypeChange);
+        document.getElementById('searchBtn').addEventListener('click', onSearch);
+
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') onSearch();
+            });
+        }
+
+        loadAllRankings();
+    });
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('trendModal');
+        if (event.target === modal) {
+            closeTrendModal();
+        }
+    }
+</script>
+</body>
+</html>

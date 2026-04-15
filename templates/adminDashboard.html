@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>賬號管理</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #1a73e8;
+            font-size: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #1a73e8;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0d47a1;
+        }
+
+        .btn-danger {
+            background: #ff5252;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c62828;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #2e7d32;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #ef6c00;
+        }
+
+        .btn-back {
+            background: #666;
+            color: white;
+        }
+
+        .btn-back:hover {
+            background: #444;
+        }
+
+        /* 搜索框 */
+        .search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-box {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            background: white;
+            border-radius: 8px;
+            padding: 12px 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            padding: 5px;
+            width: 100%;
+            font-size: 16px;
+            outline: none;
+        }
+
+        /* 用戶表格 */
+        .users-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+        }
+
+        .table-header h2 {
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 18px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        td {
+            padding: 18px 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        /* 狀態標籤 */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .status-locked {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .role-user {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .role-staff {
+            background: #fff3e0;
+            color: #ef6c00;
+        }
+
+        /* 操作按鈕 */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+            min-width: 80px;
+        }
+
+        /* 彈窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            text-align: right;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* 加載狀態 */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 18px;
+        }
+
+        /* 統計卡片 */
+        .stats-cards {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1a73e8;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .stats-cards {
+                flex-direction: column;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-sm {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- management page -->
+    <div class="header">
+    <div>
+        <h1>帳號管理</h1>
+    </div>
+    <div class="header-actions">
+        <button class="btn btn-primary" onclick="window.location.href='/staff_rank'">
+            查看用戶排名
+        </button>
+        <button class="btn btn-back" onclick="goBack()">
+            回到首頁
+        </button>
+        <button class="btn btn-primary" onclick="refreshUsers()">
+            重新載入
+        </button>
+        <button class="btn btn-danger" onclick="logout()">
+            登出
+        </button>
+    </div>
+</div>
+
+    <!-- statistics -->
+    <div class="stats-cards">
+        <div class="stat-card">
+            <div class="stat-value" id="totalUsers">0</div>
+            <div class="stat-label">總用戶數</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="activeUsers">0</div>
+            <div class="stat-label">活躍用戶</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="lockedUsers">0</div>
+            <div class="stat-label">已鎖定用戶</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="staffUsers">0</div>
+            <div class="stat-label">總員工數</div>
+        </div>
+    </div>
+
+    <!-- search -->
+    <div class="search-container">
+        <div class="search-box">
+            <i class="fas fa-search" style="color: #666; margin-right: 10px;"></i>
+            <input type="text" id="searchInput" placeholder="請輸入使用者名稱或電子郵件地址進行搜索" onkeyup="filterUsers()">
+        </div>
+    </div>
+
+    <div class="users-table">
+        <div class="table-header">
+            <h2><i class="fas fa-users"></i> 使用者列表</h2>
+        </div>
+        <div id="usersTableContainer">
+            <div class="loading">正在載入用戶數據</div>
+        </div>
+    </div>
+
+    <!-- change password -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change user password</h3>
+                <button class="close-btn" onclick="closePasswordModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>new password：</label>
+                    <input type="password" id="newPassword" placeholder="Enter new password">
+                </div>
+                <div class="form-group">
+                    <label>new password：</label>
+                    <input type="password" id="confirmPassword" placeholder="Enter the new password again">
+                </div>
+                <div id="passwordError" style="color: #ff5252; margin-top: 10px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closePasswordModal()">cancel</button>
+                <button class="btn btn-primary" onclick="confirmResetPassword()">confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="confirmTitle">confirm</h3>
+                <button class="close-btn" onclick="closeConfirmModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeConfirmModal()">cancel</button>
+                <button class="btn btn-primary" id="confirmActionBtn">confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allUsers = [];
+        let currentUserId = null;
+        let currentAction = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+        });
+
+        //load user
+        async function loadUsers() {
+            try {
+                document.getElementById('usersTableContainer').innerHTML =
+                    '<div class="loading">Loading user data</div>';
+
+                const response = await fetch('/admin/get_all_users');
+                const data = await response.json();
+
+                if (data.success) {
+                    allUsers = data.users;
+                    updateStats();
+                    renderUsersTable(allUsers);
+                } else {
+                    document.getElementById('usersTableContainer').innerHTML =
+                        `<div class="no-data">${data.error || 'Loading failed'}</div>`;
+                }
+            } catch (error) {
+                document.getElementById('usersTableContainer').innerHTML =
+                    `<div class="no-data">network error：${error.message}</div>`;
+            }
+        }
+
+        // upload statistics card
+        function updateStats() {
+            const total = allUsers.length;
+            const active = allUsers.filter(user => !user.is_locked).length;
+            const locked = allUsers.filter(user => user.is_locked).length;
+            const staff = allUsers.filter(user => user.role === 'staff').length;
+
+            document.getElementById('totalUsers').textContent = total;
+            document.getElementById('activeUsers').textContent = active;
+            document.getElementById('lockedUsers').textContent = locked;
+            document.getElementById('staffUsers').textContent = staff;
+        }
+
+        function renderUsersTable(users) {
+            if (users.length === 0) {
+                document.getElementById('usersTableContainer').innerHTML =
+                    '<div class="no-data">no user data</div>';
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>user name</th>
+                            <th>email</th>
+                            <th>role</th>
+                            <th>status</th>
+                            <th>registration data</th>
+                            <th>action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            users.forEach(user => {
+                const statusClass = user.is_locked ? 'status-locked' : 'status-active';
+                const statusText = user.is_locked ? 'locked' : 'active';
+                const roleClass = user.role === 'staff' ? 'role-staff' : 'role-user';
+                const roleText = user.role === 'staff' ? 'staff' : 'user'
+
+                tableHTML += `
+                    <tr>
+                        <td><strong>${user.username}</strong></td>
+                        <td>${user.email}</td>
+                        <td><span class="role-badge ${roleClass}">${roleText}</span></td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${user.created_at}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-warning" onclick="showResetPassword('${user.id}', '${user.username}')">
+                                    <i class="fas fa-key"></i> change password
+                                </button>
+                                ${user.is_locked ?
+                                    `<button class="btn btn-sm btn-success" onclick="toggleLock('${user.id}', '${user.username}', false)">
+                                        <i class="fas fa-unlock"></i> unlock
+                                    </button>` :
+                                    `<button class="btn btn-sm btn-danger" onclick="toggleLock('${user.id}', '${user.username}', true)">
+                                        <i class="fas fa-lock"></i> lock
+                                    </button>`
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table>';
+            document.getElementById('usersTableContainer').innerHTML = tableHTML;
+        }
+
+        // filter Users
+        function filterUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filteredUsers = allUsers.filter(user =>
+                user.username.toLowerCase().includes(searchTerm) ||
+                user.email.toLowerCase().includes(searchTerm)
+            );
+            renderUsersTable(filteredUsers);
+        }
+
+        function showResetPassword(userId, username) {
+            currentUserId = userId;
+            document.getElementById('passwordError').textContent = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+            document.getElementById('passwordModal').style.display = 'flex';
+        }
+
+        function closePasswordModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+            currentUserId = null;
+        }
+
+        async function confirmResetPassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const errorDiv = document.getElementById('passwordError');
+
+            if (!newPassword) {
+                errorDiv.textContent = 'Please enter your new password.';
+                return;
+            }
+
+            if (newPassword.length < 1) {
+                errorDiv.textContent = 'Password length must be at least 1 characters';
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                errorDiv.textContent = 'The two passwords did not match.';
+                return;
+            }
+
+            try {
+                const response = await fetch('/admin/update_user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        action: 'reset_password',
+                        new_password: newPassword
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Password changed successfully');
+                    closePasswordModal();
+                    loadUsers();
+                } else {
+                    errorDiv.textContent = data.error || 'Modification failed';
+                }
+            } catch (error) {
+                errorDiv.textContent = 'network：' + error.message;
+            }
+        }
+
+        //lock/unlock ac
+        function toggleLock(userId, username, lock) {
+            currentUserId = userId;
+            currentAction = lock ? 'lock' : 'unlock';
+
+            const action = lock ? 'lock' : 'i=unlock';
+            const message = `is that ${action} "${username}"？`;
+
+            document.getElementById('confirmTitle').textContent = `confirm${action}`;
+            document.getElementById('confirmMessage').textContent = message;
+            document.getElementById('confirmActionBtn').onclick = confirmToggleLock;
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        async function confirmToggleLock() {
+            try {
+                const response = await fetch('/admin/update_user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: currentUserId,
+                        action: currentAction
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    closeConfirmModal();
+                    loadUsers();
+                } else {
+                    alert('Failed：' + (data.error || 'error'));
+                    closeConfirmModal();
+                }
+            } catch (error) {
+                alert('network error：' + error.message);
+                closeConfirmModal();
+            }
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            currentUserId = null;
+            currentAction = null;
+        }
+
+
+        function refreshUsers() {
+            loadUsers();
+        }
+
+        function goBack() {
+            window.location.href = '/admin/dashboard';
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closePasswordModal();
+                closeConfirmModal();
+            }
+        });
+
+        window.onclick = function(event) {
+            const passwordModal = document.getElementById('passwordModal');
+            const confirmModal = document.getElementById('confirmModal');
+
+            if (event.target === passwordModal) {
+                closePasswordModal();
+            }
+            if (event.target === confirmModal) {
+                closeConfirmModal();
+            }
+        };
+
+        function logout() {
+            localStorage.removeItem('user_id');
+            localStorage.removeItem('username');
+            localStorage.removeItem('user_role');
+
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html>

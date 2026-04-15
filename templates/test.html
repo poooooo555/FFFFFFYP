@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>水平測試 - 普通話能力評估</title>
+    <style>
+        * { box-sizing: border-box; font-family: system-ui, 'Segoe UI', 'Noto Sans TC', sans-serif; }
+        body {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .test-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .test-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .test-header h1 { margin: 0 0 10px; font-size: 2rem; }
+        .test-header p { margin: 0; opacity: 0.9; }
+        .test-content { padding: 30px; }
+        
+        .phase-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: #f0f4f8;
+            border-radius: 40px;
+            padding: 8px;
+        }
+        .phase-step {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border-radius: 32px;
+            font-weight: bold;
+            color: #94a3b8;
+            background: #e2e8f0;
+            transition: all 0.3s;
+        }
+        .phase-step.active {
+            background: #2a5298;
+            color: white;
+            box-shadow: 0 4px 12px rgba(42,82,152,0.3);
+        }
+        .phase-step.completed {
+            background: #10b981;
+            color: white;
+        }
+        .phase-step.completed::before {
+            content: "✓ ";
+        }
+
+        .difficulty-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .difficulty-btn {
+            padding: 10px 25px;
+            border: 2px solid #cbd5e1;
+            border-radius: 40px;
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+        .difficulty-btn.active {
+            background: #2a5298;
+            border-color: #2a5298;
+            color: white;
+        }
+        .difficulty-btn.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .module {
+            border: 1px solid #e2e8f0;
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .module-header {
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-bottom: 2px solid #2a5298;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .question {
+            padding: 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .question:last-child { border-bottom: none; }
+        .question-text { font-weight: 600; margin-bottom: 12px; }
+
+        .options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 12px 0;
+        }
+        .option-btn {
+            background: #f1f5f9;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s;
+        }
+        .option-btn.selected { background: #2a5298; color: white; border-color: #2a5298; }
+
+        .pinyin-input {
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 40px;
+            width: 350px;
+            font-size: 1rem;
+        }
+        .record-btn {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .record-btn:hover { background: #1e3c72; }
+
+        .result-badge { margin-top: 10px; padding: 8px; border-radius: 12px; font-size: 0.85rem; }
+        .submit-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        .submit-btn:hover { background: #059669; }
+        .next-phase-btn {
+            background: #2a5298;
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 40px;
+            font-size: 1rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .loading { text-align: center; padding: 40px; }
+        .spinner { border: 3px solid #e2e8f0; border-top: 3px solid #2a5298; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .difficulty-badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 0.7rem; margin-left: 10px; }
+        .easy { background: #10b981; color: white; }
+        .medium { background: #f59e0b; color: white; }
+        .hard { background: #ef4444; color: white; }
+
+        .info-text { background: #e0f2fe; padding: 12px; border-radius: 12px; margin-bottom: 20px; font-size: 0.9rem; color: #0369a1; }
+
+        .type-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        .type-btn {
+            padding: 8px 20px;
+            border: 2px solid #cbd5e1;
+            border-radius: 40px;
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .type-btn.active {
+            background: #2a5298;
+            border-color: #2a5298;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="test-container">
+    <div class="test-header">
+        <h1>普通話水平測試</h1>
+        <p>系統將評估您的拼音、聲調、發音能力，並制定個人化學習路徑</p>
+    </div>
+    <div class="test-content" id="testContent">
+        <div class="loading"><div class="spinner"></div><p>載入測試題目中...</p></div>
+    </div>
+</div>
+
+<script>
+    const userId = localStorage.getItem('user_id');
+    if (!userId) {
+        alert('請先登入後進行測試');
+        window.location.href = '/';
+    }
+
+    let testData = {
+        pinyin: { score: 0, total: 0, wrong_list: [], easyPassed: false, mediumPassed: false, hardPassed: false },
+        tones: { score: 0, total: 0, wrong_list: [] },
+        speaking: { score: 0, total: 0, wrong_list: [] }
+    };
+
+    let currentPhase = 1;
+    let currentPinyinDifficulty = 'easy';
+    let pinyinPracticeType = 'initial';
+    let userAnswers = {};
+    let currentQuestions = { easy: [], medium: [], hard: [] };
+
+    const pinyinBank = {
+        easy: {
+            initial: [
+                { char: "爸", correct: "b" }, { char: "媽", correct: "m" }, { char: "大", correct: "d" },
+                { char: "你", correct: "n" }, { char: "我", correct: "w" }, { char: "他", correct: "t" },
+                { char: "好", correct: "h" }, { char: "小", correct: "x" }, { char: "吃", correct: "ch" },
+                { char: "喝", correct: "h" }, { char: "走", correct: "z" }, { char: "跑", correct: "p" },
+                { char: "看", correct: "k" }, { char: "聽", correct: "t" }, { char: "說", correct: "sh" },
+                { char: "讀", correct: "d" }, { char: "寫", correct: "x" }, { char: "學", correct: "x" },
+                { char: "習", correct: "x" }, { char: "書", correct: "sh" }, { char: "筆", correct: "b" },
+                { char: "紙", correct: "zh" }, { char: "墨", correct: "m" }, { char: "硯", correct: "y" },
+                { char: "山", correct: "sh" }, { char: "水", correct: "sh" }, { char: "火", correct: "h" },
+                { char: "風", correct: "f" }, { char: "雨", correct: "y" }, { char: "雪", correct: "x" }
+            ],
+            final: [
+                { char: "愛", correct: "ai" }, { char: "我", correct: "o" }, { char: "學", correct: "ue" },
+                { char: "好", correct: "ao" }, { char: "去", correct: "ü" }, { char: "來", correct: "ai" },
+                { char: "看", correct: "an" }, { char: "見", correct: "ian" }, { char: "吃", correct: "i" },
+                { char: "喝", correct: "e" }, { char: "走", correct: "ou" }, { char: "跑", correct: "ao" },
+                { char: "跳", correct: "iao" }, { char: "飛", correct: "ei" }, { char: "遊", correct: "iu" },
+                { char: "戲", correct: "i" }, { char: "歌", correct: "e" }, { char: "舞", correct: "u" },
+                { char: "樂", correct: "ue" }, { char: "快", correct: "uai" }, { char: "慢", correct: "an" },
+                { char: "高", correct: "ao" }, { char: "矮", correct: "ai" }, { char: "胖", correct: "ang" },
+                { char: "瘦", correct: "ou" }, { char: "美", correct: "ei" }, { char: "醜", correct: "ou" },
+                { char: "新", correct: "in" }, { char: "舊", correct: "iu" }, { char: "好", correct: "ao" }
+            ]
+        },
+        medium: [
+            { char: "你好", correct: "nihao" }, { char: "謝謝", correct: "xiexie" }, { char: "老師", correct: "laoshi" },
+            { char: "學生", correct: "xuesheng" }, { char: "北京", correct: "beijing" }, { char: "上海", correct: "shanghai" },
+            { char: "廣州", correct: "guangzhou" }, { char: "深圳", correct: "shenzhen" }, { char: "香港", correct: "xianggang" },
+            { char: "澳門", correct: "aomen" }, { char: "台灣", correct: "taiwan" }, { char: "朋友", correct: "pengyou" },
+            { char: "家人", correct: "jiaren" }, { char: "父母", correct: "fumu" }, { char: "兄弟", correct: "xiongdi" },
+            { char: "姐妹", correct: "jiemei" }, { char: "天氣", correct: "tianqi" }, { char: "陽光", correct: "yangguang" },
+            { char: "下雨", correct: "xiayu" }, { char: "颱風", correct: "taifeng" }, { char: "電腦", correct: "diannao" },
+            { char: "手機", correct: "shouji" }, { char: "網絡", correct: "wangluo" }, { char: "學習", correct: "xuexi" },
+            { char: "工作", correct: "gongzuo" }, { char: "生活", correct: "shenghuo" }, { char: "快樂", correct: "kuaile" },
+            { char: "幸福", correct: "xingfu" }, { char: "健康", correct: "jiankang" }, { char: "平安", correct: "pingan" }
+        ],
+        hard: [
+            { char: "朋友", correct: "pengyou", toneCorrect: "peng2you" }, { char: "天氣", correct: "tianqi", toneCorrect: "tian1qi4" },
+            { char: "學習", correct: "xuexi", toneCorrect: "xue2xi2" }, { char: "普通話", correct: "putonghua", toneCorrect: "pu3tong1hua4" },
+            { char: "電腦", correct: "diannao", toneCorrect: "dian4nao3" }, { char: "手機", correct: "shouji", toneCorrect: "shou3ji1" },
+            { char: "互聯網", correct: "hulianwang", toneCorrect: "hu4lian2wang3" }, { char: "社交媒體", correct: "shejiaomeiti", toneCorrect: "she4jiao1mei2ti3" },
+            { char: "電子郵件", correct: "dianziyoujian", toneCorrect: "dian4zi3you2jian4" }, { char: "應用程序", correct: "yingyongchengxu", toneCorrect: "ying4yong4cheng2xu4" },
+            { char: "人工智能", correct: "rengongzhineng", toneCorrect: "ren2gong1zhi1neng2" }, { char: "大數據", correct: "dashuju", toneCorrect: "da4shu4ju4" },
+            { char: "雲計算", correct: "yunjisuan", toneCorrect: "yun2ji4suan4" }, { char: "區塊鏈", correct: "qukuailian", toneCorrect: "qu1kuai4lian2" },
+            { char: "物聯網", correct: "wulianwang", toneCorrect: "wu4lian2wang3" }, { char: "虛擬現實", correct: "xunixianshi", toneCorrect: "xu1ni3xian4shi2" },
+            { char: "增強現實", correct: "zengqiangxianshi", toneCorrect: "zeng1qiang2xian4shi2" }, { char: "自動駕駛", correct: "zidongjiashi", toneCorrect: "zi4dong4jia4shi3" },
+            { char: "機器人", correct: "jiqiren", toneCorrect: "ji1qi4ren2" }, { char: "無人機", correct: "wurenji", toneCorrect: "wu2ren2ji1" },
+            { char: "3D打印", correct: "sandi dayin", toneCorrect: "san1di4 da3yin4" }, { char: "生物科技", correct: "shengwukeji", toneCorrect: "sheng1wu4ke1ji4" },
+            { char: "環保", correct: "huanbao", toneCorrect: "huan2bao3" }, { char: "可持續發展", correct: "kechixufazhan", toneCorrect: "ke3chi2xu4fa1zhan3" },
+            { char: "氣候變化", correct: "qihoubianhua", toneCorrect: "qi4hou4bian4hua4" }, { char: "全球暖化", correct: "quanqiunuanhua", toneCorrect: "quan2qiu2nuan3hua4" },
+            { char: "節能減排", correct: "jienengjianpai", toneCorrect: "jie2neng2jian3pai2" }, { char: "可再生能源", correct: "kezaishengnengyuan", toneCorrect: "ke3zai4sheng1neng2yuan2" },
+            { char: "太陽能", correct: "taiyangneng", toneCorrect: "tai4yang2neng2" }, { char: "風能", correct: "fengneng", toneCorrect: "feng1neng2" }
+        ]
+    };
+
+    const tonesBank = [
+        { char: "媽", correct: 1 }, { char: "麻", correct: 2 }, { char: "馬", correct: 3 }, { char: "罵", correct: 4 },
+        { char: "衣", correct: 1 }, { char: "移", correct: 2 }, { char: "椅", correct: 3 }, { char: "意", correct: 4 },
+        { char: "屋", correct: 1 }, { char: "無", correct: 2 }, { char: "五", correct: 3 }, { char: "物", correct: 4 },
+        { char: "妻", correct: 1 }, { char: "其", correct: 2 }, { char: "起", correct: 3 }, { char: "氣", correct: 4 },
+        { char: "夫", correct: 1 }, { char: "扶", correct: 2 }, { char: "府", correct: 3 }, { char: "父", correct: 4 },
+        { char: "低", correct: 1 }, { char: "敵", correct: 2 }, { char: "底", correct: 3 }, { char: "地", correct: 4 },
+        { char: "通", correct: 1 }, { char: "同", correct: 2 }, { char: "統", correct: 3 }, { char: "痛", correct: 4 },
+        { char: "猜", correct: 1 }, { char: "才", correct: 2 }
+    ];
+
+    const speakingBank = [
+    { word: "你好", pinyin: "nǐhǎo" }, { word: "謝謝", pinyin: "xièxie" }, { word: "再見", pinyin: "zàijiàn" },
+    { word: "老師", pinyin: "lǎoshī" }, { word: "學生", pinyin: "xuésheng" }, { word: "北京", pinyin: "běijīng" },
+    { word: "上海", pinyin: "shànghǎi" }, { word: "廣州", pinyin: "guǎngzhōu" }, { word: "深圳", pinyin: "shēnzhèn" },
+    { word: "香港", pinyin: "xiānggǎng" }, { word: "澳門", pinyin: "àomén" }, { word: "台灣", pinyin: "táiwān" },
+    { word: "朋友", pinyin: "péngyou" }, { word: "家人", pinyin: "jiārén" }, { word: "父母", pinyin: "fùmǔ" },
+    { word: "天氣", pinyin: "tiānqì" }, { word: "陽光", pinyin: "yángguāng" }, { word: "下雨", pinyin: "xiàyǔ" },
+    { word: "電腦", pinyin: "diànnǎo" }, { word: "手機", pinyin: "shǒujī" }, { word: "網絡", pinyin: "wǎngluò" },
+    { word: "學習", pinyin: "xuéxí" }, { word: "工作", pinyin: "gōngzuò" }, { word: "生活", pinyin: "shēnghuó" },
+    { word: "快樂", pinyin: "kuàilè" }, { word: "幸福", pinyin: "xìngfú" }, { word: "健康", pinyin: "jiànkāng" },
+    { word: "平安", pinyin: "píngān" }, { word: "成功", pinyin: "chénggōng" }, { word: "努力", pinyin: "nǔlì" }
+];
+
+
+    function getRandomQuestions(bank, count, type = null) {
+        let source = bank;
+        if (type && bank[type]) {
+            source = bank[type];
+        }
+        const shuffled = [...source];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled.slice(0, count);
+    }
+
+    function render() {
+        if (currentPhase === 1) renderPinyinPhase();
+        else if (currentPhase === 2) renderTonesPhase();
+        else renderSpeakingPhase();
+    }
+
+    function renderPinyinPhase() {
+
+        if (currentQuestions.easy?.length === 0) {
+            currentQuestions.easy = {
+                initial: getRandomQuestions(pinyinBank.easy, 3, 'initial'),
+                final: getRandomQuestions(pinyinBank.easy, 3, 'final')
+            };
+            currentQuestions.medium = getRandomQuestions(pinyinBank.medium, 3);
+            currentQuestions.hard = getRandomQuestions(pinyinBank.hard, 3);
+        }
+
+        let html = `
+            <div class="phase-indicator">
+                <div class="phase-step active">拼音練習</div>
+                <div class="phase-step">聲調辨識</div>
+                <div class="phase-step">發音表達</div>
+            </div>
+            <div class="info-text">請依序完成練習：簡單 → 中等 → 困難。若簡單全錯則跳過後續難度。</div>
+        `;
+
+        html += `<div class="difficulty-selector">`;
+        const difficulties = [
+            { key: 'easy', name: '簡單 (聲母/韻母)', locked: false },
+            { key: 'medium', name: '中等 (完整拼音)', locked: !testData.pinyin.easyPassed && testData.pinyin.total >= 5 && testData.pinyin.score === 0 },
+            { key: 'hard', name: '困難 (拼音+聲調)', locked: !testData.pinyin.mediumPassed && testData.pinyin.total >= 10 && testData.pinyin.score === 5 }
+        ];
+        for (let d of difficulties) {
+            html += `<button class="difficulty-btn ${currentPinyinDifficulty === d.key ? 'active' : ''} ${d.locked ? 'locked' : ''}"
+                onclick="if(!${d.locked}) switchDifficulty('${d.key}')">${d.name}</button>`;
+        }
+        html += `</div>`;
+
+        if (currentPinyinDifficulty === 'easy') {
+            html += `<div class="type-selector">
+                <button class="type-btn ${pinyinPracticeType === 'initial' ? 'active' : ''}" onclick="switchPracticeType('initial')">聲母練習</button>
+                <button class="type-btn ${pinyinPracticeType === 'final' ? 'active' : ''}" onclick="switchPracticeType('final')">韻母練習</button>
+            </div>`;
+        }
+
+        let questions = getDisplayQuestions();
+        html += `<div class="module"><div class="module-header">${currentPinyinDifficulty === 'easy' ? (pinyinPracticeType === 'initial' ? '聲母練習' : '韻母練習') : (currentPinyinDifficulty === 'medium' ? '完整拼音練習' : '拼音+聲調練習')}</div>`;
+
+        for (let i = 0; i < questions.length; i++) {
+            const q = questions[i];
+            const saved = userAnswers[`pinyin_${currentPinyinDifficulty}_${i}`] || '';
+            html += `
+                <div class="question">
+                    <div class="question-text">漢字：「${q.char}」</div>
+                    <input type="text" class="pinyin-input" id="pinyin_${currentPinyinDifficulty}_${i}"
+                        placeholder="請輸入${currentPinyinDifficulty === 'easy' ? (pinyinPracticeType === 'initial' ? '聲母' : '韻母') : (currentPinyinDifficulty === 'medium' ? '拼音 (如: nihao)' : '拼音+聲調 (如: ni3hao3)')}"
+                        value="${saved}">
+                    <div class="result-badge" id="result_${currentPinyinDifficulty}_${i}"></div>
+                </div>
+            `;
+        }
+        html += `</div>`;
+        html += `<button class="submit-btn" onclick="submitPinyin()">提交 ${currentPinyinDifficulty === 'easy' ? '簡單' : (currentPinyinDifficulty === 'medium' ? '中等' : '困難')} 練習</button>`;
+
+        if (testData.pinyin.hardPassed) {
+            html += `<button class="next-phase-btn" onclick="nextPhase()">進入聲調測試 →</button>`;
+        } else if (currentPinyinDifficulty !== 'easy') {
+            html += `<button class="next-phase-btn" onclick="goToNextDifficulty()">下一難度 →</button>`;
+        }
+
+        document.getElementById('testContent').innerHTML = html;
+        restoreSavedAnswers();
+    }
+
+    function getDisplayQuestions() {
+        if (currentPinyinDifficulty === 'easy') {
+            return currentQuestions.easy[pinyinPracticeType];
+        } else if (currentPinyinDifficulty === 'medium') {
+            return currentQuestions.medium;
+        } else {
+            return currentQuestions.hard;
+        }
+    }
+
+    function switchDifficulty(difficulty) {
+        currentPinyinDifficulty = difficulty;
+        render();
+    }
+
+    function switchPracticeType(type) {
+        pinyinPracticeType = type;
+        render();
+    }
+
+    function saveAnswer(difficulty, index, value) {
+        userAnswers[`pinyin_${difficulty}_${index}`] = value;
+    }
+
+    function restoreSavedAnswers() {
+        const questions = getDisplayQuestions();
+        for (let i = 0; i < questions.length; i++) {
+            const input = document.getElementById(`pinyin_${currentPinyinDifficulty}_${i}`);
+            if (input) {
+                const saved = userAnswers[`pinyin_${currentPinyinDifficulty}_${i}`] || '';
+                input.value = saved;
+                input.oninput = function() { saveAnswer(currentPinyinDifficulty, i, this.value); };
+            }
+        }
+    }
+
+    async function submitPinyin() {
+        const questions = getDisplayQuestions();
+        let correctCount = 0;
+
+        for (let i = 0; i < questions.length; i++) {
+            const q = questions[i];
+            const userAns = (userAnswers[`pinyin_${currentPinyinDifficulty}_${i}`] || '').trim().toLowerCase();
+            let isCorrect = false;
+            let correctAnswer = q.correct;
+
+            if (currentPinyinDifficulty === 'hard') {
+                const normalizedUser = userAns.replace(/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/g, function(m) {
+                    const map = {ā:'a1',á:'a2',ǎ:'a3',à:'a4',ē:'e1',é:'e2',ě:'e3',è:'e4',ī:'i1',í:'i2',ǐ:'i3',ì:'i4',ō:'o1',ó:'o2',ǒ:'o3',ò:'o4',ū:'u1',ú:'u2',ǔ:'u3',ù:'u4',ǖ:'v1',ǘ:'v2',ǚ:'v3',ǜ:'v4'};
+                    return map[m] || m;
+                }).replace(/[1-4]/g, '').replace(/ü/g, 'v');
+                const normalizedCorrect = q.correct.replace(/[āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/g, function(m) {
+                    const map = {ā:'a',á:'a',ǎ:'a',à:'a',ē:'e',é:'e',ě:'e',è:'e',ī:'i',í:'i',ǐ:'i',ì:'i',ō:'o',ó:'o',ǒ:'o',ò:'o',ū:'u',ú:'u',ǔ:'u',ù:'u',ǖ:'v',ǘ:'v',ǚ:'v',ǜ:'v'};
+                    return map[m] || m;
+                });
+                isCorrect = normalizedUser === normalizedCorrect;
+                correctAnswer = q.correct;
+            } else if (currentPinyinDifficulty === 'medium') {
+                isCorrect = userAns === q.correct;
+            } else {
+                if (pinyinPracticeType === 'final' && q.correct === 'ü') {
+                    isCorrect = userAns === 'ü' || userAns === 'v';
+                } else {
+                    isCorrect = userAns === q.correct;
+                }
+            }
+
+            if (isCorrect) correctCount++;
+
+            testData.pinyin.total++;
+            if (isCorrect) {
+                testData.pinyin.score++;
+                document.getElementById(`result_${currentPinyinDifficulty}_${i}`).innerHTML = '<span style="color:#10b981">✓ 正確</span>';
+            } else {
+                testData.pinyin.wrong_list.push({ char: q.char, correct: correctAnswer, user: userAns, difficulty: currentPinyinDifficulty });
+                document.getElementById(`result_${currentPinyinDifficulty}_${i}`).innerHTML = `<span style="color:#ef4444">✗ 正確答案：${correctAnswer}</span>`;
+            }
+        }
+
+        if (currentPinyinDifficulty === 'easy') {
+            testData.pinyin.easyPassed = correctCount > 0;
+            if (correctCount === 0) {
+                alert('簡單練習全錯！將跳過中等和困難練習，直接進入聲調測試。');
+                testData.pinyin.mediumPassed = false;
+                testData.pinyin.hardPassed = false;
+                setTimeout(() => nextPhase(), 1500);
+                return;
+            } else {
+                alert(`簡單練習完成！正確 ${correctCount}/${questions.length} 題，進入中等練習。`);
+                currentPinyinDifficulty = 'medium';
+                render();
+            }
+        } else if (currentPinyinDifficulty === 'medium') {
+            testData.pinyin.mediumPassed = correctCount > 0;
+            if (correctCount === 0) {
+                alert('中等練習全錯！將跳過困難練習，直接進入聲調測試。');
+                testData.pinyin.hardPassed = false;
+                setTimeout(() => nextPhase(), 1500);
+                return;
+            } else {
+                alert(`中等練習完成！正確 ${correctCount}/${questions.length} 題，進入困難練習。`);
+                currentPinyinDifficulty = 'hard';
+                render();
+            }
+        } else {
+            testData.pinyin.hardPassed = correctCount > 0;
+            alert(`困難練習完成！正確 ${correctCount}/${questions.length} 題`);
+            render();
+        }
+    }
+
+    function goToNextDifficulty() {
+        if (currentPinyinDifficulty === 'easy' && testData.pinyin.easyPassed) {
+            currentPinyinDifficulty = 'medium';
+            render();
+        } else if (currentPinyinDifficulty === 'medium' && testData.pinyin.mediumPassed) {
+            currentPinyinDifficulty = 'hard';
+            render();
+        }
+    }
+
+    function renderTonesPhase() {
+        const selectedTones = getRandomQuestions(tonesBank, 3);
+
+        let html = `
+            <div class="phase-indicator">
+                <div class="phase-step completed">拼音練習</div>
+                <div class="phase-step active">聲調辨識</div>
+                <div class="phase-step">發音表達</div>
+            </div>
+            <div class="info-text">請選擇每個漢字的正確聲調 (1-4聲)</div>
+            <div class="module"><div class="module-header">聲調辨識</div>`;
+
+        for (let i = 0; i < selectedTones.length; i++) {
+            const q = selectedTones[i];
+            const saved = userAnswers[`tones_${i}`] || '';
+            html += `
+                <div class="question">
+                    <div class="question-text">漢字：「${q.char}」 — 選擇聲調</div>
+                    <div class="options" id="tones_opts_${i}">
+                        ${[1,2,3,4].map(opt => `<span class="option-btn ${saved == opt ? 'selected' : ''}" data-val="${opt}">${opt} 聲</span>`).join('')}
+                    </div>
+                    <div class="result-badge" id="tones_result_${i}"></div>
+                </div>
+            `;
+        }
+        html += `</div>`;
+        html += `<button class="submit-btn" onclick="submitTones()">提交聲調測試</button>`;
+
+        document.getElementById('testContent').innerHTML = html;
+
+        for (let i = 0; i < selectedTones.length; i++) {
+            document.querySelectorAll(`#tones_opts_${i} .option-btn`).forEach(btn => {
+                btn.onclick = function() {
+                    const val = this.dataset.val;
+                    userAnswers[`tones_${i}`] = val;
+                    document.querySelectorAll(`#tones_opts_${i} .option-btn`).forEach(b => b.classList.remove('selected'));
+                    this.classList.add('selected');
+                };
+            });
+        }
+
+        window.currentTonesList = selectedTones;
+    }
+
+    async function submitTones() {
+        const selectedTones = window.currentTonesList;
+        for (let i = 0; i < selectedTones.length; i++) {
+            const q = selectedTones[i];
+            const userAns = userAnswers[`tones_${i}`];
+            const isCorrect = userAns == q.correct;
+            testData.tones.total++;
+            if (isCorrect) {
+                testData.tones.score++;
+                document.getElementById(`tones_result_${i}`).innerHTML = '<span style="color:#10b981">✓ 正確</span>';
+            } else {
+                testData.tones.wrong_list.push({ char: q.char, correct: q.correct, user: userAns });
+                document.getElementById(`tones_result_${i}`).innerHTML = `<span style="color:#ef4444">✗ 正確答案：${q.correct} 聲</span>`;
+            }
+        }
+        alert(`聲調測試完成！正確 ${testData.tones.score}/${testData.tones.total} 題`);
+        currentPhase = 3;
+        renderSpeakingPhase();
+    }
+
+    function renderSpeakingPhase() {
+        const selectedSpeaking = getRandomQuestions(speakingBank, 3);
+
+        let html = `
+            <div class="phase-indicator">
+                <div class="phase-step completed">拼音練習</div>
+                <div class="phase-step completed">聲調辨識</div>
+                <div class="phase-step active">發音表達</div>
+            </div>
+            <div class="info-text">點擊「開始錄音」，大聲朗讀詞語，系統會評估您的發音準確度</div>
+            <div class="module"><div class="module-header">發音表達</div>`;
+
+        for (let i = 0; i < selectedSpeaking.length; i++) {
+            const q = selectedSpeaking[i];
+            html += `
+                <div class="question">
+                    <div class="question-text">朗讀詞語：「${q.word}」 (${q.pinyin})</div>
+                    <button class="record-btn" data-word="${q.word}" data-id="${i}">開始錄音</button>
+                    <span id="speaking_status_${i}" style="margin-left: 12px; font-size:0.85rem;"></span>
+                    <div class="result-badge" id="speaking_result_${i}"></div>
+                </div>
+            `;
+        }
+        html += `</div>`;
+        html += `<button class="submit-btn" onclick="submitSpeaking()">完成測試並分析弱點</button>`;
+
+        document.getElementById('testContent').innerHTML = html;
+
+        window.currentSpeakingList = selectedSpeaking;
+
+        for (let i = 0; i < selectedSpeaking.length; i++) {
+            const btn = document.querySelector(`.record-btn[data-id="${i}"]`);
+            if (btn) {
+                btn.onclick = async function() {
+                    const word = this.dataset.word;
+                    const id = this.dataset.id;
+                    const statusSpan = document.getElementById(`speaking_status_${id}`);
+                    statusSpan.innerText = '錄音中...';
+
+                    try {
+                        const recordRes = await fetch('/start_recording', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ duration: 3, target_word: word })
+                        });
+                        const recordData = await recordRes.json();
+                        if (recordData.success) {
+                            const evalRes = await fetch('/evaluate_pronunciation', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ user_text: recordData.transcription, target_text: word })
+                            });
+                            const evalData = await evalRes.json();
+                            const accuracy = evalData.result?.accuracy || 0;
+                            statusSpan.innerText = `識別: ${recordData.transcription} (${accuracy}%)`;
+                            userAnswers[`speaking_${id}`] = { accuracy, userText: recordData.transcription };
+                            const resultDiv = document.getElementById(`speaking_result_${id}`);
+                            if (accuracy >= 70) {
+                                resultDiv.innerHTML = `<span style="color:#10b981">✓ 發音良好 (${accuracy}%)</span>`;
+                            } else {
+                                resultDiv.innerHTML = `<span style="color:#ef4444">✗ 需要加強 (${accuracy}%)</span>`;
+                            }
+                        }
+                    } catch (err) {
+                        statusSpan.innerText = '錄音失敗';
+                    }
+                };
+            }
+        }
+    }
+
+    async function submitSpeaking() {
+        const selectedSpeaking = window.currentSpeakingList;
+        for (let i = 0; i < selectedSpeaking.length; i++) {
+            const q = selectedSpeaking[i];
+            const data = userAnswers[`speaking_${i}`];
+            const isCorrect = data && data.accuracy >= 70;
+            testData.speaking.total++;
+            if (isCorrect) {
+                testData.speaking.score++;
+            } else {
+                testData.speaking.wrong_list.push({ word: q.word, accuracy: data?.accuracy || 0 });
+            }
+        }
+
+        const pinyinPercent = testData.pinyin.total > 0 ? (testData.pinyin.score / testData.pinyin.total * 100).toFixed(0) : 0;
+        const tonesPercent = testData.tones.total > 0 ? (testData.tones.score / testData.tones.total * 100).toFixed(0) : 0;
+        const speakingPercent = testData.speaking.total > 0 ? (testData.speaking.score / testData.speaking.total * 100).toFixed(0) : 0;
+
+        const resultHtml = `
+            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000;">
+                <div style="background: white; max-width: 500px; border-radius: 32px; padding: 30px; margin: 20px; text-align: center;">
+                    <h2>測試結果</h2>
+                    <div style="margin: 20px 0;">
+                        <p>拼音正確率: <strong style="color:#2a5298">${pinyinPercent}%</strong> (${testData.pinyin.score}/${testData.pinyin.total})</p>
+                        <p>聲調正確率: <strong style="color:#2a5298">${tonesPercent}%</strong> (${testData.tones.score}/${testData.tones.total})</p>
+                        <p>發音準確率: <strong style="color:#2a5298">${speakingPercent}%</strong> (${testData.speaking.score}/${testData.speaking.total})</p>
+                    </div>
+                    <hr>
+                    <div id="saveMsg">正在儲存結果...</div>
+                    <button onclick="location.href='/'" style="margin-top: 20px; background: #2a5298; color: white; border: none; padding: 12px 30px; border-radius: 40px; cursor: pointer;">返回首頁</button>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', resultHtml);
+
+        try {
+            const saveRes = await fetch('/save_test_result', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, test_data: testData })
+            });
+            const saveData = await saveRes.json();
+            document.getElementById('saveMsg').innerHTML = saveData.success ? '結果已儲存！系統將為您制定每日任務' : '儲存失敗';
+        } catch (err) {
+            document.getElementById('saveMsg').innerHTML = '儲存失敗，請稍後重試';
+        }
+    }
+
+    function nextPhase() {
+        currentPhase = 2;
+        renderTonesPhase();
+    }
+
+    function init() {
+        render();
+    }
+    
+    init();
+</script>
+</body>
+</html>

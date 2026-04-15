@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <title>普通話聲調數學分析</title>
+  <style>
+    /* 彈窗背景 */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      inset: 0;
+      background-color: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fff;
+      padding: 25px 35px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 480px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      text-align: center;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    .modal-content h2 { margin-top: 0; font-size: 1.6em; color: #333; }
+    .modal-content ol { text-align: left; margin: 20px 0; padding-left: 20px; color: #444; line-height: 1.6; }
+    .modal-content button { background-color: #4CAF50; color: #fff; border: none; padding: 10px 20px; margin-top: 15px; border-radius: 6px; cursor: pointer; font-size: 1em; }
+    .modal-content button:hover { background-color: #45a049; }
+    .modal-content label { display: block; margin-top: 12px; font-size: 0.9em; color: #555; }
+    @keyframes fadeIn { from {opacity: 0; transform: scale(0.95);} to {opacity: 1; transform: scale(1);} }
+
+    body {
+      font-family: 'Microsoft JhengHei', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .back-link { display: inline-block; margin-top: 15px; color: #3498db; text-decoration: none; font-weight: bold; }
+    .container { width: 100%; max-width: 1400px; text-align: center; }
+    h1 { color: #2c3e50; margin-bottom: 10px; font-size: 2.5rem; }
+    .subtitle { color: #7f8c8d; margin-bottom: 30px; font-size: 1.2rem; }
+
+    /* 雙視框 */
+    .dual-canvas-row { display: flex; flex-wrap: wrap; gap: 24px; margin: 20px 0 25px; }
+    .canvas-panel { flex: 1; min-width: 280px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); padding: 20px; }
+    .panel-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 12px; color: #2c3e50; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #3498db; padding-bottom: 8px; }
+    .canvas-wrapper { position: relative; width: 100%; background: #fff; border: 2px solid #dfe6e9; border-radius: 8px; overflow: hidden; height: 400px; }
+    canvas { display: block; width: 100%; height: 100%; }
+    .canvas-overlay { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 8px 12px; border-radius: 5px; font-size: 0.9rem; z-index: 10; }
+
+    .character-selection { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-bottom: 30px; }
+    .character-card { width: 100px; height: 120px; background: white; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 2px solid transparent; }
+    .character-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.12); }
+    .character-card.active { border-color: #3498db; background: #e8f4fc; }
+    .character { font-size: 3rem; font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
+    .pinyin { font-size: 1.2rem; color: #e74c3c; font-weight: bold; }
+    .tone-label { font-size: 0.8rem; color: #7f8c8d; margin-top: 5px; }
+
+    .target-tone-display { display: flex; align-items: center; justify-content: center; gap: 30px; margin: 20px 0; padding: 20px; background: #f8f9fa; border-radius: 10px; }
+    .current-character { font-size: 4rem; font-weight: bold; color: #2c3e50; min-width: 120px; }
+    .current-info { text-align: left; }
+    .current-pinyin { font-size: 2rem; color: #e74c3c; font-weight: bold; margin-bottom: 5px; }
+    .current-tone { font-size: 1.2rem; color: #7f8c8d; }
+
+    .controls { margin: 20px 0; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+    .btn { padding: 12px 25px; font-size: 1rem; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+    #startBtn { background: #3498db; color: white; }
+    #startBtn:hover { background: #2980b9; transform: translateY(-2px); }
+    #startBtn.recording { background: #e74c3c; animation: pulse 1.5s infinite; }
+    #stopBtn { background: #95a5a6; color: white; }
+    #stopBtn:hover { background: #7f8c8d; transform: translateY(-2px); }
+    #clearBtn { background: #2ecc71; color: white; }
+    #clearBtn:hover { background: #27ae60; transform: translateY(-2px); }
+    #analyzeBtn { background: #9b59b6; color: white; }
+    #analyzeBtn:hover { background: #8e44ad; transform: translateY(-2px); }
+    #analyzeBtn:disabled { background: #bdc3c7; cursor: not-allowed; transform: none; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(231,76,60,0.7); } 70% { box-shadow: 0 0 0 20px rgba(231,76,60,0); } 100% { box-shadow: 0 0 0 0 rgba(231,76,60,0); } }
+
+    .frequency-display { display: flex; justify-content: center; gap: 30px; margin-top: 20px; flex-wrap: wrap; }
+    .freq-box { background: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); min-width: 150px; }
+    .freq-value { font-size: 1.8rem; font-weight: bold; color: #3498db; margin-bottom: 5px; }
+    .freq-label { color: #7f8c8d; font-size: 0.9rem; }
+
+    .analysis-section { width: 100%; margin-top: 30px; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); padding: 25px; display: none; }
+    .analysis-section.active { display: block; }
+    .analysis-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #3498db; }
+    .analysis-title { font-size: 1.5rem; color: #2c3e50; font-weight: bold; }
+    .strict-requirements { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 15px 0; }
+    .requirement { background: white; padding: 10px; border-radius: 6px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .requirement.met { border-left: 4px solid #2ecc71; }
+    .requirement.not-met { border-left: 4px solid #e74c3c; }
+    .score-display { text-align: center; margin: 20px 0; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #dfe6e9 100%); border-radius: 10px; }
+    .score-number { font-size: 3.5rem; font-weight: bold; margin: 10px 0; }
+    .analysis-tips { background: #e8f4fc; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 4px solid #3498db; }
+    .footer { margin-top: 40px; color: #7f8c8d; font-size: 0.9rem; text-align: center; }
+
+    @media (max-width: 768px) { h1 { font-size: 2rem; } .character-card { width: 80px; height: 100px; } .character { font-size: 2.5rem; } .canvas-wrapper { height: 300px; } .target-tone-display { flex-direction: column; gap: 15px; } .dual-canvas-row { flex-direction: column; } }
+  .side-function-menu {
+    position: fixed;
+    top: 180px;
+    left: 0;
+    z-index: 999;
+    display: flex;
+    align-items: flex-start;
+}
+
+/* 收起时显示的按钮 */
+.side-menu-toggle {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    border: none;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 16px 10px;
+    border-radius: 0 14px 14px 0;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 140px;
+}
+
+.side-menu-toggle:hover {
+    background: linear-gradient(135deg, #2980b9, #1f6fa5);
+}
+
+.side-menu-text {
+    letter-spacing: 2px;
+}
+
+.side-menu-arrow {
+    writing-mode: initial;
+    text-orientation: initial;
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.side-menu-arrow.rotate {
+    transform: rotate(90deg);
+}
+
+/* 展开的面板 */
+.side-menu-panel {
+    width: 0;
+    overflow: hidden;
+    background: white;
+    border-radius: 0 16px 16px 0;
+    box-shadow: 6px 8px 24px rgba(0, 0, 0, 0.12);
+    transition: width 0.3s ease, padding 0.3s ease;
+    padding: 0;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* 展开状态 */
+.side-menu-panel.open {
+    width: 240px;
+    padding: 14px;
+}
+
+/* 每个项目 */
+.side-menu-item {
+    display: block;
+    text-decoration: none;
+    color: #2c3e50;
+    background: #f8fbff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+}
+
+.side-menu-item:last-child {
+    margin-bottom: 0;
+}
+
+.side-menu-item:hover {
+    background: #eef6ff;
+    border-color: #3498db;
+    transform: translateX(4px);
+}
+
+.side-menu-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.side-menu-item-left span {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* 左侧菜单图示尺寸，不影响你原本 nav-icon */
+.side-icon {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+/* 手机版避免遮挡内容 */
+@media (max-width: 768px) {
+    .side-function-menu {
+        top: 140px;
+    }
+
+    .side-menu-panel.open {
+        width: 200px;
+    }
+
+    .side-menu-toggle {
+        min-height: 120px;
+        font-size: 14px;
+        padding: 12px 8px;
+    }
+
+    .side-menu-item-left span {
+        font-size: 14px;
+    }
+
+    .side-icon {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+.listening-icon {
+    background-image: url("/static/images/listening-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.speaking-icon {
+    background-image: url("/static/images/speaking-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.tones-icon {
+    background-image: url("/static/images/tones-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.prose-icon {
+    background-image: url("/static/images/prose-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.pinyin-icon {
+    background-image: url("/static/images/initials-finals-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.dictionary-icon {
+    background-image: url("/static/images/dictionary-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.wrong_questions {
+    background-image: url("/static/images/wrong-questions.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.custom-icon{
+    background-image: url("/static/images/custom-article.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.pinyinTraining-icon{
+    background-image: url("/static/images/pinyinTraining-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.toneTrainin-icon{
+    background-image: url("/static/images/toneTrainin-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.initialsTraining-icon{
+    background-image: url("/static/images/initialsTraining-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+  </style>
+</head>
+<body>
+<div class="side-function-menu">
+    <button class="side-menu-toggle" onclick="toggleSideMenu()">
+        <span class="side-menu-text">功能選單</span>
+        <span id="sideMenuArrow" class="side-menu-arrow">▶</span>
+    </button>
+
+    <div id="sideMenuPanel" class="side-menu-panel">
+
+        <a href="/" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏠</div>
+                <span>主頁</span>
+            </div>
+        </a>
+
+        <a href="/listening" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon listening-icon side-icon"></div>
+                <span>聆聽練習</span>
+            </div>
+        </a>
+
+        <a href="/speaking" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon speaking-icon side-icon"></div>
+                <span>說話練習</span>
+            </div>
+        </a>
+
+        <a href="/prose_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon prose-icon side-icon"></div>
+                <span>散文朗讀</span>
+            </div>
+        </a>
+
+        <a href="/tones" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon tones-icon side-icon"></div>
+                <span>聲調</span>
+            </div>
+        </a>
+
+        <a href="/pinyin" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon pinyin-icon side-icon"></div>
+                <span>拼音</span>
+            </div>
+        </a>
+
+        <a href="/dictionary" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon dictionary-icon side-icon"></div>
+                <span>字典查詢</span>
+            </div>
+        </a>
+
+        <a href="/wrong_questions" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon wrong_questions side-icon"></div>
+                <span>錯題庫</span>
+            </div>
+        </a>
+
+        <a href="/custom_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon custom-icon side-icon"></div>
+                <span>自訂文章</span>
+            </div>
+        </a>
+
+        <a href="/pinyinTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔤</div>
+                <span>拼音訓練</span>
+            </div>
+        </a>
+
+        <a href="/tonesTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎵</div>
+                <span>聲調訓練</span>
+            </div>
+        </a>
+
+        <a href="/initialsTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎙️</div>
+                <span>聲母訓練</span>
+            </div>
+        </a>
+
+        <a href="/rank" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                <span>查看排名</span>
+            </div>
+        </a>
+
+        <a href="/password" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔒</div>
+                <span>更改密碼</span>
+            </div>
+        </a>
+
+        <a href="/contactus" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">📩</div>
+                <span>聯繫我們</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="container">
+  <h1>普通話聲調分析</h1>
+  <p class="subtitle"> 精確趨勢分析</p>
+  <a href="/" class="back-link">← 返回主頁</a>
+
+  <div class="character-selection" id="characterSelection"></div>
+
+  <div class="dual-canvas-row">
+    <div class="canvas-panel">
+      <div class="panel-title">標準參考曲線 <span id="targetBadge" style="font-size:0.9rem; background:#3498db; padding:2px 12px; border-radius:20px; color:white;">第一聲</span></div>
+      <div class="canvas-wrapper"><canvas id="refCanvas"></canvas><div class="canvas-overlay">目標聲調走勢 (虛線)</div></div>
+    </div>
+    <div class="canvas-panel">
+      <div class="panel-title">您的發音曲線</div>
+      <div class="canvas-wrapper"><canvas id="userCanvas"></canvas><div class="canvas-overlay" id="userOverlay">等待錄音</div></div>
+    </div>
+  </div>
+
+  <div class="target-tone-display">
+    <div class="current-character" id="currentChar">媽</div>
+    <div class="current-info"><div class="current-pinyin" id="currentPinyin">mā</div><div class="current-tone" id="currentTone">第一聲 - 高平調</div></div>
+  </div>
+
+  <div class="controls">
+    <button id="startBtn" class="btn">開始錄音</button>
+    <button id="stopBtn" class="btn">停止錄音</button>
+    <button id="clearBtn" class="btn">清除曲線</button>
+    <button id="analyzeBtn" class="btn" disabled>分析聲調</button>
+  </div>
+
+  <div class="frequency-display">
+    <div class="freq-box"><div class="freq-value" id="currentFreq">-- Hz</div><div class="freq-label">當前頻率</div></div>
+    <div class="freq-box"><div class="freq-value" id="avgFreq">-- Hz</div><div class="freq-label">平均頻率</div></div>
+    <div class="freq-box"><div class="freq-value" id="recordingTime">0.0s</div><div class="freq-label">錄音時間</div></div>
+    <div class="freq-box"><div class="freq-value" id="dataPoints">0</div><div class="freq-label">有效數據點</div></div>
+  </div>
+
+  <div class="analysis-section" id="analysisSection">
+    <div class="analysis-header"><div class="analysis-title">聲調分析結果</div><div id="analysisLoading" style="display:none;">分析中...</div></div>
+    <div id="analysisContent"></div>
+  </div>
+
+  <div class="footer"><p>普通話聲調練習系統</p><p>朗讀 → 錄音 → 曲線分析 → 評估</p></div>
+</div>
+
+<div id="userGuideModal" class="modal">
+  <div class="modal-content"><h2>使用指南</h2><ol><li>點擊你想練習的字</li><li>點擊開始錄音</li><li>說出對應的詞彙後</li><li>按下分析聲調</li><li>可以分析你到底說了什麼聲調</li><li>可以按下消除曲線，重新練習</li></ol><button onclick="closeGuide()">我知道了</button><label><input type="checkbox" id="dontShowAgain"> 不再顯示</label></div>
+</div>
+
+<script>
+  function toggleSideMenu() {
+    const panel = document.getElementById('sideMenuPanel');
+    const arrow = document.getElementById('sideMenuArrow');
+
+    panel.classList.toggle('open');
+    arrow.classList.toggle('rotate');
+}
+
+const toneCharacters = [
+  { char: "媽", pinyin: "mā", tone: 1, description: "第一聲 - 高平調" },
+  { char: "書", pinyin: "shū", tone: 1, description: "第一聲 - 高平調" },
+  { char: "麻", pinyin: "má", tone: 2, description: "第二聲 - 中升調" },
+  { char: "學", pinyin: "xué", tone: 2, description: "第二聲 - 中升調" },
+  { char: "馬", pinyin: "mǎ", tone: 3, description: "第三聲 - 低降升調" },
+  { char: "好", pinyin: "hǎo", tone: 3, description: "第三聲 - 低降升調" },
+  { char: "大", pinyin: "dà", tone: 4, description: "第四聲 - 高降調" },
+  { char: "樹", pinyin: "shù", tone: 4, description: "第四聲 - 高降調" }
+];
+
+let audioCtx, analyser, source, stream;
+let recording = false;
+let startTime = null;
+let animationId = null;
+let currentCharIndex = 0;
+let pitchData = [];
+let cleanPitchData = [];
+const buffer = new Float32Array(2048);
+
+const refCanvas = document.getElementById('refCanvas');
+const userCanvas = document.getElementById('userCanvas');
+const ctxRef = refCanvas.getContext('2d');
+const ctxUser = userCanvas.getContext('2d');
+
+function resizeCanvases() {
+  const refWrapper = refCanvas.parentElement;
+  const userWrapper = userCanvas.parentElement;
+  refCanvas.width = refWrapper.clientWidth;
+  refCanvas.height = refWrapper.clientHeight;
+  userCanvas.width = userWrapper.clientWidth;
+  userCanvas.height = userWrapper.clientHeight;
+  drawReferenceCurve();
+  drawUserCurve();
+}
+window.addEventListener('resize', () => resizeCanvases());
+
+function drawGrid(ctx, width, height, maxTime = 1.0) {
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, width, height);
+
+
+  ctx.strokeStyle = '#f0f0f0';
+  ctx.lineWidth = 1;
+  const freqLabels = [80, 150, 220, 290, 360, 430, 500];
+  for (const hz of freqLabels) {
+    const y = height - ((hz - 80) / 420) * height;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+    ctx.fillStyle = '#95a5a6';
+    ctx.font = '12px sans-serif';
+    ctx.fillText(`${hz}Hz`, 10, y - 5);
+  }
+
+
+  const leftMargin = width * 0.05;
+  const rightMargin = width * 0.05;
+  const drawWidth = width - leftMargin - rightMargin;
+
+
+  let numTicks = 5;
+  if (maxTime <= 1.0) numTicks = 4;
+  else if (maxTime <= 2.0) numTicks = 5;
+  else if (maxTime <= 5.0) numTicks = 6;
+  else numTicks = 8;
+
+  for (let i = 1; i <= numTicks; i++) {  // 注意：从 i=1 开始，跳过 0 秒
+    const t = (i / numTicks) * maxTime;
+    const x = leftMargin + (t / maxTime) * drawWidth;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, height);
+    ctx.stroke();
+    ctx.fillStyle = '#95a5a6';
+    ctx.font = '12px sans-serif';
+    ctx.fillText(`${t.toFixed(1)}s`, x - 12, height - 5);
+  }
+}
+
+function drawReferenceCurve() {
+  const charData = toneCharacters[currentCharIndex];
+  const w = refCanvas.width, h = refCanvas.height;
+  if (w === 0 || h === 0) return;
+
+  ctxRef.fillStyle = '#ffffff';
+  ctxRef.fillRect(0, 0, w, h);
+  ctxRef.strokeStyle = '#f0f0f0';
+  ctxRef.lineWidth = 1;
+  const freqLabels = [80, 150, 220, 290, 360, 430, 500];
+  for (const hz of freqLabels) {
+    const y = h - ((hz - 80) / 420) * h;
+    ctxRef.beginPath();
+    ctxRef.moveTo(0, y);
+    ctxRef.lineTo(w, y);
+    ctxRef.stroke();
+    ctxRef.fillStyle = '#95a5a6';
+    ctxRef.font = '12px sans-serif';
+    ctxRef.fillText(`${hz}Hz`, 10, y - 5);
+  }
+
+  ctxRef.save();
+  ctxRef.strokeStyle = 'rgba(255, 152, 0, 0.8)';
+  ctxRef.lineWidth = 3;
+  ctxRef.setLineDash([10, 5]);
+  ctxRef.beginPath();
+
+  const mapY = (freq) => h - ((freq - 80) / 420) * h;
+  const leftX = w * 0.05;
+  const rightX = w * 0.95;
+  const midX = leftX + (rightX - leftX) * 0.5;
+
+  if (charData.tone === 1) {
+    const y = mapY(220);
+    ctxRef.moveTo(leftX, y);
+    ctxRef.lineTo(rightX, y);
+  } else if (charData.tone === 2) {
+    const y1 = mapY(140);
+    const y2 = mapY(230);
+    ctxRef.moveTo(leftX, y1);
+    ctxRef.lineTo(rightX, y2);
+  } else if (charData.tone === 4) {
+    const y1 = mapY(240);
+    const y2 = mapY(120);
+    ctxRef.moveTo(leftX, y1);
+    ctxRef.lineTo(rightX, y2);
+  } else if (charData.tone === 3) {
+    const startY = mapY(170);
+    const midY = mapY(100);
+    const endY = mapY(150);
+    const t = 0.5;
+    const denom = 2 * t * (1 - t);
+    const cpX = (midX - (1 - t) * (1 - t) * leftX - t * t * rightX) / denom;
+    const cpY = (midY - (1 - t) * (1 - t) * startY - t * t * endY) / denom;
+    ctxRef.moveTo(leftX, startY);
+    ctxRef.quadraticCurveTo(cpX, cpY, rightX, endY);
+  }
+  ctxRef.stroke();
+
+  if (charData.tone === 3) {
+    const startY = mapY(170);
+    const midY = mapY(100);
+    const endY = mapY(150);
+    ctxRef.fillStyle = '#ff9800';
+    ctxRef.beginPath();
+    ctxRef.arc(leftX, startY, 5, 0, 2 * Math.PI);
+    ctxRef.fill();
+    ctxRef.beginPath();
+    ctxRef.arc(midX, midY, 5, 0, 2 * Math.PI);
+    ctxRef.fill();
+    ctxRef.beginPath();
+    ctxRef.arc(rightX, endY, 5, 0, 2 * Math.PI);
+    ctxRef.fill();
+    ctxRef.fillStyle = '#e67e22';
+    ctxRef.font = 'bold 11px sans-serif';
+    ctxRef.fillText('頭', leftX - 12, startY - 4);
+    ctxRef.fillText('中', midX - 5, midY - 8);
+    ctxRef.fillText('尾', rightX + 5, endY - 4);
+  }
+
+  ctxRef.setLineDash([]);
+  ctxRef.fillStyle = '#ff9800';
+  ctxRef.font = 'bold 12px sans-serif';
+  ctxRef.fillText(`${charData.pinyin} 參考調型`, w - 110, 30);
+  ctxRef.restore();
+}
+
+function drawUserCurve() {
+  const w = userCanvas.width, h = userCanvas.height;
+  if (w === 0 || h === 0) return;
+
+  // 使用原始 pitchData 计算最大时间（不限制上限，让时间轴自动延伸）
+  let maxTime = 1.0;
+  if (pitchData.length > 0) {
+    maxTime = Math.max(...pitchData.map(p => p.time), 0.5);
+  }
+
+
+
+  drawGrid(ctxUser, w, h, maxTime);
+
+
+  let dataToDraw = cleanPitchData.length ? cleanPitchData : pitchData;
+  if (dataToDraw.length === 0) return;
+
+
+  const leftMargin = w * 0.05;
+  const rightMargin = w * 0.05;
+  const drawWidth = w - leftMargin - rightMargin;
+
+
+  ctxUser.fillStyle = 'rgba(231, 76, 60, 0.3)';
+  for (let p of dataToDraw) {
+
+    const x = leftMargin + (p.time / maxTime) * drawWidth;
+    const y = h - ((p.freq - 80) / 420) * h;
+    if (p.freq >= 80 && p.freq <= 500 && x >= leftMargin && x <= w - rightMargin) {
+      ctxUser.beginPath();
+      ctxUser.arc(x, y, 3, 0, 2 * Math.PI);
+      ctxUser.fill();
+    }
+  }
+
+
+  if (dataToDraw.length > 1) {
+    ctxUser.beginPath();
+    ctxUser.strokeStyle = '#e74c3c';
+    ctxUser.lineWidth = 2;
+    ctxUser.setLineDash([]);
+    let first = true;
+    for (let p of dataToDraw) {
+      const x = leftMargin + (p.time / maxTime) * drawWidth;
+      const y = h - ((p.freq - 80) / 420) * h;
+      if (x < leftMargin || x > w - rightMargin) continue;
+      if (first) {
+        ctxUser.moveTo(x, y);
+        first = false;
+      } else {
+        ctxUser.lineTo(x, y);
+      }
+    }
+    ctxUser.stroke();
+  }
+
+
+  const overlay = document.getElementById('userOverlay');
+  if (recording) overlay.textContent = `錄音中 - ${pitchData.length} 點 (最長 ${maxTime.toFixed(1)}s)`;
+  else overlay.textContent = `已錄製 - ${dataToDraw.length} 點 (最長 ${maxTime.toFixed(1)}s)`;
+}
+
+function initCharacterSelection() {
+  const container = document.getElementById('characterSelection');
+  toneCharacters.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'character-card';
+    if (idx === 0) card.classList.add('active');
+    card.innerHTML = `<div class="character">${item.char}</div><div class="pinyin">${item.pinyin}</div><div class="tone-label">${item.description.split(' - ')[0]}</div>`;
+    card.addEventListener('click', () => selectCharacter(idx));
+    container.appendChild(card);
+  });
+  updateCurrentDisplay();
+}
+
+function selectCharacter(index) {
+  currentCharIndex = index;
+  document.querySelectorAll('.character-card').forEach((c, i) => {
+    if (i === index) c.classList.add('active');
+    else c.classList.remove('active');
+  });
+  updateCurrentDisplay();
+  clearPitchData();
+  drawReferenceCurve();
+}
+
+function updateCurrentDisplay() {
+  const cd = toneCharacters[currentCharIndex];
+  document.getElementById('currentChar').textContent = cd.char;
+  document.getElementById('currentPinyin').textContent = cd.pinyin;
+  document.getElementById('currentTone').textContent = cd.description;
+  document.getElementById('targetBadge').textContent = cd.description.split(' - ')[0];
+  drawReferenceCurve();
+}
+
+function clearPitchData() {
+  if (animationId) cancelAnimationFrame(animationId);
+  if (recording) stopRecordingImmediately();
+  pitchData = [];
+  cleanPitchData = [];
+  document.getElementById('currentFreq').textContent = '-- Hz';
+  document.getElementById('avgFreq').textContent = '-- Hz';
+  document.getElementById('dataPoints').textContent = '0';
+  document.getElementById('recordingTime').textContent = '0.0s';
+  document.getElementById('analyzeBtn').disabled = true;
+  drawUserCurve();
+  hideAnalysisResult();
+}
+
+function stopRecordingImmediately() {
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  if (audioCtx) audioCtx.close();
+  recording = false;
+  if (animationId) cancelAnimationFrame(animationId);
+  document.getElementById('startBtn').classList.remove('recording');
+  document.getElementById('startBtn').textContent = '開始錄音';
+}
+
+async function startRecording() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, sampleRate: 44100 } });
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.8;
+    source = audioCtx.createMediaStreamSource(stream);
+    source.connect(analyser);
+    pitchData = [];
+    cleanPitchData = [];
+    startTime = performance.now();
+    recording = true;
+    document.getElementById('startBtn').textContent = '錄音中';
+    document.getElementById('startBtn').classList.add('recording');
+    document.getElementById('analyzeBtn').disabled = false;
+    animationId = requestAnimationFrame(drawPitchLoop);
+  } catch(e) { alert('無法訪問麥克風，請檢查權限'); }
+}
+
+function autoCorrelate(buf, sampleRate) {
+  let sum = 0;
+  for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+  const rms = Math.sqrt(sum / buf.length);
+  if (rms < 0.01) return -1;
+  const SIZE = buf.length;
+  const c = new Float32Array(SIZE);
+  for (let i = 0; i < SIZE; i++) {
+    let s = 0;
+    for (let j = 0; j < SIZE - i; j++) s += buf[j] * buf[j + i];
+    c[i] = s;
+  }
+  let d = 0;
+  while (d < SIZE - 1 && c[d] > c[d + 1]) d++;
+  let maxval = -1, maxpos = -1;
+  for (let i = d; i < SIZE / 2; i++) {
+    if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
+  }
+  return maxpos > 0 ? sampleRate / maxpos : -1;
+}
+
+function drawPitchLoop() {
+  if (!recording) return;
+  analyser.getFloatTimeDomainData(buffer);
+  const pitch = autoCorrelate(buffer, audioCtx.sampleRate);
+  const elapsed = (performance.now() - startTime) / 1000;
+  if (pitch > 80 && pitch < 500) {
+    pitchData.push({ time: elapsed, freq: pitch });
+    document.getElementById('currentFreq').textContent = `${pitch.toFixed(1)} Hz`;
+  } else {
+    document.getElementById('currentFreq').textContent = '-- Hz';
+  }
+  document.getElementById('recordingTime').textContent = `${elapsed.toFixed(1)}s`;
+  drawUserCurve();
+  animationId = requestAnimationFrame(drawPitchLoop);
+}
+
+function stopRecording() {
+  if (!recording) return;
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  if (audioCtx) audioCtx.close();
+  recording = false;
+  if (animationId) cancelAnimationFrame(animationId);
+  document.getElementById('startBtn').textContent = '開始錄音';
+  document.getElementById('startBtn').classList.remove('recording');
+  filterNoise();
+  updateAvgFreq();
+  drawUserCurve();
+  if (cleanPitchData.length > 5) document.getElementById('analyzeBtn').disabled = false;
+}
+
+function filterNoise() {
+  if (pitchData.length < 6) { cleanPitchData = [...pitchData]; return; }
+  const start = Math.floor(pitchData.length * 0.1);
+  const end = Math.floor(pitchData.length * 0.9);
+  let trimmed = pitchData.slice(start, end);
+  if (trimmed.length < 3) trimmed = pitchData;
+  const smoothed = [];
+  for (let i = 0; i < trimmed.length; i++) {
+    let left = Math.max(0, i-2), right = Math.min(trimmed.length-1, i+2);
+    let sum = 0, cnt = 0;
+    for (let j = left; j <= right; j++) { sum += trimmed[j].freq; cnt++; }
+    smoothed.push({ time: trimmed[i].time, freq: sum / cnt });
+  }
+  cleanPitchData = smoothed;
+  document.getElementById('dataPoints').textContent = cleanPitchData.length;
+}
+
+function updateAvgFreq() {
+  if (!cleanPitchData.length) return;
+  let sum = 0;
+  for (let p of cleanPitchData) sum += p.freq;
+  document.getElementById('avgFreq').textContent = `${(sum / cleanPitchData.length).toFixed(1)} Hz`;
+}
+
+function analyzeTone() {
+  if (cleanPitchData.length === 0) { alert('請先錄音'); return; }
+  const target = toneCharacters[currentCharIndex].tone;
+  const analysis = performAnalysis(cleanPitchData, target);
+  showAnalysisResult(analysis, target);
+}
+
+function performAnalysis(data, targetTone) {
+
+  const freqs = data.map(p => p.freq);
+
+
+  const startF = data[0].freq;
+  const minF = Math.min(...freqs);
+  const maxF = Math.max(...freqs);
+  const endF = data[data.length-1].freq;
+  const avgF = freqs.reduce((a,b)=>a+b,0)/freqs.length;
+  const range = maxF - minF;
+
+
+  const n = data.length;
+  const sumX = data.reduce((s,p)=>s+p.time,0);
+  const sumY = freqs.reduce((a,b)=>a+b,0);
+  const sumXY = data.reduce((s,p)=>s+p.time*p.freq,0);
+  const sumX2 = data.reduce((s,p)=>s+p.time*p.time,0);
+  const slope = (n*sumXY - sumX*sumY) / (n*sumX2 - sumX*sumX);
+
+
+  const headDropRatio = (startF - minF) / startF;
+  const tailRiseRatio = (endF - minF) / minF;
+  const rangeRatio = range / avgF;
+
+
+  const minIndex = freqs.indexOf(minF);
+  const totalPoints = freqs.length;
+  const isVShape = (minIndex > totalPoints * 0.25 && minIndex < totalPoints * 0.75);
+
+  let detected = 1;
+
+
+  const variance = freqs.reduce((s,v)=>s+Math.pow(v-avgF,2),0)/freqs.length;
+  const stdDev = Math.sqrt(variance);
+  const stabilityRatio = stdDev / avgF;
+
+
+  if (Math.abs(slope) < 30 && stabilityRatio < 0.08 && rangeRatio < 0.15) {
+    detected = 1;
+  }
+
+  else if (slope > 25 && headDropRatio < 0.08) {
+    detected = 2;
+  }
+
+  else if (slope < -25 && tailRiseRatio < 0.08) {
+    detected = 4;
+  }
+
+  else if (isVShape && headDropRatio > 0.10 && tailRiseRatio > 0.10) {
+    detected = 3;
+  }
+
+  else if (slope > 15) {
+    detected = 2;
+  }
+  else if (slope < -15) {
+    detected = 4;
+  }
+  else {
+    detected = 1;
+  }
+
+
+  let reqs = [];
+  if (targetTone === 1) reqs = [{ name:"平穩度", met: Math.abs(slope)<12, val:`斜率 ${slope.toFixed(1)}` }, { name:"範圍", met: range<20, val:`範圍 ${range.toFixed(1)}Hz` }];
+  else if (targetTone === 2) reqs = [{ name:"上升趨勢", met: slope>40, val:`斜率 ${slope.toFixed(1)}` }, { name:"範圍", met: range>50, val:`範圍 ${range.toFixed(1)}Hz` }];
+  else if (targetTone === 4) reqs = [{ name:"下降趨勢", met: slope<-45, val:`斜率 ${slope.toFixed(1)}` }, { name:"範圍", met: range>55, val:`範圍 ${range.toFixed(1)}Hz` }];
+  else if (targetTone === 3) {
+    const headDrop = startF - minF, tailRise = endF - minF;
+    reqs = [{ name:"頭部下降", met: headDrop>35, val:`下降 ${headDrop.toFixed(0)}Hz` }, { name:"尾部上升", met: tailRise>25, val:`上升 ${tailRise.toFixed(0)}Hz` }, { name:"總範圍", met: range>70, val:`範圍 ${range.toFixed(0)}Hz` }];
+  }
+
+  const metCount = reqs.filter(r=>r.met).length;
+  let score = metCount/reqs.length*100;
+  if (detected !== targetTone) score = Math.max(30, score-20);
+
+  return {
+    stats: { avgFreq: avgF.toFixed(1), range: range.toFixed(1), dataPoints: data.length },
+    detectedTone: detected,
+    matchScore: Math.round(score),
+    requirements: reqs
+  };
+}
+
+function showAnalysisResult(analysis, target) {
+  const section = document.getElementById('analysisSection');
+  const content = document.getElementById('analysisContent');
+  section.classList.add('active');
+  const toneNames = {1:"第一聲",2:"第二聲",3:"第三聲",4:"第四聲"};
+  const isCorrect = analysis.detectedTone === target;
+  let reqHtml = `<div class="strict-requirements">`;
+  analysis.requirements.forEach(r=>{ reqHtml += `<div class="requirement ${r.met ? 'met' : 'not-met'}"><strong>${r.name}</strong><br>${r.val}<br>${r.met ? '✓達標' : '✗未達標'}</div>`; });
+  reqHtml += `</div>`;
+  const scoreColor = analysis.matchScore >=80 ? '#2ecc71' : (analysis.matchScore>=60 ? '#f39c12' : '#e74c3c');
+  content.innerHTML = `<div class="score-display"><div class="score-label">評分</div><div class="score-number" style="color:${scoreColor}">${analysis.matchScore}</div><div>/100</div></div><p><strong>目標：</strong> ${toneNames[target]} &nbsp;|&nbsp; <strong>檢測：</strong> ${toneNames[analysis.detectedTone]} <span style="color:${isCorrect?'#2ecc71':'#e74c3c'}">${isCorrect ? '正確' : '不正確'}</span></p>${reqHtml}<div class="analysis-tips"><strong>練習建議：</strong><ul><li>${isCorrect ? '聲調方向正確，繼續優化平滑度' : '對比左側參考曲線，模仿標準調型'}</li><li>注意氣息平穩，觀察右側曲線形狀</li></ul></div>`;
+}
+
+function hideAnalysisResult() { document.getElementById('analysisSection').classList.remove('active'); }
+
+function setupEvents() {
+  document.getElementById('startBtn').addEventListener('click', startRecording);
+  document.getElementById('stopBtn').addEventListener('click', stopRecording);
+  document.getElementById('clearBtn').addEventListener('click', clearPitchData);
+  document.getElementById('analyzeBtn').addEventListener('click', analyzeTone);
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space') { e.preventDefault(); if (!recording) startRecording(); else stopRecording(); }
+    if (e.code === 'KeyC') clearPitchData();
+    if (e.code === 'ArrowLeft') selectCharacter((currentCharIndex-1+toneCharacters.length)%toneCharacters.length);
+    if (e.code === 'ArrowRight') selectCharacter((currentCharIndex+1)%toneCharacters.length);
+  });
+  window.addEventListener('resize', () => { drawReferenceCurve(); drawUserCurve(); });
+}
+
+function showGuide() { if (!localStorage.getItem("hideGuide")) document.getElementById("userGuideModal").style.display = "flex"; }
+window.closeGuide = function() { if (document.getElementById("dontShowAgain").checked) localStorage.setItem("hideGuide","true"); document.getElementById("userGuideModal").style.display = "none"; };
+
+window.onload = () => { initCharacterSelection(); resizeCanvases(); setupEvents(); showGuide(); };
+</script>
+</body>
+</html>

@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>散文朗讀 - 普通話練習平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/prose_reading.css') }}">
+</head>
+<body>
+<div class="side-function-menu">
+    <button class="side-menu-toggle" onclick="toggleSideMenu()">
+        <span class="side-menu-text">功能選單</span>
+        <span id="sideMenuArrow" class="side-menu-arrow">▶</span>
+    </button>
+
+    <div id="sideMenuPanel" class="side-menu-panel">
+
+        <a href="/" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏠</div>
+                <span>主頁</span>
+            </div>
+        </a>
+
+        <a href="/listening" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon listening-icon side-icon"></div>
+                <span>聆聽練習</span>
+            </div>
+        </a>
+
+        <a href="/speaking" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon speaking-icon side-icon"></div>
+                <span>說話練習</span>
+            </div>
+        </a>
+
+        <a href="/prose_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon prose-icon side-icon"></div>
+                <span>散文朗讀</span>
+            </div>
+        </a>
+
+        <a href="/tones" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon tones-icon side-icon"></div>
+                <span>聲調</span>
+            </div>
+        </a>
+
+        <a href="/pinyin" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon pinyin-icon side-icon"></div>
+                <span>拼音</span>
+            </div>
+        </a>
+
+        <a href="/dictionary" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon dictionary-icon side-icon"></div>
+                <span>字典查詢</span>
+            </div>
+        </a>
+
+        <a href="/wrong_questions" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon wrong_questions side-icon"></div>
+                <span>錯題庫</span>
+            </div>
+        </a>
+
+        <a href="/custom_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon custom-icon side-icon"></div>
+                <span>自訂文章</span>
+            </div>
+        </a>
+
+        <a href="/pinyinTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔤</div>
+                <span>拼音訓練</span>
+            </div>
+        </a>
+
+        <a href="/tonesTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎵</div>
+                <span>聲調訓練</span>
+            </div>
+        </a>
+
+        <a href="/initialsTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎙️</div>
+                <span>聲母訓練</span>
+            </div>
+        </a>
+
+        <a href="/rank" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                <span>查看排名</span>
+            </div>
+        </a>
+
+        <a href="/password" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔒</div>
+                <span>更改密碼</span>
+            </div>
+        </a>
+
+        <a href="/contactus" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">📩</div>
+                <span>聯繫我們</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <div class="page-header">
+        <div class="header-left">
+            <h1> 散文朗讀</h1>
+            <p>選擇文章，逐句練習，可調整語速跟讀</p>
+        </div>
+        <a href="/" class="back-btn" id="backHomeBtn">← 返回首頁</a>
+    </div>
+
+    <div id="loading" class="loading" style="text-align:center; padding:50px;">
+        <div class="spinner"></div>
+        <p>載入中</p>
+    </div>
+
+    <div id="content" style="display: none;">
+        <div class="two-column-layout">
+
+            <div class="my-articles-sidebar">
+                <div class="sidebar-header">
+                    <h3> 我的文章</h3>
+                    <p>點擊切換自訂內容</p>
+                </div>
+                <div class="articles-list-container" id="myArticlesList">
+                    <div class="empty-articles">載入中</div>
+                </div>
+                <div class="add-article-link">
+                    <a href="/custom_reading"> 新增文章（AI生成/手動）</a>
+                </div>
+            </div>
+
+
+            <div class="right-content">
+
+                <div class="prose-list-section">
+                    <div class="section-title">精選散文</div>
+                    <div class="prose-select-container">
+                        <select id="proseSelect" class="prose-select">
+                            <option value="">-- 請選擇文章 --</option>
+                        </select>
+                        <div class="prose-select-hint">共 <span id="totalProseCount">0</span> 篇文章，下拉可查看更多</div>
+                    </div>
+                </div>
+
+
+                <div class="reading-section" id="readingSection" style="display: none;">
+                    <div class="reading-header">
+                        <div class="current-prose-info">
+                            <h3 id="currentProseTitle"></h3>
+                            <p id="currentProseMeta"></p>
+                        </div>
+                        <div class="sentence-nav">
+                            <button id="prevBtn" class="nav-btn"> 上一句</button>
+                            <span class="sentence-counter" id="sentenceCounter">0 / 0</span>
+                            <button id="nextBtn" class="nav-btn">下一句 </button>
+                        </div>
+                    </div>
+
+                    <div class="sentence-display">
+                        <div class="current-sentence" id="currentSentence"></div>
+                    </div>
+
+                    <div class="voice-controls">
+                        <div class="speed-control">
+                            <label>播放速度: <span id="speedValue">1.0</span>x</label>
+                            <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.05" value="1.0">
+                        </div>
+                        <div class="pinyin-toggle" id="pinyinToggleContainer">
+                            <input type="checkbox" id="showPinyinCheckbox" checked>
+                            <label for="showPinyinCheckbox">顯示拼音</label>
+                        </div>
+                        <button id="speakSentenceBtn" class="btn-secondary">朗讀當前句子</button>
+                        <button id="stopSpeechBtn" class="btn-secondary stop-btn">停止播放</button>
+                    </div>
+
+                    <div class="controls">
+                        <button id="recordBtn" class="btn btn-primary" onclick="toggleRecording()">
+                            開始錄音
+                        </button>
+                    </div>
+
+                    <div id="transcriptionResult" class="transcription-result">
+                        點擊「開始錄音」後朗讀上方句子
+                    </div>
+
+                    <div id="resultCard" class="result-card" style="display: none;">
+                        <div class="accuracy-circle">
+                            <div class="accuracy-percent" id="accuracyPercent">0%</div>
+                            <div class="progress-bar"><div class="progress" id="progressBar"></div></div>
+                        </div>
+                        <div class="feedback" id="feedback"></div>
+                    </div>
+
+                    <div class="sentences-list">
+                        <h4> 句子列表</h4>
+                        <div class="sentence-items" id="sentenceItems"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="userGuideModal" class="modal">
+        <div class="modal-content">
+            <h2> 使用指南</h2>
+            <ol>
+                <li>從左側「我的文章」或右側下拉選單選擇文章</li>
+                <li>點擊句子列表可切換句子</li>
+                <li>使用「朗讀當前句子」按鈕聽標準發音，並可調整語速</li>
+                <li>點擊「停止播放」可立即中斷語音</li>
+                <li>可勾選「顯示拼音」切換介面顯示格式（漢字在上，拼音在下）</li>
+                <li>點擊「開始錄音」錄製您的朗讀</li>
+                <li>系統自動評估準確率與回饋</li>
+            </ol>
+            <button onclick="closeGuide()" class="guide-btn" style="margin-top:15px; background:#667eea; color:white; border:none; padding:8px 20px; border-radius:40px;">我知道了</button>
+            <label style="display:block; margin-top:12px;"><input type="checkbox" id="dontShowAgain"> 不再顯示</label>
+        </div>
+    </div>
+</div>
+
+<style>
+
+.prose-select-container {
+    margin-top: 15px;
+}
+
+.prose-select {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.prose-select:hover, .prose-select:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+}
+
+.prose-select-hint {
+    font-size: 0.75rem;
+    color: #7f8c8d;
+    margin-top: 8px;
+    text-align: right;
+}
+
+/* 句子顯示區 - 分行顯示漢字和拼音 */
+.current-sentence {
+    font-size: 1.5rem;
+    line-height: 1.8;
+    color: #2c3e50;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.current-sentence .chinese-line {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #1a202c;
+}
+
+.current-sentence .pinyin-line {
+    display: block;
+    font-size: 1.1rem;
+    color: #667eea;
+    letter-spacing: 1px;
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 10px;
+    margin-top: 5px;
+}
+
+/* 句子列表分行顯示 */
+.sentence-item .sentence-chinese {
+    display: block;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.sentence-item .sentence-pinyin {
+    display: block;
+    font-size: 0.7rem;
+    color: #667eea;
+    margin-top: 4px;
+    opacity: 0.8;
+}
+</style>
+
+<script>
+
+    function toggleSideMenu() {
+            const panel = document.getElementById('sideMenuPanel');
+            const arrow = document.getElementById('sideMenuArrow');
+
+            panel.classList.toggle('open');
+            arrow.classList.toggle('rotate');
+        }
+
+
+    let allProse = [];
+    let currentProse = null;
+    let sentences = [];
+    let rawSentencesWithPinyin = [];
+    let currentIndex = 0;
+    let isRecording = false;
+    let userId = localStorage.getItem('user_id');
+    let isCustomArticle = false;
+    let speechRate = 1.0;
+    let showPinyin = true;
+
+
+    function extractChineseOnly(sentenceWithPinyin) {
+        if (!sentenceWithPinyin) return "";
+        let match = sentenceWithPinyin.match(/\(([^)]+)\)/);
+        if (match && match[1]) {
+            return match[1].trim();
+        }
+        return sentenceWithPinyin.trim();
+    }
+
+
+    function extractPinyinOnly(sentenceWithPinyin) {
+        if (!sentenceWithPinyin) return "";
+        let match = sentenceWithPinyin.match(/^([^(]+)\s*\(/);
+        if (match && match[1]) {
+            return match[1].trim();
+        }
+        return "";
+    }
+
+
+    function getDisplaySentence(index) {
+        if (!rawSentencesWithPinyin[index]) return "";
+        const chinese = extractChineseOnly(rawSentencesWithPinyin[index]);
+        const pinyin = extractPinyinOnly(rawSentencesWithPinyin[index]);
+
+        if (showPinyin && pinyin) {
+            return `<span class="chinese-line">${escapeHtml(chinese)}</span><span class="pinyin-line">${escapeHtml(pinyin)}</span>`;
+        } else {
+            return `<span class="chinese-line">${escapeHtml(chinese)}</span>`;
+        }
+    }
+
+    function getSentencePreview(index) {
+        if (!rawSentencesWithPinyin[index]) return "";
+        const chinese = extractChineseOnly(rawSentencesWithPinyin[index]);
+        const pinyin = extractPinyinOnly(rawSentencesWithPinyin[index]);
+        const shortChinese = chinese.length > 40 ? chinese.substring(0, 40) + '...' : chinese;
+
+        if (showPinyin && pinyin) {
+            const shortPinyin = pinyin.length > 40 ? pinyin.substring(0, 40) + '...' : pinyin;
+            return `<span class="sentence-chinese">${escapeHtml(shortChinese)}</span><span class="sentence-pinyin">${escapeHtml(shortPinyin)}</span>`;
+        } else {
+            return `<span class="sentence-chinese">${escapeHtml(shortChinese)}</span>`;
+        }
+    }
+
+    function updateCurrentSentenceDisplay() {
+        if (!sentences.length) return;
+        document.getElementById('currentSentence').innerHTML = getDisplaySentence(currentIndex);
+    }
+
+    function refreshSentenceList() {
+        const container = document.getElementById('sentenceItems');
+        if (!container) return;
+        container.innerHTML = '';
+        sentences.forEach((_, idx) => {
+            const div = document.createElement('div');
+            div.className = 'sentence-item';
+            div.onclick = () => loadSentence(idx);
+            div.innerHTML = `<span class="sentence-number">${idx+1}.</span> ${getSentencePreview(idx)}`;
+            container.appendChild(div);
+        });
+        document.querySelectorAll('.sentence-item').forEach((item,i)=>{
+            if(i === currentIndex) item.classList.add('active');
+            else item.classList.remove('active');
+        });
+    }
+
+    function speakCurrentSentence() {
+        if (!sentences.length || currentIndex < 0 || currentIndex >= sentences.length) {
+            alert('沒有可朗讀的句子');
+            return;
+        }
+        const chineseOnlyText = extractChineseOnly(rawSentencesWithPinyin[currentIndex]);
+        if (!chineseOnlyText) return;
+
+        if (window.speechSynthesis.speaking) window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(chineseOnlyText);
+        utterance.lang = 'zh-CN';
+        utterance.rate = speechRate;
+        utterance.volume = 1;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function stopSpeech() {
+        if (window.speechSynthesis) window.speechSynthesis.cancel();
+    }
+
+    function splitIntoSentences(text) {
+        if (!text) return [];
+        let raw = text.split(/[。！？；]/);
+        raw = raw.filter(s => s.trim().length > 0);
+        return raw.map(s => s.trim() + '。');
+    }
+
+    function initSentencesFromProse(prose) {
+        if (prose.sentences && prose.sentences.length) {
+            rawSentencesWithPinyin = [...prose.sentences];
+            sentences = rawSentencesWithPinyin.map(s => extractChineseOnly(s));
+        } else if (prose.content) {
+            const rawChineseSentences = splitIntoSentences(prose.content);
+            rawSentencesWithPinyin = rawChineseSentences;
+            sentences = [...rawChineseSentences];
+        } else {
+            sentences = [];
+            rawSentencesWithPinyin = [];
+        }
+    }
+
+    function loadSentence(index) {
+        if (index < 0 || index >= sentences.length) return;
+        currentIndex = index;
+        updateCurrentSentenceDisplay();
+        document.getElementById('sentenceCounter').textContent = `${currentIndex+1} / ${sentences.length}`;
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        if (prevBtn) prevBtn.disabled = (currentIndex === 0);
+        if (nextBtn) nextBtn.disabled = (currentIndex === sentences.length-1);
+
+        document.querySelectorAll('.sentence-item').forEach((item,i)=>{
+            if(i === currentIndex) item.classList.add('active');
+            else item.classList.remove('active');
+        });
+
+        const recordBtn = document.getElementById('recordBtn');
+        if(recordBtn){
+            recordBtn.disabled = false;
+            recordBtn.innerHTML = '開始錄音';
+            recordBtn.classList.remove('recording');
+        }
+        document.getElementById('resultCard').style.display = 'none';
+        document.getElementById('transcriptionResult').innerHTML = '點擊「開始錄音」後朗讀上方句子';
+        isRecording = false;
+    }
+
+    function prevSentence() { if(currentIndex > 0) loadSentence(currentIndex-1); }
+    function nextSentence() { if(currentIndex < sentences.length-1) loadSentence(currentIndex+1); }
+
+
+    function sortProseByOrder(proseList) {
+        return proseList.sort((a, b) => {
+
+            const getNumber = (title) => {
+                const match = title.match(/作品(\d+)號/);
+                if (match) return parseInt(match[1], 10);
+                return Infinity;
+            };
+            return getNumber(a.title) - getNumber(b.title);
+        });
+    }
+
+
+    async function loadMyArticles() {
+        const container = document.getElementById('myArticlesList');
+        container.innerHTML = '<div class="empty-articles">載入中...</div>';
+        try {
+            const response = await fetch(`/api/get_user_custom_articles/${userId}`);
+            const data = await response.json();
+            if (data.success && data.articles.length > 0) {
+                let html = '';
+                data.articles.forEach(article => {
+                    const date = new Date(article.created_at).toLocaleDateString('zh-TW');
+                    html += `
+                        <div class="custom-article-item" onclick="selectCustomArticle('${article._id}')" data-id="${article._id}">
+                            <div class="article-title">${escapeHtml(article.title || '未命名')}<span class="badge-sm ${article.source_type === 'ai' ? 'ai' : 'manual'}">${article.source_type === 'ai' ? 'AI生成' : '手動'}</span></div>
+                            <div class="article-meta"><span>📅 ${date}</span><span>📄 ${article.word_count}字</span></div>
+                            <div class="article-preview">${escapeHtml(article.content.substring(0,60))}...</div>
+                        </div>`;
+                });
+                container.innerHTML = html;
+            } else {
+                container.innerHTML = `<div class="empty-articles">📁 暫無自訂文章<br><span style="font-size:12px;">點擊下方新增</span></div>`;
+            }
+        } catch(e) { container.innerHTML = '<div class="empty-articles">載入失敗</div>'; }
+    }
+
+    async function selectCustomArticle(articleId) {
+        stopSpeech();
+        try {
+            const pinyinToggle = document.getElementById('pinyinToggleContainer');
+            if (pinyinToggle) pinyinToggle.style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('content').style.display = 'none';
+            document.querySelectorAll('.custom-article-item').forEach(i=>i.classList.remove('active'));
+            const selected = document.querySelector(`.custom-article-item[data-id="${articleId}"]`);
+            if(selected) selected.classList.add('active');
+            const resp = await fetch(`/api/get_custom_article/${articleId}`);
+            const result = await resp.json();
+            if(result.success && result.article){
+                const article = result.article;
+                isCustomArticle = true;
+                currentProse = { _id: article._id, title: article.title, content: article.content, sentences: article.sentences, is_custom:true };
+                initSentencesFromProse(currentProse);
+                currentIndex = 0;
+                document.getElementById('readingSection').style.display = 'block';
+                document.getElementById('currentProseTitle').textContent = article.title;
+                document.getElementById('currentProseMeta').innerHTML = `👤 自訂文章 · ${article.source_type === 'ai' ? 'AI生成' : '手動輸入'} · ${article.word_count}字`;
+                refreshSentenceList();
+                loadSentence(0);
+                await fetch(`/api/update_article_practice/${articleId}`, { method: 'POST' });
+                loadMyArticles();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+                document.getElementById('readingSection').scrollIntoView({ behavior: 'smooth' });
+            } else throw new Error();
+        } catch(e) { alert('載入失敗'); document.getElementById('loading').style.display = 'none'; document.getElementById('content').style.display = 'block'; }
+    }
+
+    async function loadAllProse() {
+        try {
+            const response = await fetch('/api/get_all_prose');
+            const result = await response.json();
+            if(result.success && result.prose_list){
+
+                allProse = sortProseByOrder(result.prose_list);
+                displayProseSelect();
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } else throw new Error();
+        } catch(e){
+            document.getElementById('loading').innerHTML = '<p>載入失敗，請重新整理</p>';
+        }
+    }
+
+    function displayProseSelect() {
+        const select = document.getElementById('proseSelect');
+        const totalSpan = document.getElementById('totalProseCount');
+        select.innerHTML = '<option value="">-- 請選擇文章 --</option>';
+
+        allProse.forEach((prose, idx) => {
+            const option = document.createElement('option');
+            option.value = idx;
+
+            option.textContent = `${prose.title} - ${prose.author || '未知'}`;
+            select.appendChild(option);
+        });
+
+        totalSpan.textContent = allProse.length;
+
+        select.addEventListener('change', function() {
+            const idx = parseInt(this.value);
+            if (!isNaN(idx) && allProse[idx]) {
+                selectProse(allProse[idx]);
+            }
+        });
+    }
+
+    function selectProse(prose) {
+        stopSpeech();
+        isCustomArticle = false;
+        currentProse = prose;
+        initSentencesFromProse(prose);
+        currentIndex = 0;
+        const pinyinToggle = document.getElementById('pinyinToggleContainer');
+        if (pinyinToggle) pinyinToggle.style.display = 'flex';
+
+        document.querySelectorAll('.custom-article-item').forEach(i=>i.classList.remove('active'));
+        document.getElementById('readingSection').style.display = 'block';
+        document.getElementById('currentProseTitle').textContent = prose.title;
+        document.getElementById('currentProseMeta').innerHTML = `👤 ${prose.author || '未知'} · ${prose.category || '散文'} · ${prose.difficulty || '中級'}`;
+        refreshSentenceList();
+        loadSentence(0);
+        document.getElementById('readingSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+
+    async function toggleRecording() {
+        if (!isRecording) await startRecording();
+        else stopRecordingUI();
+    }
+
+    async function startRecording() {
+        try {
+            isRecording = true;
+            const recordBtn = document.getElementById('recordBtn');
+            recordBtn.innerHTML = '停止錄音';
+            recordBtn.classList.add('recording');
+            const resultDiv = document.getElementById('transcriptionResult');
+            resultDiv.innerHTML = '錄音中... 請朗讀上方句子';
+            resultDiv.style.color = '#f39c12';
+            const target = extractChineseOnly(rawSentencesWithPinyin[currentIndex]);
+            const response = await fetch('/start_recording', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ duration: 15, target_word: target })
+            });
+            const result = await response.json();
+            if(result.success){
+                resultDiv.innerHTML = `識別結果：${escapeHtml(result.transcription)}<br> 目標：${escapeHtml(target.substring(0,70))}`;
+                resultDiv.style.color = '#2c3e50';
+                await evaluatePronunciation(result.transcription, target);
+            } else throw new Error(result.error);
+        } catch(err){
+            document.getElementById('transcriptionResult').innerHTML = `錄音失敗：${err.message}`;
+        } finally { stopRecordingUI(); }
+    }
+
+    function stopRecordingUI() {
+        isRecording = false;
+        const btn = document.getElementById('recordBtn');
+        if(btn){
+            btn.innerHTML = '開始錄音';
+            btn.classList.remove('recording');
+        }
+    }
+
+    async function evaluatePronunciation(userText, targetText) {
+        try {
+            const resp = await fetch('/evaluate_pronunciation', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_text: userText, target_text: targetText })
+            });
+            const data = await resp.json();
+            if(data.success) displayResult(data.result);
+            else throw new Error();
+        } catch(e){
+            const mockAcc = Math.floor(Math.random() * 30) + 65;
+            displayResult({ accuracy: mockAcc, feedback: '評估暫時使用模擬評分，請再試一次' });
+        }
+    }
+
+    function displayResult(result){
+        const card = document.getElementById('resultCard');
+        const percentSpan = document.getElementById('accuracyPercent');
+        const progress = document.getElementById('progressBar');
+        const feedbackDiv = document.getElementById('feedback');
+        card.style.display = 'block';
+        percentSpan.textContent = `${result.accuracy}%`;
+        progress.style.width = `${result.accuracy}%`;
+        feedbackDiv.textContent = result.feedback;
+        if(result.accuracy >= 85) feedbackDiv.style.color = '#27ae60';
+        else if(result.accuracy >= 70) feedbackDiv.style.color = '#f39c12';
+        else feedbackDiv.style.color = '#e74c3c';
+        saveRecord(result.accuracy, result.feedback);
+    }
+
+    async function saveRecord(accuracy, feedback){
+        try{
+            await fetch('/api/save_prose_record', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: userId, prose_id: currentProse._id, sentence: sentences[currentIndex],
+                    user_text: 'from_stt', target_text: sentences[currentIndex], accuracy, feedback, is_custom: isCustomArticle
+                })
+            });
+        }catch(e){}
+    }
+
+    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    function showGuide(){ if(!localStorage.getItem("hideProseGuide")) document.getElementById("userGuideModal").style.display = "flex"; }
+    function closeGuide(){ if(document.getElementById("dontShowAgain")?.checked) localStorage.setItem("hideProseGuide","true"); document.getElementById("userGuideModal").style.display = "none"; }
+
+    window.addEventListener('beforeunload', function() { if (window.speechSynthesis) window.speechSynthesis.cancel(); });
+    document.getElementById('backHomeBtn')?.addEventListener('click', function(e) { stopSpeech(); });
+
+    window.prevSentence = prevSentence;
+    window.nextSentence = nextSentence;
+    window.toggleRecording = toggleRecording;
+    window.selectCustomArticle = selectCustomArticle;
+    window.closeGuide = closeGuide;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        showGuide();
+        if (!userId) {
+            alert('請先登入後使用此功能');
+            window.location.href = '/';
+            return;
+        }
+
+        const slider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        if (slider) {
+            slider.addEventListener('input', function() {
+                speechRate = parseFloat(this.value);
+                speedValue.textContent = speechRate.toFixed(2);
+            });
+        }
+
+        const speakBtn = document.getElementById('speakSentenceBtn');
+        if (speakBtn) speakBtn.addEventListener('click', speakCurrentSentence);
+
+        const stopBtn = document.getElementById('stopSpeechBtn');
+        if (stopBtn) stopBtn.addEventListener('click', stopSpeech);
+
+        const pinyinCheckbox = document.getElementById('showPinyinCheckbox');
+        if (pinyinCheckbox) {
+            pinyinCheckbox.addEventListener('change', function(e) {
+                showPinyin = e.target.checked;
+                updateCurrentSentenceDisplay();
+                refreshSentenceList();
+            });
+        }
+
+        document.getElementById('prevBtn')?.addEventListener('click', prevSentence);
+        document.getElementById('nextBtn')?.addEventListener('click', nextSentence);
+
+        loadAllProse();
+        loadMyArticles();
+    });
+
+</script>
+</body>
+</html>

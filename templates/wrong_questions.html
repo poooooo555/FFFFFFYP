@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>錯題庫 - 普通話練習平台</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/wrong_questions.css') }}">
+</head>
+<body>
+<div class="side-function-menu">
+    <button class="side-menu-toggle" onclick="toggleSideMenu()">
+        <span class="side-menu-text">功能選單</span>
+        <span id="sideMenuArrow" class="side-menu-arrow">▶</span>
+    </button>
+
+    <div id="sideMenuPanel" class="side-menu-panel">
+
+        <a href="/" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏠</div>
+                <span>主頁</span>
+            </div>
+        </a>
+
+        <a href="/listening" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon listening-icon side-icon"></div>
+                <span>聆聽練習</span>
+            </div>
+        </a>
+
+        <a href="/speaking" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon speaking-icon side-icon"></div>
+                <span>說話練習</span>
+            </div>
+        </a>
+
+        <a href="/prose_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon prose-icon side-icon"></div>
+                <span>散文朗讀</span>
+            </div>
+        </a>
+
+        <a href="/tones" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon tones-icon side-icon"></div>
+                <span>聲調</span>
+            </div>
+        </a>
+
+        <a href="/pinyin" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon pinyin-icon side-icon"></div>
+                <span>拼音</span>
+            </div>
+        </a>
+
+        <a href="/dictionary" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon dictionary-icon side-icon"></div>
+                <span>字典查詢</span>
+            </div>
+        </a>
+
+        <a href="/wrong_questions" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon wrong_questions side-icon"></div>
+                <span>錯題庫</span>
+            </div>
+        </a>
+
+        <a href="/custom_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon custom-icon side-icon"></div>
+                <span>自訂文章</span>
+            </div>
+        </a>
+
+        <a href="/pinyinTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔤</div>
+                <span>拼音訓練</span>
+            </div>
+        </a>
+
+        <a href="/tonesTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎵</div>
+                <span>聲調訓練</span>
+            </div>
+        </a>
+
+        <a href="/initialsTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎙️</div>
+                <span>聲母訓練</span>
+            </div>
+        </a>
+
+        <a href="/rank" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                <span>查看排名</span>
+            </div>
+        </a>
+
+        <a href="/password" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔒</div>
+                <span>更改密碼</span>
+            </div>
+        </a>
+
+        <a href="/contactus" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">📩</div>
+                <span>聯繫我們</span>
+            </div>
+        </a>
+    </div>
+</div>
+    <div class="container">
+        <div class="header">
+            <h1>
+                我的錯題庫
+            </h1>
+            <div class="header-actions">
+                <button class="btn btn-back" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i> 返回首頁
+                </button>
+                <button class="btn btn-primary" onclick="loadWrongQuestions()">
+                    <i class="fas fa-sync-alt"></i> 刷新
+                </button>
+            </div>
+        </div>
+
+
+        <div class="stats-cards">
+            <div class="stat-card" onclick="filterByType('all')" id="statAll">
+                <div class="stat-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="stat-value" id="totalCount">0</div>
+                <div class="stat-label">總錯題數</div>
+            </div>
+            <div class="stat-card" onclick="filterByType('listening')" id="statListening">
+                <div class="stat-icon">
+                    <i class="fas fa-headphones"></i>
+                </div>
+                <div class="stat-value" id="listeningCount">0</div>
+                <div class="stat-label">聆聽錯題</div>
+            </div>
+            <div class="stat-card" onclick="filterByType('speaking')" id="statSpeaking">
+                <div class="stat-icon">
+                    <i class="fas fa-microphone-alt"></i>
+                </div>
+                <div class="stat-value" id="speakingCount">0</div>
+                <div class="stat-label">發音錯題</div>
+            </div>
+            <div class="stat-card" onclick="filterByType('pinyin')" id="statPinyin">
+                <div class="stat-icon">
+                    <i class="fas fa-pencil-alt"></i>
+                </div>
+                <div class="stat-value" id="pinyinCount">0</div>
+                <div class="stat-label">拼音錯題</div>
+            </div>
+        </div>
+
+
+        <div class="filter-section">
+            <div class="filter-group">
+                <label><i class="fas fa-filter"></i> 題目類型：</label>
+                <select id="typeFilter" class="filter-select" onchange="applyFilters()">
+                    <option value="all">全部錯題</option>
+                    <option value="listening">聆聽練習</option>
+                    <option value="speaking">說話練習</option>
+                    <option value="pinyin">拼音練習</option>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="questions-container">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-list"></i>
+                    錯題列表
+                </h2>
+                <span id="resultCount">共 0 題</span>
+            </div>
+            <div id="questionsList">
+                <div class="loading">載入錯題中</div>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="retryModal" class="retry-modal">
+        <div class="retry-modal-content">
+            <div class="retry-modal-header">
+                <h3><i class="fas fa-redo-alt"></i> 重做練習</h3>
+                <button class="close-modal" onclick="closeRetryModal()">&times;</button>
+            </div>
+            <div id="retryQuestionText" class="retry-question-text"></div>
+            <div class="retry-input-area">
+                <label for="retryAnswer">你的答案：</label>
+                <textarea id="retryAnswer" class="retry-input" rows="3" placeholder="請輸入你的答案..."></textarea>
+                <div id="voiceRecordArea" style="display: none;">
+                    <button id="recordBtn" class="record-btn" onclick="toggleRecording()">
+                        <i class="fas fa-microphone"></i> 開始錄音
+                    </button>
+                </div>
+            </div>
+            <div id="retryResult" class="retry-result"></div>
+            <div class="modal-actions">
+                <button class="btn btn-back" onclick="closeRetryModal()">取消</button>
+                <button class="btn btn-primary" onclick="submitRetry()">提交答案</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function toggleSideMenu() {
+            const panel = document.getElementById('sideMenuPanel');
+            const arrow = document.getElementById('sideMenuArrow');
+
+            panel.classList.toggle('open');
+            arrow.classList.toggle('rotate');
+        }
+
+        let allQuestions = [];
+        let filteredQuestions = [];
+        let currentPage = 1;
+        let currentRetryQuestion = null;
+        let isRecording = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+        const pageSize = 10;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                alert('請先登入');
+                window.location.href = '/';
+                return;
+            }
+            loadWrongQuestions();
+        });
+
+        async function loadWrongQuestions() {
+            const userId = localStorage.getItem('user_id');
+
+            try {
+                document.getElementById('questionsList').innerHTML =
+                    '<div class="loading">載入錯題中</div>';
+
+                const response = await fetch(`/api/wrong_questions/${userId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    allQuestions = data.records;
+                    updateStats(data.stats);
+                    applyFilters();
+                } else {
+                    document.getElementById('questionsList').innerHTML =
+                        `<div class="empty-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>載入失敗：${data.error}</p>
+                        </div>`;
+                }
+            } catch (error) {
+                document.getElementById('questionsList').innerHTML =
+                    `<div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>網絡錯誤：${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        function updateStats(stats) {
+            document.getElementById('totalCount').textContent = stats.total || 0;
+            document.getElementById('listeningCount').textContent = stats.listening || 0;
+            document.getElementById('speakingCount').textContent = stats.speaking || 0;
+            document.getElementById('pinyinCount').textContent = stats.pinyin || 0;
+        }
+
+        function filterByType(type) {
+            document.getElementById('typeFilter').value = type;
+
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.classList.remove('active');
+            });
+
+            if (type === 'all') {
+                document.getElementById('statAll').classList.add('active');
+            } else if (type === 'listening') {
+                document.getElementById('statListening').classList.add('active');
+            } else if (type === 'speaking') {
+                document.getElementById('statSpeaking').classList.add('active');
+            } else if (type === 'pinyin') {
+                document.getElementById('statPinyin').classList.add('active');
+            }
+
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            if (typeFilter === 'all') {
+                filteredQuestions = [...allQuestions];
+            } else {
+                filteredQuestions = allQuestions.filter(q => q.question_type === typeFilter);
+            }
+
+            currentPage = 1;
+            document.getElementById('resultCount').textContent = `共 ${filteredQuestions.length} 題`;
+            renderQuestions();
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById('questionsList');
+
+            if (filteredQuestions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <p>暫無錯題</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const start = (currentPage - 1) * pageSize;
+            const end = start + pageSize;
+            const pageQuestions = filteredQuestions.slice(start, end);
+
+            let html = '';
+
+            pageQuestions.forEach(q => {
+                let typeClass = '';
+                let typeName = '';
+                let difficultyBadge = '';
+                let practiceTypeBadge = '';
+
+                if (q.question_type === 'listening') {
+                    typeClass = 'type-listening';
+                    typeName = '聆聽練習';
+                } else if (q.question_type === 'speaking') {
+                    typeClass = 'type-speaking';
+                    typeName = '說話練習';
+                } else if (q.question_type === 'pinyin') {
+                    typeClass = 'type-pinyin';
+                    typeName = '拼音練習';
+
+                    if (q.difficulty) {
+                        const difficultyClass = `difficulty-${q.difficulty}`;
+                        const difficultyText = q.difficulty === 'easy' ? '初級' :
+                                               q.difficulty === 'medium' ? '中級' : '高級';
+                        difficultyBadge = `<span class="difficulty-badge ${difficultyClass}">${difficultyText}</span>`;
+                    }
+
+                    if (q.additional_data?.practice_type) {
+                        practiceTypeBadge = `<span class="practice-type-badge">${q.additional_data.practice_type}</span>`;
+                    }
+                }
+
+                html += `
+                    <div class="question-card">
+                        <div class="question-header">
+                            <div>
+                                <span class="question-type ${typeClass}">${typeName}</span>
+                                ${difficultyBadge}
+                                ${practiceTypeBadge}
+                                <span class="score-badge">得分: ${q.score}</span>
+                                ${q.additional_data?.attempts ?
+                                    `<span class="score-badge" style="background: #f39c12;">嘗試: ${q.additional_data.attempts}次</span>` : ''}
+                            </div>
+                            <div>
+                                <button class="btn-retry" onclick="openRetryModal('${q.id}')">
+                                    <i class="fas fa-redo-alt"></i> 重做
+                                </button>
+                                <button class="btn-danger" onclick="deleteWrongQuestion('${q.id}')">
+                                    <i class="fas fa-trash"></i> 刪除
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="question-content">
+                            <div class="question-text">${escapeHtml(q.question)}</div>
+
+                            <div class="answer-comparison">
+                                <div class="user-answer">
+                                    <div class="label">
+                                        <i class="fas fa-times-circle"></i> 你的答案
+                                    </div>
+                                    <div class="value">${escapeHtml(q.user_answer) || '(未填寫)'}</div>
+                                </div>
+                                <div class="correct-answer">
+                                    <div class="label">
+                                        <i class="fas fa-check-circle"></i> 正確答案
+                                    </div>
+                                    <div class="value">${escapeHtml(q.correct_answer)}</div>
+                                </div>
+                            </div>
+
+                            ${renderAdditionalData(q)}
+                        </div>
+
+                        <div class="question-footer">
+                            <div>
+                                <i class="fas fa-tag"></i>
+                                ${escapeHtml(q.topic) || escapeHtml(q.additional_data?.char) || escapeHtml(q.additional_data?.word) || '一般練習'}
+                            </div>
+                            <div>
+                                <i class="far fa-calendar-alt"></i> ${q.created_at}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (filteredQuestions.length > pageSize) {
+                const totalPages = Math.ceil(filteredQuestions.length / pageSize);
+                html += '<div class="pagination">';
+                for (let i = 1; i <= totalPages; i++) {
+                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}"
+                                   onclick="goToPage(${i})">${i}</button>`;
+                }
+                html += '</div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        function renderAdditionalData(question) {
+            if (question.question_type === 'speaking') {
+                return `
+                    <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-radius: 8px; font-size: 14px; border: 1px solid #bbdefb;">
+                        <i class="fas fa-microphone-alt" style="color: #1e88e5;"></i>
+                        <span style="color: #0d47a1;">準確率：${question.accuracy || 0}%</span>
+                        ${question.additional_data?.feedback ? `<span style="color: #42a5f5; margin-left: 10px;">| 回饋：${escapeHtml(question.additional_data.feedback)}</span>` : ''}
+                    </div>
+                `;
+            } else if (question.question_type === 'pinyin') {
+                let details = [];
+                if (question.additional_data?.char) {
+                    details.push(`漢字: ${question.additional_data.char}`);
+                }
+                if (question.additional_data?.attempts && question.additional_data.attempts > 1) {
+                    details.push(`嘗試次數: ${question.additional_data.attempts}次`);
+                }
+
+                if (details.length > 0) {
+                    return `
+                        <div style="margin-top: 10px; padding: 10px; background: #fff3e0; border-radius: 8px; font-size: 14px; border: 1px solid #ffe0b2;">
+                            <i class="fas fa-pencil-alt" style="color: #f39c12;"></i>
+                            <span style="color: #e65100;">${details.join(' | ')}</span>
+                        </div>
+                    `;
+                }
+            }
+            return '';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function openRetryModal(questionId) {
+            const question = allQuestions.find(q => q.id === questionId);
+            if (!question) return;
+
+            const userId = localStorage.getItem('user_id');
+
+            if (question.question_type === 'listening') {
+                window.location.href = `/listening?retry=${question.exercise_id}&topic=${encodeURIComponent(question.topic)}`;
+
+            } else if (question.question_type === 'speaking') {
+                window.location.href = `/speaking?retry=${encodeURIComponent(question.correct_answer)}`;
+
+            } else if (question.question_type === 'pinyin') {
+                window.location.href = `/pinyinTraining?retry=true&difficulty=${question.difficulty}&char=${encodeURIComponent(question.question)}&correct=${encodeURIComponent(question.correct_answer)}`;
+            }
+        }
+
+        function closeRetryModal() {
+            document.getElementById('retryModal').style.display = 'none';
+            if (mediaRecorder && isRecording) {
+                stopRecording();
+            }
+            currentRetryQuestion = null;
+        }
+
+        async function initMicrophone() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = event => {
+                    audioChunks.push(event.data);
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    await sendAudioForRecognition(audioBlob);
+                };
+            } catch (error) {
+                console.error('麥克風初始化失敗:', error);
+                showToast('無法訪問麥克風，請檢查權限設定');
+            }
+        }
+
+        async function toggleRecording() {
+            const recordBtn = document.getElementById('recordBtn');
+
+            if (!isRecording) {
+                startRecording();
+                recordBtn.innerHTML = '<i class="fas fa-stop"></i> 停止錄音';
+                recordBtn.classList.add('recording');
+            } else {
+                stopRecording();
+                recordBtn.innerHTML = '<i class="fas fa-microphone"></i> 開始錄音';
+                recordBtn.classList.remove('recording');
+            }
+        }
+
+        function startRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'inactive') {
+                audioChunks = [];
+                mediaRecorder.start();
+                isRecording = true;
+                showToast('錄音中... 請說出你的答案');
+            }
+        }
+
+        function stopRecording() {
+            if (mediaRecorder && mediaRecorder.state === 'recording') {
+                mediaRecorder.stop();
+                isRecording = false;
+            }
+        }
+
+        async function sendAudioForRecognition(audioBlob) {
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'recording.wav');
+
+            try {
+                showToast('正在識別語音...');
+                const response = await fetch('/api/speech_to_text', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success && data.text) {
+                    document.getElementById('retryAnswer').value = data.text;
+                    showToast('語音識別完成');
+                } else {
+                    showToast('語音識別失敗，請手動輸入');
+                }
+            } catch (error) {
+                console.error('語音識別錯誤:', error);
+                showToast('語音識別失敗，請手動輸入');
+            }
+        }
+
+        async function submitRetry() {
+            if (!currentRetryQuestion) return;
+
+            const userAnswer = document.getElementById('retryAnswer').value.trim();
+            if (!userAnswer) {
+                showToast('請輸入你的答案');
+                return;
+            }
+
+            const userId = localStorage.getItem('user_id');
+            const resultDiv = document.getElementById('retryResult');
+
+            try {
+                let response;
+
+                if (currentRetryQuestion.question_type === 'speaking') {
+                    // 發音練習需要評估準確度
+                    response = await fetch('/api/evaluate_pronunciation', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            user_id: userId,
+                            question_id: currentRetryQuestion.id,
+                            user_answer: userAnswer,
+                            target_text: currentRetryQuestion.correct_answer
+                        })
+                    });
+                } else {
+                    // 聆聽和拼音練習直接比對
+                    const isCorrect = userAnswer === currentRetryQuestion.correct_answer;
+                    response = await fetch('/api/retry_wrong_question', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            user_id: userId,
+                            question_id: currentRetryQuestion.id,
+                            user_answer: userAnswer,
+                            is_correct: isCorrect
+                        })
+                    });
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    let resultHtml = '';
+                    if (data.score !== undefined) {
+                        const score = data.score;
+                        const feedback = data.feedback || (score >= 80 ? '做得好！' : '繼續加油！');
+
+                        if (score >= 60) {
+                            resultHtml = `
+                                <div class="retry-result success">
+                                    <i class="fas fa-check-circle"></i>
+                                    <strong>得分：${score}分</strong><br>
+                                    ${feedback}<br>
+                                    ${score >= 80 ? '恭喜你答對了！已從錯題庫中移除。' : '仍需練習，保留在錯題庫中。'}
+                                </div>
+                            `;
+                        } else {
+                            resultHtml = `
+                                <div class="retry-result error">
+                                    <i class="fas fa-times-circle"></i>
+                                    <strong>得分：${score}分</strong><br>
+                                    ${feedback}<br>
+                                    正確答案：${escapeHtml(currentRetryQuestion.correct_answer)}
+                                </div>
+                            `;
+                        }
+                    } else {
+                        if (data.is_correct) {
+                            resultHtml = `
+                                <div class="retry-result success">
+                                    <i class="fas fa-check-circle"></i>
+                                    恭喜你答對了！已從錯題庫中移除。
+                                </div>
+                            `;
+                        } else {
+                            resultHtml = `
+                                <div class="retry-result error">
+                                    <i class="fas fa-times-circle"></i>
+                                    答案不正確<br>
+                                    你的答案：${escapeHtml(userAnswer)}<br>
+                                    正確答案：${escapeHtml(currentRetryQuestion.correct_answer)}
+                                </div>
+                            `;
+                        }
+                    }
+
+                    resultDiv.innerHTML = resultHtml;
+                    resultDiv.style.display = 'block';
+
+
+                    setTimeout(() => {
+                        loadWrongQuestions();
+                    }, 2000);
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="retry-result error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            提交失敗：${data.error}
+                        </div>
+                    `;
+                    resultDiv.style.display = 'block';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="retry-result error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        網絡錯誤：${error.message}
+                    </div>
+                `;
+                resultDiv.style.display = 'block';
+            }
+        }
+
+        async function deleteWrongQuestion(questionId) {
+            if (!confirm('確定要刪除這道錯題嗎？')) return;
+
+            const userId = localStorage.getItem('user_id');
+
+            try {
+                const response = await fetch('/api/delete_wrong_question', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        question_id: questionId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('刪除成功');
+                    loadWrongQuestions();
+                } else {
+                    showToast('刪除失敗：' + data.error);
+                }
+            } catch (error) {
+                showToast('網絡錯誤：' + error.message);
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            renderQuestions();
+        }
+
+        function goBack() {
+            window.location.href = '/';
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerHTML = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('retryModal');
+            if (event.target === modal) {
+                closeRetryModal();
+            }
+        }
+    </script>
+</body>
+</html>

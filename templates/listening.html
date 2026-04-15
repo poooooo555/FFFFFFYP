@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聆聽練習 - 普通話練習平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/listening.css') }}">
+</head>
+<body>
+<div class="side-function-menu">
+    <button class="side-menu-toggle" onclick="toggleSideMenu()">
+        <span class="side-menu-text">功能選單</span>
+        <span id="sideMenuArrow" class="side-menu-arrow">▶</span>
+    </button>
+
+    <div id="sideMenuPanel" class="side-menu-panel">
+
+        <a href="/" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏠</div>
+                <span>主頁</span>
+            </div>
+        </a>
+
+        <a href="/listening" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon listening-icon side-icon"></div>
+                <span>聆聽練習</span>
+            </div>
+        </a>
+
+        <a href="/speaking" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon speaking-icon side-icon"></div>
+                <span>說話練習</span>
+            </div>
+        </a>
+
+        <a href="/prose_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon prose-icon side-icon"></div>
+                <span>散文朗讀</span>
+            </div>
+        </a>
+
+        <a href="/tones" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon tones-icon side-icon"></div>
+                <span>聲調</span>
+            </div>
+        </a>
+
+        <a href="/pinyin" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon pinyin-icon side-icon"></div>
+                <span>拼音</span>
+            </div>
+        </a>
+
+        <a href="/dictionary" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon dictionary-icon side-icon"></div>
+                <span>字典查詢</span>
+            </div>
+        </a>
+
+        <a href="/wrong_questions" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon wrong_questions side-icon"></div>
+                <span>錯題庫</span>
+            </div>
+        </a>
+
+        <a href="/custom_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon custom-icon side-icon"></div>
+                <span>自訂文章</span>
+            </div>
+        </a>
+
+        <a href="/pinyinTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔤</div>
+                <span>拼音訓練</span>
+            </div>
+        </a>
+
+        <a href="/tonesTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎵</div>
+                <span>聲調訓練</span>
+            </div>
+        </a>
+
+        <a href="/initialsTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎙️</div>
+                <span>聲母訓練</span>
+            </div>
+        </a>
+
+        <a href="/rank" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                <span>查看排名</span>
+            </div>
+        </a>
+
+        <a href="/password" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔒</div>
+                <span>更改密碼</span>
+            </div>
+        </a>
+
+        <a href="/contactus" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">📩</div>
+                <span>聯繫我們</span>
+            </div>
+        </a>
+    </div>
+</div>
+
+
+
+    <div class="container">
+        <header class="page-header">
+            <a href="/" class="back-btn">返回首頁</a>
+            <h1>聆聽練習</h1>
+            <p>聆聽AI生成的對話，回答問題提升理解能力</p>
+        </header>
+
+        <div class="exercise-area">
+            <!-- Control panel -->
+            <div class="control-panel">
+                <div class="keyword-input">
+                    <label for="topicInput">輸入對話主題：</label>
+                    <input type="text" id="topicInput" placeholder="例如：學習、旅行、購物..." class="topic-input">
+                </div>
+                <button onclick="generateDialogue()" class="action-btn">生成對話</button>
+                <button onclick="playAllDialogue()" class="action-btn" id="playAllBtn" disabled>播放全部對話</button>
+            </div>
+
+            <!-- Dialogue display area -->
+            <div class="dialogue-container" id="dialogueContainer">
+                <div class="ai-badge">AI 生成對話</div>
+                <div class="dialogue-content" id="dialogueContent">
+                    <div class="welcome-message">
+                        <h3>歡迎使用聆聽練習</h3>
+                        <p>輸入一個主題，AI會為您生成普通話對話，然後回答相關問題來測試您的理解能力。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voice control area -->
+            <div class="audio-control-section" id="audioControlSection" style="display: none;">
+                <h3>語音播放控制</h3>
+                <div class="audio-controls">
+                    <button onclick="playAllDialogue()" class="action-btn">播放全部對話</button>
+                    <button onclick="stopSpeaking()" class="action-btn">停止播放</button>
+                    <button onclick="speakQuestion()" class="action-btn">朗讀問題</button>
+                </div>
+            </div>
+
+            <!-- Problem area -->
+            <div class="question-area" id="questionArea" style="display: none;">
+                <h3>問題：</h3>
+                <div id="questionText"></div>
+                <div class="options" id="optionsContainer"></div>
+                <div id="result"></div>
+                <div class="dialogue-actions">
+                    <button onclick="nextExercise()" class="action-btn" id="nextBtn" style="display: none;">下一題</button>
+                </div>
+            </div>
+
+            <!-- Loading status -->
+            <div class="loading" id="loadingSection" style="display: none;">
+                <div class="spinner"></div>
+                <p>AI正在生成對話...</p>
+            </div>
+
+            <div id="userGuideModal" class="modal">
+              <div class="modal-content">
+                <h2>使用指南</h2>
+                <ol>
+                  <li>輸入一個主題，例如「旅行」</li>
+                  <li>點擊「生成對話」</li>
+                  <li>播放對話並回答問題</li>
+                </ol>
+                <button onclick="closeGuide()">我知道了</button>
+                <label>
+                  <input type="checkbox" id="dontShowAgain"> 不再顯示
+                </label>
+              </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentExercise = null;
+        let currentTopic = '';
+        let speechSynthesis = window.speechSynthesis;
+        let currentExerciseId = null;
+        let isRetryMode = false;  // is that redo mode
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('頁面加載完成');
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const retryExerciseId = urlParams.get('retry');
+            const retryTopic = urlParams.get('topic');
+
+            if (retryExerciseId) {
+                isRetryMode = true;
+                loadRetryExercise(retryExerciseId, retryTopic);
+            } else {
+
+                const userId = localStorage.getItem('user_id');
+                if (userId) {
+                    console.log('已登入用戶:', userId);
+                } else {
+                    console.log('未登入用戶，記錄將不會保存');
+                }
+
+                const topicInput = document.getElementById('topicInput');
+                if (topicInput) {
+                    topicInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            generateDialogue();
+                        }
+                    });
+                }
+            }
+
+            showGuide();
+        });
+
+        async function loadRetryExercise(exerciseId, topic) {
+            try {
+                const userId = localStorage.getItem('user_id');
+
+                document.getElementById('loadingSection').style.display = 'block';
+                document.getElementById('dialogueContent').innerHTML = '';
+
+                const response = await fetch('/retry_listening', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        exercise_id: exerciseId
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    currentExerciseId = result.exercise_id;
+                    currentTopic = topic || result.topic;
+                    currentExercise = {
+                        exercise_id: result.exercise_id,
+                        dialogue: result.dialogue,
+                        question: result.question,
+                        options: result.options,
+                        correct_answer: result.correct_answer
+                    };
+
+                    const topicInput = document.getElementById('topicInput');
+                    if (topicInput && currentTopic) {
+                        topicInput.value = currentTopic;
+                    }
+
+                    displayDialogue(result.dialogue);
+                    displayQuestion(result);
+                    document.getElementById('audioControlSection').style.display = 'block';
+                    document.getElementById('playAllBtn').disabled = false;
+
+                    alert('正在重做錯題，請重新回答！');
+                } else {
+                    throw new Error(result.error);
+                }
+
+            } catch (error) {
+                console.error('載入重做題目失敗:', error);
+                document.getElementById('dialogueContent').innerHTML =
+                    `<div class="error">載入失敗：${error.message}</div>`;
+            } finally {
+                document.getElementById('loadingSection').style.display = 'none';
+            }
+        }
+
+        // Simple text-to-speech function
+        function speakText(text) {
+            if (!speechSynthesis) {
+                console.log('語音合成不可用');
+                return;
+            }
+
+            // Stop the current voice
+            speechSynthesis.cancel();
+
+            if (!text || text.trim() === '') {
+                console.log('空文本，跳過朗讀');
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+
+            // Set Chinese voice
+            const voices = speechSynthesis.getVoices();
+            const chineseVoice = voices.find(voice => voice.lang.includes('zh-CN')) || voices[0];
+            if (chineseVoice) {
+                utterance.voice = chineseVoice;
+                utterance.lang = 'zh-CN';
+            }
+
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            console.log('朗讀:', text);
+            speechSynthesis.speak(utterance);
+        }
+
+        // Stop voice
+        function stopSpeaking() {
+            if (speechSynthesis) {
+                speechSynthesis.cancel();
+                console.log('停止語音播放');
+            }
+        }
+
+        // Play all dialogue - Super Easy Version
+        function playAllDialogue() {
+            if (!currentExercise || !currentExercise.dialogue) {
+                alert('請先生成對話');
+                return;
+            }
+
+            console.log('開始播放全部對話');
+
+            const dialogueLines = Array.isArray(currentExercise.dialogue)
+                ? currentExercise.dialogue
+                : currentExercise.dialogue.split('\n').filter(line => line.trim());
+
+            // Speak all conversations at once
+            const fullText = dialogueLines.join(' ');
+            speakText(fullText);
+        }
+
+        // Speak problem
+        function speakQuestion() {
+            if (!currentExercise || !currentExercise.question) {
+                alert('請先生成對話');
+                return;
+            }
+
+            console.log('朗讀問題:', currentExercise.question);
+            speakText(currentExercise.question);
+        }
+
+        // Play single-line dialogue
+        function speakSingleLine(text) {
+            console.log('播放單行:', text);
+            speakText(text);
+        }
+
+        // Check user login status
+        function checkUserLoggedIn() {
+            const userId = localStorage.getItem('user_id');
+            if (!userId) {
+                console.log('用戶未登入，將不保存記錄');
+                return null;
+            }
+            return userId;
+        }
+
+        // Save listening records to database
+        async function saveListeningRecord(topic, isCorrect, userAnswer, correctAnswer, question) {
+        const userId = checkUserLoggedIn();
+        if (!userId) {
+            console.log('用戶未登入，跳過保存記錄');
+            return;  // 直接返回，不保存
+        }
+
+        try {
+            const response = await fetch('/save_listening_record', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: userId,
+                    topic: topic,
+                    is_correct: isCorrect,
+                    user_answer: userAnswer,
+                    correct_answer: correctAnswer,
+                    question: question
+                })
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                console.log('聆聽記錄保存成功');
+            } else {
+                console.log('保存記錄失敗:', result.error);
+            }
+        } catch (error) {
+            console.error('保存記錄時出錯:', error);
+        }
+    }
+
+        // Generate Dialogue
+        async function generateDialogue() {
+            try {
+                const topicInput = document.getElementById('topicInput');
+                const topic = topicInput.value.trim() || '學習';
+                const userId = localStorage.getItem('user_id');  // 可能為 null
+
+                currentTopic = topic;
+
+                document.getElementById('loadingSection').style.display = 'block';
+                document.getElementById('dialogueContent').innerHTML = '';
+                document.getElementById('questionArea').style.display = 'none';
+                document.getElementById('audioControlSection').style.display = 'none';
+                document.getElementById('playAllBtn').disabled = true;
+                document.getElementById('result').innerHTML = '';
+                document.getElementById('nextBtn').style.display = 'none';
+
+                const response = await fetch('/generate_listening', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        topic: topic,
+                        user_id: userId  // 可以為 null
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    currentExerciseId = result.exercise_id;
+                    currentExercise = {
+                        exercise_id: result.exercise_id,
+                        dialogue: result.dialogue,
+                        question: result.question,
+                        options: result.options,
+                        correct_answer: result.correct_answer
+                    };
+
+                    displayDialogue(result.dialogue);
+                    displayQuestion(result);
+                    document.getElementById('audioControlSection').style.display = 'block';
+                    document.getElementById('playAllBtn').disabled = false;
+
+                    console.log('生成成功，exercise_id:', currentExerciseId);
+                } else {
+                    throw new Error(result.error);
+                }
+
+            } catch (error) {
+                console.error('生成失敗:', error);
+                document.getElementById('dialogueContent').innerHTML =
+                    `<div class="error">錯誤: ${error.message}</div>`;
+            } finally {
+                document.getElementById('loadingSection').style.display = 'none';
+            }
+        }
+
+        // Showing the dialogue
+        function displayDialogue(dialogue) {
+            const dialogueContent = document.getElementById('dialogueContent');
+            if (!dialogueContent) {
+                console.error('找不到對話內容容器');
+                return;
+            }
+
+            dialogueContent.innerHTML = '';
+
+            let lines = [];
+            if (typeof dialogue === 'string') {
+                lines = dialogue.split('\n').filter(line => line.trim());
+            } else if (Array.isArray(dialogue)) {
+                lines = dialogue.filter(line => line && line.trim());
+            } else {
+                console.error('未知的對話格式:', dialogue);
+                dialogueContent.innerHTML = '<div class="error">對話格式錯誤</div>';
+                return;
+            }
+
+            if (lines.length === 0) {
+                dialogueContent.innerHTML = '<div class="error">沒有對話內容</div>';
+                return;
+            }
+
+            lines.forEach((line, index) => {
+                const lineDiv = document.createElement('div');
+                const isCharacterA = line.includes('A:');
+                lineDiv.className = `dialogue-line ${isCharacterA ? 'A' : 'B'}`;
+
+                // Click-to-play function
+                lineDiv.innerHTML = `
+                    <span class="dialogue-text">${line}</span>
+                    <button class="play-btn" onclick="speakSingleLine('${line.replace(/'/g, "\\'").replace(/"/g, '\\"')}')">🔊</button>
+                `;
+
+                dialogueContent.appendChild(lineDiv);
+            });
+        }
+
+        // Display question
+        function displayQuestion(exercise) {
+            const questionArea = document.getElementById('questionArea');
+            const questionText = document.getElementById('questionText');
+            const optionsContainer = document.getElementById('optionsContainer');
+            const resultDiv = document.getElementById('result');
+
+            if (!questionArea || !questionText || !optionsContainer) {
+                console.error('找不到問題區域元素');
+                return;
+            }
+
+            questionText.textContent = exercise.question || '沒有問題內容';
+            optionsContainer.innerHTML = '';
+            resultDiv.innerHTML = '';
+
+            if (!exercise.options || !Array.isArray(exercise.options)) {
+                console.error('選項格式錯誤');
+                return;
+            }
+
+            const uniqueOptions = [...new Set(exercise.options)];
+
+            uniqueOptions.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.innerHTML = `
+                    <span class="option-text">${option}</span>
+                `;
+                optionDiv.onclick = () => checkAnswer(option, exercise.correct_answer, exercise.question);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            questionArea.style.display = 'block';
+        }
+
+        // Check answer
+        function checkAnswer(selectedOption, correctAnswer, question) {
+            const isCorrect = selectedOption === correctAnswer;
+            const userId = localStorage.getItem('user_id');
+            const resultDiv = document.getElementById('result');
+            const nextBtn = document.getElementById('nextBtn');
+
+            // 獲取當前對話內容
+            const dialogueLines = document.querySelectorAll('.dialogue-line');
+            let dialogueText = '';
+            dialogueLines.forEach(line => {
+                dialogueText += line.querySelector('.dialogue-text').textContent + '\n';
+            });
+
+            // 如果有用戶 ID 才保存記錄
+            if (userId) {
+                fetch('/save_listening_record', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        topic: currentTopic,
+                        exercise_id: currentExerciseId,
+                        user_answer: selectedOption,
+                        correct_answer: correctAnswer,
+                        question: question,
+                        is_correct: isCorrect,
+                        options: currentExercise.options,
+                        dialogue: dialogueText
+                    })
+                });
+            } else {
+                console.log('未登入用戶，不保存記錄');
+            }
+
+            // 顯示結果
+            if (isCorrect) {
+                resultDiv.innerHTML = `<div class="result correct">回答正確！</div>`;
+                nextBtn.style.display = 'block';
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="result incorrect">
+                        回答錯誤！正確答案是: <span class="correct-answer">${correctAnswer}</span>
+                        <button class="retry-btn" onclick="retryThisQuestion()" style="
+                            background: #4caf50;
+                            color: white;
+                            border: none;
+                            padding: 8px 16px;
+                            border-radius: 6px;
+                            margin-left: 15px;
+                            cursor: pointer;
+                            font-weight: bold;
+                        ">
+                            <i class="fas fa-redo-alt"></i> 重做此題
+                        </button>
+                    </div>
+                `;
+                nextBtn.style.display = 'none';
+            }
+
+
+            document.querySelectorAll('.option').forEach(option => {
+                option.style.pointerEvents = 'none';
+            });
+        }
+
+        // Next question
+        function nextExercise() {
+            document.getElementById('questionArea').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('audioControlSection').style.display = 'none';
+            generateDialogue();
+        }
+
+        function showGuide() {
+            if (localStorage.getItem("hideGuide") !== "true") {
+                const modal = document.getElementById("userGuideModal");
+                modal.style.display = "flex";
+            }
+        }
+
+            function closeGuide() {
+              if (document.getElementById("dontShowAgain").checked) {
+                localStorage.setItem("hideGuide", "true");
+              }
+              document.getElementById("userGuideModal").style.display = "none";
+            }
+
+            window.onload = showGuide;
+
+
+        // Initialization
+        window.onload = function() {
+            console.log('頁面加載完成');
+
+            // Enter key for input boxes
+            const topicInput = document.getElementById('topicInput');
+            if (topicInput) {
+                topicInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        generateDialogue();
+                    }
+                });
+            }
+        }
+
+        function toggleSideMenu() {
+            const panel = document.getElementById('sideMenuPanel');
+            const arrow = document.getElementById('sideMenuArrow');
+
+            panel.classList.toggle('open');
+            arrow.classList.toggle('rotate');
+        }
+    </script>
+</body>
+</html>

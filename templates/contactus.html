@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聯繫我們</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', '微軟正黑體', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .contact-page {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            padding: 35px;
+        }
+
+        .page-title {
+            font-size: 2.2em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .share-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            color: #2c3e50;
+            font-size: 0.95em;
+        }
+
+        .share-icons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .share-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .facebook { background: #1877f2; }
+        .twitter { background: #1da1f2; }
+        .weibo { background: #e6162d; }
+        .wechat { background: #07c160; }
+        .mail { background: #43a047; }
+
+        .content-block {
+            background: white;
+            border-radius: 15px;
+            padding: 10px 0 0;
+        }
+
+        .section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .section p {
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 14px;
+            font-size: 1em;
+        }
+
+        .contact-box {
+            background: #f8f9fb;
+            border-left: 4px solid #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .contact-row {
+            margin-bottom: 16px;
+            font-size: 1em;
+            line-height: 1.8;
+        }
+
+        .contact-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-label {
+            font-weight: 600;
+            color: #2c3e50;
+            display: inline-block;
+            min-width: 90px;
+        }
+
+        .contact-link {
+            color: #e67e22;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .contact-link:hover {
+            text-decoration: underline;
+        }
+
+        .form-btn {
+            display: inline-block;
+            margin-top: 8px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            padding: 12px 22px;
+            border-radius: 25px;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .form-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .section ul {
+            padding-left: 22px;
+            margin-top: 8px;
+        }
+
+        .section li {
+            margin-bottom: 12px;
+            line-height: 1.8;
+        }
+
+        .notice-box {
+            background: #fff5ef;
+            border: 1px solid #f5cba7;
+            border-radius: 8px;
+            padding: 14px 16px;
+            color: #a65d2a;
+            font-size: 0.95em;
+            margin-top: 18px;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .contact-page {
+                padding: 22px;
+            }
+
+            .page-title {
+                font-size: 1.8em;
+            }
+
+            .contact-label {
+                display: block;
+                min-width: auto;
+                margin-bottom: 4px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .contact-page {
+                padding: 18px;
+            }
+
+            .page-title {
+                font-size: 1.6em;
+            }
+
+            .section-title {
+                font-size: 1.2em;
+            }
+
+            .form-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+        .side-function-menu {
+    position: fixed;
+    top: 180px;
+    left: 0;
+    z-index: 999;
+    display: flex;
+    align-items: flex-start;
+}
+
+/* 收起时显示的按钮 */
+.side-menu-toggle {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    border: none;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 16px 10px;
+    border-radius: 0 14px 14px 0;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 140px;
+}
+
+.side-menu-toggle:hover {
+    background: linear-gradient(135deg, #2980b9, #1f6fa5);
+}
+
+.side-menu-text {
+    letter-spacing: 2px;
+}
+
+.side-menu-arrow {
+    writing-mode: initial;
+    text-orientation: initial;
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.side-menu-arrow.rotate {
+    transform: rotate(90deg);
+}
+
+
+.side-menu-panel {
+    width: 0;
+    overflow: hidden;
+    background: white;
+    border-radius: 0 16px 16px 0;
+    box-shadow: 6px 8px 24px rgba(0, 0, 0, 0.12);
+    transition: width 0.3s ease, padding 0.3s ease;
+    padding: 0;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/
+.side-menu-panel.open {
+    width: 240px;
+    padding: 14px;
+}
+
+
+.side-menu-item {
+    display: block;
+    text-decoration: none;
+    color: #2c3e50;
+    background: #f8fbff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+}
+
+.side-menu-item:last-child {
+    margin-bottom: 0;
+}
+
+.side-menu-item:hover {
+    background: #eef6ff;
+    border-color: #3498db;
+    transform: translateX(4px);
+}
+
+.side-menu-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.side-menu-item-left span {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* 左侧菜单图示尺寸，不影响你原本 nav-icon */
+.side-icon {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+/* 手机版避免遮挡内容 */
+@media (max-width: 768px) {
+    .side-function-menu {
+        top: 140px;
+    }
+
+    .side-menu-panel.open {
+        width: 200px;
+    }
+
+    .side-menu-toggle {
+        min-height: 120px;
+        font-size: 14px;
+        padding: 12px 8px;
+    }
+
+    .side-menu-item-left span {
+        font-size: 14px;
+    }
+
+    .side-icon {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+.listening-icon {
+    background-image: url("/static/images/listening-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.speaking-icon {
+    background-image: url("/static/images/speaking-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.tones-icon {
+    background-image: url("/static/images/tones-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.prose-icon {
+    background-image: url("/static/images/prose-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.pinyin-icon {
+    background-image: url("/static/images/initials-finals-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.dictionary-icon {
+    background-image: url("/static/images/dictionary-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.wrong_questions {
+    background-image: url("/static/images/wrong-questions.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.custom-icon{
+    background-image: url("/static/images/custom-article.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.pinyinTraining-icon{
+    background-image: url("/static/images/pinyinTraining-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.toneTrainin-icon{
+    background-image: url("/static/images/toneTrainin-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.initialsTraining-icon{
+    background-image: url("/static/images/initialsTraining-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+    </style>
+</head>
+<body>
+<div class="side-function-menu">
+    <button class="side-menu-toggle" onclick="toggleSideMenu()">
+        <span class="side-menu-text">功能選單</span>
+        <span id="sideMenuArrow" class="side-menu-arrow">▶</span>
+    </button>
+
+    <div id="sideMenuPanel" class="side-menu-panel">
+
+        <a href="/" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏠</div>
+                <span>主頁</span>
+            </div>
+        </a>
+
+        <a href="/listening" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon listening-icon side-icon"></div>
+                <span>聆聽練習</span>
+            </div>
+        </a>
+
+        <a href="/speaking" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon speaking-icon side-icon"></div>
+                <span>說話練習</span>
+            </div>
+        </a>
+
+        <a href="/prose_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon prose-icon side-icon"></div>
+                <span>散文朗讀</span>
+            </div>
+        </a>
+
+        <a href="/tones" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon tones-icon side-icon"></div>
+                <span>聲調</span>
+            </div>
+        </a>
+
+        <a href="/pinyin" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon pinyin-icon side-icon"></div>
+                <span>拼音</span>
+            </div>
+        </a>
+
+        <a href="/dictionary" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon dictionary-icon side-icon"></div>
+                <span>字典查詢</span>
+            </div>
+        </a>
+
+        <a href="/wrong_questions" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon wrong_questions side-icon"></div>
+                <span>錯題庫</span>
+            </div>
+        </a>
+
+        <a href="/custom_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon custom-icon side-icon"></div>
+                <span>自訂文章</span>
+            </div>
+        </a>
+
+        <a href="/pinyinTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔤</div>
+                <span>拼音訓練</span>
+            </div>
+        </a>
+
+        <a href="/tonesTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎵</div>
+                <span>聲調訓練</span>
+            </div>
+        </a>
+
+        <a href="/initialsTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎙️</div>
+                <span>聲母訓練</span>
+            </div>
+        </a>
+
+        <a href="/rank" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                <span>查看排名</span>
+            </div>
+        </a>
+
+        <a href="/password" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔒</div>
+                <span>更改密碼</span>
+            </div>
+        </a>
+
+        <a href="/contactus" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">📩</div>
+                <span>聯繫我們</span>
+            </div>
+        </a>
+    </div>
+</div>
+    <div class="container">
+        <div class="contact-page">
+            <h1 class="page-title">聯繫我們</h1>
+
+
+            <div class="content-block">
+                <div class="section">
+                    <h2 class="section-title">查詢及聯絡方式</h2>
+                    <p>
+                        如你在使用普通話練習平台時有任何疑問、建議或技術問題，歡迎透過以下方式與我們聯絡。
+                        我們重視每一位使用者的意見，並會持續改進平台內容與使用體驗。
+                    </p>
+
+                    <div class="contact-box">
+                        <div class="contact-row">
+                            <span class="contact-label">電子郵箱：</span>
+                            <a class="contact-link" href="mailto:fags62626sjjd@gmail.com">fags62626sjjd@gmail.com</a>
+                        </div>
+
+                        <div class="contact-row">
+                            <span class="contact-label">意見表單：</span>
+                            <a class="contact-link" href="https://docs.google.com/forms/d/e/1FAIpQLSfI1hzdzKk_e_a5rgHI9vA3NJ24KzETgn_UW2-befxy4-qUXw/viewform?usp=publish-editor" target="_blank">
+                                歡迎提出意見
+                            </a>
+                        </div>
+
+                        <a class="form-btn" href="https://docs.google.com/forms/d/e/1FAIpQLSfI1hzdzKk_e_a5rgHI9vA3NJ24KzETgn_UW2-befxy4-qUXw/viewform?usp=publish-editor" target="_blank">
+                            前往聯絡表單
+                        </a>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">歡迎提出意見</h2>
+                    <p>
+                        你可透過網上表單向我們提交對普通話練習平台的意見。根據表單內容，用戶可就以下方面作出回應：
+                    </p>
+
+                    <ul>
+                        <li>這個網站是否可以幫助你學習普通話</li>
+                        <li>這個網站能否讓你對普通話更有自信</li>
+                        <li>你會否推薦給朋友</li>
+                        <li>其他希望告訴我們的建議或留言</li>
+                    </ul>
+
+                    <div class="notice-box">
+                        請勿在表單中提交密碼或其他敏感資料。如需帳戶相關協助，建議直接透過電子郵件與我們聯絡。
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">回覆安排</h2>
+                    <p>
+                        我們會定期查看來信及表單回覆，並在合理時間內跟進。若你的問題涉及帳戶、登入、更改密碼或功能異常，
+                        請於電郵中盡量提供相關情況說明，以便我們更有效地協助你。
+                    </p>
+                    <p>
+                        如屬一般建議或內容意見，我們亦會作為後續平台優化的重要參考。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+    function toggleSideMenu() {
+        const panel = document.getElementById('sideMenuPanel');
+        const arrow = document.getElementById('sideMenuArrow');
+
+        panel.classList.toggle('open');
+        arrow.classList.toggle('rotate');
+    }
+</script>
+</body>
+</html>

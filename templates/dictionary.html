@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>字典查詢 - 普通話練習平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dictionary.css') }}">
+</head>
+<body>
+<div class="side-function-menu">
+    <button class="side-menu-toggle" onclick="toggleSideMenu()">
+        <span class="side-menu-text">功能選單</span>
+        <span id="sideMenuArrow" class="side-menu-arrow">▶</span>
+    </button>
+
+    <div id="sideMenuPanel" class="side-menu-panel">
+
+        <a href="/" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏠</div>
+                <span>主頁</span>
+            </div>
+        </a>
+
+        <a href="/listening" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon listening-icon side-icon"></div>
+                <span>聆聽練習</span>
+            </div>
+        </a>
+
+        <a href="/speaking" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon speaking-icon side-icon"></div>
+                <span>說話練習</span>
+            </div>
+        </a>
+
+        <a href="/prose_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon prose-icon side-icon"></div>
+                <span>散文朗讀</span>
+            </div>
+        </a>
+
+        <a href="/tones" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon tones-icon side-icon"></div>
+                <span>聲調</span>
+            </div>
+        </a>
+
+        <a href="/pinyin" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon pinyin-icon side-icon"></div>
+                <span>拼音</span>
+            </div>
+        </a>
+
+        <a href="/dictionary" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon dictionary-icon side-icon"></div>
+                <span>字典查詢</span>
+            </div>
+        </a>
+
+        <a href="/wrong_questions" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon wrong_questions side-icon"></div>
+                <span>錯題庫</span>
+            </div>
+        </a>
+
+        <a href="/custom_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon custom-icon side-icon"></div>
+                <span>自訂文章</span>
+            </div>
+        </a>
+
+        <a href="/pinyinTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔤</div>
+                <span>拼音訓練</span>
+            </div>
+        </a>
+
+        <a href="/tonesTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎵</div>
+                <span>聲調訓練</span>
+            </div>
+        </a>
+
+        <a href="/initialsTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎙️</div>
+                <span>聲母訓練</span>
+            </div>
+        </a>
+
+        <a href="/rank" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                <span>查看排名</span>
+            </div>
+        </a>
+
+        <a href="/password" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔒</div>
+                <span>更改密碼</span>
+            </div>
+        </a>
+
+        <a href="/contactus" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">📩</div>
+                <span>聯繫我們</span>
+            </div>
+        </a>
+    </div>
+</div>
+    <div class="container">
+        <header class="page-header">
+            <a href="/" class="back-btn">返回首頁</a>
+            <h1>字典查詢</h1>
+            <p>查詢中文詞語的拼音</p>
+        </header>
+
+        <div class="dictionary-area">
+            <!-- Search area-->
+            <div class="search-section">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="輸入要查詢的中文詞語..." maxlength="20">
+                    <button onclick="searchWord()" id="searchBtn">查詢</button>
+                </div>
+                <div class="search-suggestions">
+                    <span>試試查詢：</span>
+                    <button class="suggestion-btn" onclick="quickSearch('你好')">你好</button>
+                    <button class="suggestion-btn" onclick="quickSearch('謝謝')">謝謝</button>
+                    <button class="suggestion-btn" onclick="quickSearch('學習')">學習</button>
+                    <button class="suggestion-btn" onclick="quickSearch('朋友')">朋友</button>
+                </div>
+            </div>
+
+            <!-- Results display area -->
+            <div class="result-section" id="resultSection" style="display: none;">
+                <div class="word-header">
+                    <h2 id="wordDisplay"></h2>
+                    <button class="play-btn" id="playWordBtn" onclick="speakWord()">播放讀音</button>
+                </div>
+                <div class="word-info">
+                    <span class="pinyin" id="pinyinDisplay"></span>
+                    <span class="radical" id="radicalDisplay"></span>
+                </div>
+
+                <div class="meaning-section">
+                    <div class="meanings" id="meaningsDisplay"></div>
+                </div>
+            </div>
+
+            <!-- Error message -->
+            <div class="error-section" id="errorSection" style="display: none;">
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+
+            <!-- Loading status -->
+            <div class="loading-section" id="loadingSection" style="display: none;">
+                <div class="spinner"></div>
+                <p>正在查詢字典...</p>
+            </div>
+
+            <div id="userGuideModal" class="modal">
+              <div class="modal-content">
+                <h2>使用指南</h2>
+                <ol>
+                  <li>輸入任何中文詞語</li>
+                  <li>按下查詢，可找到其拼音</li>
+                  <li>按下「播放讀音」可聆聽詞語的普通話發音</li>
+                </ol>
+                <button onclick="closeGuide()">我知道了</button>
+                <label>
+                  <input type="checkbox" id="dontShowAgain"> 不再顯示
+                </label>
+              </div>
+            </div>
+
+            <!-- Welcome message -->
+            <div class="welcome-section" id="welcomeSection">
+                <div class="welcome-message">
+                    <h3>歡迎使用字典查詢</h3>
+                    <p>輸入任何中文詞語，查詢其拼音、意思和詳細解釋，並可聆聽標準普通話發音</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <strong>拼音顯示</strong>
+                            <p>準確的普通話拼音標注</p>
+                        </div>
+                        <div class="feature-item">
+                            <strong>語音播放</strong>
+                            <p>點擊播放讀音，聆聽標準普通話發音</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSideMenu() {
+            const panel = document.getElementById('sideMenuPanel');
+            const arrow = document.getElementById('sideMenuArrow');
+
+            panel.classList.toggle('open');
+            arrow.classList.toggle('rotate');
+        }
+
+        let currentWord = '';
+        let currentWordText = '';
+        let isSpeaking = false;
+        let currentUtterance = null;
+
+        function searchWord() {
+            const word = document.getElementById('searchInput').value.trim();
+            if (!word) {
+                alert('請輸入要查詢的詞語');
+                return;
+            }
+
+            performSearch(word);
+        }
+
+        function quickSearch(word) {
+            document.getElementById('searchInput').value = word;
+            performSearch(word);
+        }
+
+        async function performSearch(word) {
+            // Display loading status
+            showSection('loadingSection');
+            hideSections(['resultSection', 'errorSection', 'welcomeSection']);
+
+            try {
+                const response = await fetch('/search_dictionary', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ word: word })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayResult(result);
+                } else {
+                    showError(result.error);
+                }
+
+            } catch (error) {
+                showError('網絡錯誤，請檢查連接後重試');
+            }
+        }
+
+        function displayResult(data) {
+            currentWord = data.word;
+            currentWordText = data.word;
+
+            // Update word display
+            document.getElementById('wordDisplay').textContent = data.word;
+
+            // Update Pinyin
+            if (data.pinyin) {
+                document.getElementById('pinyinDisplay').textContent = data.pinyin;
+            } else {
+                document.getElementById('pinyinDisplay').textContent = '暫無拼音';
+            }
+
+            // Update explanation
+            const meaningsContainer = document.getElementById('meaningsDisplay');
+            meaningsContainer.innerHTML = '';
+
+            if (data.meanings && data.meanings.length > 0) {
+                data.meanings.forEach((meaning, index) => {
+                    const meaningElement = document.createElement('div');
+                    meaningElement.className = 'meaning-item';
+                    meaningElement.innerHTML = '<span class="meaning-number">' + (index + 1) + '.</span> ' + meaning;
+                    meaningsContainer.appendChild(meaningElement);
+                });
+            } else {
+                meaningsContainer.innerHTML = '<div class="no-data"></div>';
+            }
+
+            // Reset play button state
+            const playBtn = document.getElementById('playWordBtn');
+            if (playBtn) {
+                playBtn.classList.remove('playing');
+                playBtn.textContent = '播放讀音';
+            }
+
+            // Display results
+            showSection('resultSection');
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            showSection('errorSection');
+        }
+
+        function showSection(sectionId) {
+            hideAllSections();
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        function hideSections(sectionIds) {
+            sectionIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) element.style.display = 'none';
+            });
+        }
+
+        function hideAllSections() {
+            hideSections(['resultSection', 'errorSection', 'loadingSection', 'welcomeSection']);
+        }
+
+
+        function stopSpeaking() {
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+            if (currentUtterance) {
+                currentUtterance.onend = null;
+                currentUtterance.onerror = null;
+                currentUtterance = null;
+            }
+            isSpeaking = false;
+
+            const playBtn = document.getElementById('playWordBtn');
+            if (playBtn) {
+                playBtn.classList.remove('playing');
+                playBtn.textContent = '播放讀音';
+            }
+        }
+
+        function speakWord() {
+            if (!currentWordText) {
+                alert('請先查詢詞語');
+                return;
+            }
+
+            stopSpeaking();
+
+            if (!window.speechSynthesis) {
+                alert('您的瀏覽器不支援語音合成功能');
+                return;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(currentWordText);
+            currentUtterance = utterance;
+
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.9;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+
+            const playBtn = document.getElementById('playWordBtn');
+            if (playBtn) {
+                playBtn.classList.add('playing');
+                playBtn.textContent = '播放中';
+            }
+
+            utterance.onend = function() {
+                if (playBtn) {
+                    playBtn.classList.remove('playing');
+                    playBtn.textContent = '播放讀音';
+                }
+                isSpeaking = false;
+                currentUtterance = null;
+            };
+
+            utterance.onerror = function(event) {
+                console.error('語音播放錯誤:', event);
+                if (playBtn) {
+                    playBtn.classList.remove('playing');
+                    playBtn.textContent = '播放讀音';
+                }
+                isSpeaking = false;
+                currentUtterance = null;
+                alert('語音播放失敗，請重試');
+            };
+
+            isSpeaking = true;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Enter key search
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchWord();
+            }
+        });
+
+        function showGuide() {
+          if (localStorage.getItem("hideGuide") !== "true") {
+            document.getElementById("userGuideModal").style.display = "flex";
+          }
+        }
+
+        function closeGuide() {
+          if (document.getElementById("dontShowAgain").checked) {
+            localStorage.setItem("hideGuide", "true");
+          }
+          document.getElementById("userGuideModal").style.display = "none";
+        }
+
+        window.onload = function() {
+            showGuide();
+            showSection('welcomeSection');
+        };
+    </script>
+</body>
+</html>

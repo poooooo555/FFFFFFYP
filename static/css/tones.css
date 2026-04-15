@@ -1,0 +1,399 @@
+/* static/css/tones.css */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    color: #333;
+    min-height: 100vh;
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 30px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.back-btn {
+    display: inline-block;
+    padding: 12px 25px;
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: background 0.3s;
+}
+
+.back-btn:hover {
+    background: #2980b9;
+}
+
+h1 {
+    font-size: 2.8em;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-weight: 700;
+}
+
+h2 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.8em;
+}
+
+h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 1.4em;
+}
+
+.content-area {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.content-area p {
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+    line-height: 1.8;
+}
+
+.tone-rule {
+    background: #f8f9fa;
+    padding: 25px;
+    margin: 20px 0;
+    border-radius: 12px;
+    border-left: 5px solid #3498db;
+    transition: transform 0.3s ease;
+}
+
+.tone-rule:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.example {
+    color: #3498db;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin: 10px 0;
+    padding: 10px;
+    background: white;
+    border-radius: 6px;
+    border-left: 3px solid #3498db;
+}
+
+.tone-change-rules {
+    background: #e3f2fd;
+    padding: 25px;
+    border-radius: 12px;
+    margin-top: 30px;
+    border-left: 5px solid #3498db;
+}
+
+.tone-change-rules h3 {
+    color: #1565c0;
+    margin-bottom: 15px;
+}
+
+.tone-change-rules p {
+    color: #1565c0;
+    margin-bottom: 15px;
+}
+
+.tone-change-rules ul {
+    color: #1565c0;
+    padding-left: 20px;
+}
+
+.tone-change-rules li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+/* 為不同聲調添加不同的邊框顏色 */
+.tone-rule:nth-child(2) {
+    border-left-color: #2ecc71; /* 第二聲 - 綠色 */
+}
+
+.tone-rule:nth-child(3) {
+    border-left-color: #f39c12; /* 第三聲 - 橙色 */
+}
+
+.tone-rule:nth-child(4) {
+    border-left-color: #e74c3c; /* 第四聲 - 紅色 */
+}
+
+.tone-rule:nth-child(5) {
+    border-left-color: #9b59b6; /* 輕聲 - 紫色 */
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 2.2em;
+    }
+
+    .content-area {
+        padding: 20px;
+    }
+
+    .tone-rule {
+        padding: 20px;
+    }
+
+    .tone-change-rules {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.8em;
+    }
+
+    .back-btn {
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+
+    .tone-rule {
+        padding: 15px;
+    }
+}
+
+.side-function-menu {
+    position: fixed;
+    top: 180px;
+    left: 0;
+    z-index: 999;
+    display: flex;
+    align-items: flex-start;
+}
+
+/* 收起时显示的按钮 */
+.side-menu-toggle {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    border: none;
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    padding: 16px 10px;
+    border-radius: 0 14px 14px 0;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 140px;
+}
+
+.side-menu-toggle:hover {
+    background: linear-gradient(135deg, #2980b9, #1f6fa5);
+}
+
+.side-menu-text {
+    letter-spacing: 2px;
+}
+
+.side-menu-arrow {
+    writing-mode: initial;
+    text-orientation: initial;
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+.side-menu-arrow.rotate {
+    transform: rotate(90deg);
+}
+
+/* 展开的面板 */
+.side-menu-panel {
+    width: 0;
+    overflow: hidden;
+    background: white;
+    border-radius: 0 16px 16px 0;
+    box-shadow: 6px 8px 24px rgba(0, 0, 0, 0.12);
+    transition: width 0.3s ease, padding 0.3s ease;
+    padding: 0;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+/* 展开状态 */
+.side-menu-panel.open {
+    width: 240px;
+    padding: 14px;
+}
+
+/* 每个项目 */
+.side-menu-item {
+    display: block;
+    text-decoration: none;
+    color: #2c3e50;
+    background: #f8fbff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 10px;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+}
+
+.side-menu-item:last-child {
+    margin-bottom: 0;
+}
+
+.side-menu-item:hover {
+    background: #eef6ff;
+    border-color: #3498db;
+    transform: translateX(4px);
+}
+
+.side-menu-item-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.side-menu-item-left span {
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+/* 左侧菜单图示尺寸，不影响你原本 nav-icon */
+.side-icon {
+    width: 34px;
+    height: 34px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+}
+
+/* 手机版避免遮挡内容 */
+@media (max-width: 768px) {
+    .side-function-menu {
+        top: 140px;
+    }
+
+    .side-menu-panel.open {
+        width: 200px;
+    }
+
+    .side-menu-toggle {
+        min-height: 120px;
+        font-size: 14px;
+        padding: 12px 8px;
+    }
+
+    .side-menu-item-left span {
+        font-size: 14px;
+    }
+
+    .side-icon {
+        width: 28px;
+        height: 28px;
+    }
+}
+.listening-icon {
+    background-image: url("/static/images/listening-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.speaking-icon {
+    background-image: url("/static/images/speaking-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.tones-icon {
+    background-image: url("/static/images/tones-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.prose-icon {
+    background-image: url("/static/images/prose-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.pinyin-icon {
+    background-image: url("/static/images/initials-finals-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.dictionary-icon {
+    background-image: url("/static/images/dictionary-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.wrong_questions {
+    background-image: url("/static/images/wrong-questions.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.custom-icon{
+    background-image: url("/static/images/custom-article.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.pinyinTraining-icon{
+    background-image: url("/static/images/pinyinTraining-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.toneTrainin-icon{
+    background-image: url("/static/images/toneTrainin-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.initialsTraining-icon{
+    background-image: url("/static/images/initialsTraining-icon.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}

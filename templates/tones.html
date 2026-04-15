@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聲調規則 - 普通話練習平台</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tones.css') }}">
+</head>
+<body>
+<div class="side-function-menu">
+    <button class="side-menu-toggle" onclick="toggleSideMenu()">
+        <span class="side-menu-text">功能選單</span>
+        <span id="sideMenuArrow" class="side-menu-arrow">▶</span>
+    </button>
+
+    <div id="sideMenuPanel" class="side-menu-panel">
+
+        <a href="/" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏠</div>
+                <span>主頁</span>
+            </div>
+        </a>
+
+        <a href="/listening" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon listening-icon side-icon"></div>
+                <span>聆聽練習</span>
+            </div>
+        </a>
+
+        <a href="/speaking" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon speaking-icon side-icon"></div>
+                <span>說話練習</span>
+            </div>
+        </a>
+
+        <a href="/prose_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon prose-icon side-icon"></div>
+                <span>散文朗讀</span>
+            </div>
+        </a>
+
+        <a href="/tones" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon tones-icon side-icon"></div>
+                <span>聲調</span>
+            </div>
+        </a>
+
+        <a href="/pinyin" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon pinyin-icon side-icon"></div>
+                <span>拼音</span>
+            </div>
+        </a>
+
+        <a href="/dictionary" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon dictionary-icon side-icon"></div>
+                <span>字典查詢</span>
+            </div>
+        </a>
+
+        <a href="/wrong_questions" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon wrong_questions side-icon"></div>
+                <span>錯題庫</span>
+            </div>
+        </a>
+
+        <a href="/custom_reading" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon custom-icon side-icon"></div>
+                <span>自訂文章</span>
+            </div>
+        </a>
+
+        <a href="/pinyinTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔤</div>
+                <span>拼音訓練</span>
+            </div>
+        </a>
+
+        <a href="/tonesTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎵</div>
+                <span>聲調訓練</span>
+            </div>
+        </a>
+
+        <a href="/initialsTraining" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🎙️</div>
+                <span>聲母訓練</span>
+            </div>
+        </a>
+
+        <a href="/rank" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🏆</div>
+                <span>查看排名</span>
+            </div>
+        </a>
+
+        <a href="/password" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">🔒</div>
+                <span>更改密碼</span>
+            </div>
+        </a>
+
+        <a href="/contactus" class="side-menu-item">
+            <div class="side-menu-item-left">
+                <div class="nav-icon side-icon" style="width:30px; height: 30px; font-size: 20px; display: flex; align-items: center; justify-content: center;">📩</div>
+                <span>聯繫我們</span>
+            </div>
+        </a>
+    </div>
+</div>
+    <div class="container">
+        <header class="page-header">
+            <a href="/" class="back-btn">返回首頁</a>
+            <h1>普通話聲調規則</h1>
+        </header>
+
+        <div class="content-area">
+            <p>普通話有四個基本聲調和一個輕聲，掌握聲調是學習普通話的關鍵。</p>
+
+            <div class="tone-rule">
+                <h3>第一聲 - 高平調 (ˉ)</h3>
+                <p>音高保持平穩，從開始到結束都保持在高音位置。</p>
+                <div class="example">示例: mā (媽) - 媽媽</div>
+            </div>
+
+            <div class="tone-rule">
+                <h3>第二聲 - 升調 (ˊ)</h3>
+                <p>從中音升到高音，是一個上升的調型。</p>
+                <div class="example">示例: má (麻) - 麻布</div>
+            </div>
+
+            <div class="tone-rule">
+                <h3>第三聲 - 降升調 (ˇ)</h3>
+                <p>先降後升，是最複雜的聲調。</p>
+                <div class="example">示例: mǎ (馬) - 馬匹</div>
+            </div>
+
+            <div class="tone-rule">
+                <h3>第四聲 - 降調 (ˋ)</h3>
+                <p>從高音降到低音，是一個下降的調型。</p>
+                <div class="example">示例: mà (罵) - 罵人</div>
+            </div>
+
+            <div class="tone-rule">
+                <h3>輕聲</h3>
+                <p>沒有固定音高，發音短而輕。</p>
+                <div class="example">示例: ma (嗎) - 疑問詞</div>
+            </div>
+
+            <div class="tone-change-rules">
+                <h3>聲調變化規則</h3>
+                <p>在普通話中，某些聲調組合會發生變化：</p>
+                <ul>
+                    <li>兩個第三聲相連時，第一個第三聲變為第二聲，例如"你好"(nǐ hǎo)發音為(ní hǎo)</li>
+                    <li>"一"的變調：在第四聲前變為第二聲，在其他聲調前變為第四聲</li>
+                    <li>"不"的變調：在第四聲前變為第二聲</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+<script>
+function toggleSideMenu() {
+    const panel = document.getElementById('sideMenuPanel');
+    const arrow = document.getElementById('sideMenuArrow');
+
+    panel.classList.toggle('open');
+    arrow.classList.toggle('rotate');
+}
+</script>
+</body>
+</html>
