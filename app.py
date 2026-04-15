@@ -10,6 +10,7 @@ import os
 import string
 import secrets
 from bson import ObjectId
+import requests
 from dictionary_service import dictionary_service
 
 app = Flask(__name__)
