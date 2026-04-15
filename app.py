@@ -836,47 +836,41 @@ def search_dictionary():
 
 @app.route('/generate_listening', methods=['POST'])
 def generate_listening():
-
     try:
-        data = request.get_json()
+        data = request.json
         topic = data.get('topic', '學習')
-        user_id = data.get('user_id')
+        api_key = os.getenv("DEEPSEEK_API_KEY")  # 確保 Render 有填呢個
 
-        print(f"收到聆聽練習生成請求，主題: {topic}, 用戶ID: {user_id}")
+        if not api_key:
+            return jsonify({"success": False, "error": "API Key 未設定"}), 500
 
-        if not AI_ENABLED:
-            return jsonify({'success': False, 'error': 'AI 模塊未加載'})
+        # 直接用 requests 呼叫，唔使裝複雜嘅 SDK，最啱 Render 免費版/Starter 版
+        response = requests.post(
+            "https://api.deepseek.com/chat/completions",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "deepseek-chat",
+                "messages": [
+                    {"role": "system", "content": "你是一個普通話老師。請根據主題生成一段A和B的對話，並出一個選擇題。"},
+                    {"role": "user", "content": f"主題：{topic}"}
+                ],
+                "response_format": {"type": "json_object"}  # 如果你想要 JSON 回傳
+            },
+            timeout=30
+        )
 
-        exercise = cantonese_ai_generator.generate_complete_exercise(topic)
-
-        exercise_doc = {
-            "topic": topic,
-            "dialogue": exercise["dialogue"],
-            "question": exercise["question"],
-            "options": exercise["options"],
-            "correct_answer": exercise["correct_answer"],
-            "created_by": user_id,
-            "created_at": datetime.now(),
-            "used_count": 0
-        }
-
-        result = listening_exercises.insert_one(exercise_doc)
-        exercise_id = str(result.inserted_id)
-
-        print(f"聆聽練習已保存: {exercise_id}, 主題: {topic}")
-
-        return jsonify({
-            'success': True,
-            'exercise_id': exercise_id,
-            'dialogue': exercise["dialogue"],
-            'question': exercise["question"],
-            'options': exercise["options"],
-            'correct_answer': exercise["correct_answer"]
-        })
+        result = response.json()
+        # 這裡根據你前端需要的格式來 return 內容
+        # ... (解析 result 並 return)
+        return jsonify(
+            {"success": True, "dialogue": "...", "question": "...", "options": [...], "correct_answer": "..."})
 
     except Exception as e:
-        print(f"生成聆聽練習失敗: {e}")
-        return jsonify({'success': False, 'error': str(e)})
+        print(f"Error: {str(e)}")  # 呢句會顯示喺 Render Logs
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 @app.route('/save_listening_record', methods=['POST'])

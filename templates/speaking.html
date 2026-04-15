@@ -521,51 +521,51 @@
         }
 
         async function startRecording() {
-            try {
-                isRecording = true;
-                document.getElementById('recordBtn').textContent = '停止錄音';
-                document.getElementById('recordBtn').classList.add('recording');
-                document.getElementById('wordDisplay').style.color = '#e74c3c';
-                document.getElementById('transcriptionResult').textContent = '錄音中...';
-                document.getElementById('transcriptionResult').style.color = '#f39c12';
+    try {
+        isRecording = true;
+        document.getElementById('recordBtn').textContent = '停止錄音';
+        document.getElementById('recordBtn').classList.add('recording');
+        document.getElementById('transcriptionResult').textContent = '正在聽你說話...';
 
-                console.log('開始錄音，目標詞:', currentWord);
-
-                const response = await fetch('/start_recording', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        duration: 5,
-                        target_word: currentWord
-                    })
-                });
-
-                const result = await response.json();
-                console.log('後端響應:', result);
-
-                if (result.success) {
-                    document.getElementById('transcriptionResult').textContent =
-                        `識別結果: ${result.transcription} (置信度: ${result.confidence.toFixed(1)}%)`;
-                    document.getElementById('transcriptionResult').style.color = '#2c3e50';
-                    await evaluatePronunciation(result.transcription);
-                } else {
-                    document.getElementById('transcriptionResult').textContent =
-                        `識別失敗: ${result.error}`;
-                    document.getElementById('transcriptionResult').style.color = '#e74c3c';
-                    console.error('語音識別失敗:', result.error);
-                }
-
-            } catch (error) {
-                console.error('錄音過程錯誤:', error);
-                document.getElementById('transcriptionResult').textContent =
-                    '網絡錯誤，請檢查連接';
-                document.getElementById('transcriptionResult').style.color = '#e74c3c';
-            } finally {
-                stopRecordingUI();
-            }
+        // 1. 建立瀏覽器語音辨識 (Web Speech API)
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("你的瀏覽器不支援語音辨識，請使用 Chrome 或 Safari");
+            return;
         }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'zh-CN'; // 設定為普通話
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = async (event) => {
+            const userText = event.results[0][0].transcript;
+            const confidence = event.results[0][0].confidence * 100;
+
+            document.getElementById('transcriptionResult').textContent =
+                `識別結果: ${userText} (置信度: ${confidence.toFixed(1)}%)`;
+
+            // 2. 將辨識結果傳返去後端做評估 (Accuracy)
+            await evaluatePronunciation(userText);
+        };
+
+        recognition.onerror = (event) => {
+            document.getElementById('transcriptionResult').textContent = `錯誤: ${event.error}`;
+            stopRecordingUI();
+        };
+
+        recognition.onend = () => {
+            stopRecordingUI();
+        };
+
+        recognition.start();
+
+    } catch (error) {
+        console.error('錄音過程錯誤:', error);
+        stopRecordingUI();
+    }
+}
 
         function stopRecordingUI() {
             isRecording = false;
