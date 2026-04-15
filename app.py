@@ -29,6 +29,7 @@ PINYIN_RECORDS_COLLECTION = "pinyin_training_records"
 
 
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
 
 
 print("檢查文件夾結構...")
@@ -39,11 +40,12 @@ if os.path.exists('templates'):
 else:
     print("警告: templates 文件夾不存在!")
 
-
 try:
-    from pymongo import MongoClient, DESCENDING
+    # 3. 使用 MONGO_URI 連線 (這條路徑會自動適應本地或雲端)
+    client = MongoClient(MONGO_URI)
 
-    client = MongoClient('mongodb://localhost:27017/')
+    # 4. 指定 Database 名稱
+    # 如果你在 Atlas 叫 mandarin_practice，這裡就維持不變
     db = client['mandarin_practice']
 
     users = db["users"]
@@ -56,9 +58,10 @@ try:
     pinyin_training_records = db["pinyin_training_records"]
     user_login_stats = db["user_login_stats"]
 
+    # 測試連線
+    client.admin.command('ping')
     MONGO_ENABLED = True
-    print("MongoDB 連接成功")
-
+    print("MongoDB 連接成功 (已連至:", "雲端 Atlas" if "mongodb+srv" in MONGO_URI else "本地 Localhost", ")")
 
     vocab_count = vocabulary.count_documents({})
     print(f"詞彙庫中的詞彙數量: {vocab_count}")
