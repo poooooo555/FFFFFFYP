@@ -669,59 +669,53 @@ def evaluate_pronunciation_route():
 
         print(f"評估發音: 用戶說='{user_text}', 目標='{target_text}'")
 
-        # 检查 voice_service 是否可用
-        if VOICE_ENABLED and 'voice_service' in globals() and voice_service:
-            result = voice_service.evaluate_pronunciation(user_text, target_text)
+        # 直接使用字符匹配算法，不依赖外部服务
+        import re
+
+        def clean_text(text):
+            if not text:
+                return ""
+            return re.sub(r'[^\u4e00-\u9fff]', '', text)
+
+        user_clean = clean_text(user_text)
+        target_clean = clean_text(target_text)
+
+        if not target_clean:
+            accuracy = 0.0
+            feedback = "目標文本為空"
         else:
-            # 备用评估逻辑 - 基于字符匹配
-            print("使用备用评估逻辑")
+            # 计算匹配的字符数
+            matched_chars = 0
+            total_chars = len(target_clean)
+            min_len = min(len(user_clean), len(target_clean))
 
-            # 清理文本，只保留中文字符
-            import re
-            def clean_text(text):
-                if not text:
-                    return ""
-                return re.sub(r'[^\u4e00-\u9fff]', '', text)
+            for i in range(min_len):
+                if user_clean[i] == target_clean[i]:
+                    matched_chars += 1
 
-            user_clean = clean_text(user_text)
-            target_clean = clean_text(target_text)
+            accuracy = (matched_chars / total_chars) * 100 if total_chars > 0 else 0
 
-            if not target_clean:
-                accuracy = 0.0
-                feedback = "目標文本為空"
+            # 生成反馈
+            if user_clean == target_clean:
+                feedback = "完美！發音完全正確！"
+                accuracy = 100.0
+            elif accuracy >= 80:
+                feedback = f"很好！準確率 {accuracy:.1f}%"
+            elif accuracy >= 60:
+                feedback = f"不錯！準確率 {accuracy:.1f}%"
+            elif accuracy >= 40:
+                feedback = f"加油！準確率 {accuracy:.1f}%"
             else:
-                # 计算匹配的字符数
-                matched_chars = 0
-                total_chars = len(target_clean)
-                min_len = min(len(user_clean), len(target_clean))
+                feedback = f"需要加強！準確率 {accuracy:.1f}%"
 
-                for i in range(min_len):
-                    if user_clean[i] == target_clean[i]:
-                        matched_chars += 1
+        print(f"評估結果: 準確率={accuracy:.1f}%, {feedback}")
 
-                accuracy = (matched_chars / total_chars) * 100 if total_chars > 0 else 0
-
-                # 生成反馈
-                if user_clean == target_clean:
-                    feedback = "完美！發音完全正確！"
-                    accuracy = 100.0
-                elif accuracy >= 80:
-                    feedback = f"很好！準確率 {accuracy:.1f}%"
-                elif accuracy >= 60:
-                    feedback = f"不錯！準確率 {accuracy:.1f}%"
-                elif accuracy >= 40:
-                    feedback = f"加油！準確率 {accuracy:.1f}%"
-                else:
-                    feedback = f"需要加強！準確率 {accuracy:.1f}%"
-
-            result = {
-                'accuracy': round(accuracy, 1),
-                'user_text': user_text,
-                'target_text': target_text,
-                'feedback': feedback,
-                'matched_chars': matched_chars if 'matched_chars' in dir() else 0,
-                'total_chars': len(target_clean) if target_clean else 0
-            }
+        result = {
+            'accuracy': round(accuracy, 1),
+            'user_text': user_text,
+            'target_text': target_text,
+            'feedback': feedback
+        }
 
         return jsonify({
             'success': True,

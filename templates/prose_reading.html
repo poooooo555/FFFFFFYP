@@ -611,29 +611,63 @@
     }
 
     async function startRecording() {
-        try {
-            isRecording = true;
-            const recordBtn = document.getElementById('recordBtn');
-            recordBtn.innerHTML = '停止錄音';
-            recordBtn.classList.add('recording');
-            const resultDiv = document.getElementById('transcriptionResult');
-            resultDiv.innerHTML = '錄音中... 請朗讀上方句子';
-            resultDiv.style.color = '#f39c12';
-            const target = extractChineseOnly(rawSentencesWithPinyin[currentIndex]);
-            const response = await fetch('/start_recording', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ duration: 15, target_word: target })
-            });
-            const result = await response.json();
-            if(result.success){
-                resultDiv.innerHTML = `識別結果：${escapeHtml(result.transcription)}<br> 目標：${escapeHtml(target.substring(0,70))}`;
-                resultDiv.style.color = '#2c3e50';
-                await evaluatePronunciation(result.transcription, target);
-            } else throw new Error(result.error);
-        } catch(err){
-            document.getElementById('transcriptionResult').innerHTML = `錄音失敗：${err.message}`;
-        } finally { stopRecordingUI(); }
+    try {
+        isRecording = true;
+        const recordBtn = document.getElementById('recordBtn');
+        recordBtn.innerHTML = '停止錄音';
+        recordBtn.classList.add('recording');
+        const resultDiv = document.getElementById('transcriptionResult');
+        resultDiv.innerHTML = '錄音中... 請朗讀上方句子';
+        resultDiv.style.color = '#f39c12';
+
+        const target = extractChineseOnly(rawSentencesWithPinyin[currentIndex]);
+
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            resultDiv.innerHTML = '您的瀏覽器不支援語音識別，請使用 Chrome 或 Edge';
+            resultDiv.style.color = '#e74c3c';
+            stopRecordingUI();
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'zh-CN';  // 设置普通话
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onresult = async (event) => {
+            const userText = event.results[0][0].transcript;
+            const confidence = event.results[0][0].confidence * 100;
+
+            resultDiv.innerHTML = `識別結果：${escapeHtml(userText)}<br>目標：${escapeHtml(target.substring(0, 70))}<br>置信度：${confidence.toFixed(1)}%`;
+            resultDiv.style.color = '#2c3e50';
+
+            await evaluatePronunciation(userText, target);
+            stopRecordingUI();
+        };
+
+        recognition.onerror = (event) => {
+            console.error('语音识别错误:', event.error);
+            resultDiv.innerHTML = `語音識別錯誤：${event.error}，請重試`;
+            resultDiv.style.color = '#e74c3c';
+            stopRecordingUI();
+        };
+
+        recognition.onend = () => {
+            if (isRecording) {
+                stopRecordingUI();
+            }
+        };
+
+        recognition.start();
+
+    } catch (err) {
+        console.error('录音失败:', err);
+        document.getElementById('transcriptionResult').innerHTML = `錄音失敗：${err.message}`;
+        stopRecordingUI();
     }
+}
 
     function stopRecordingUI() {
         isRecording = false;
@@ -645,19 +679,32 @@
     }
 
     async function evaluatePronunciation(userText, targetText) {
-        try {
-            const resp = await fetch('/evaluate_pronunciation', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_text: userText, target_text: targetText })
-            });
-            const data = await resp.json();
-            if(data.success) displayResult(data.result);
-            else throw new Error();
-        } catch(e){
-            const mockAcc = Math.floor(Math.random() * 30) + 65;
-            displayResult({ accuracy: mockAcc, feedback: '評估暫時使用模擬評分，請再試一次' });
+    try {
+        const resp = await fetch('/evaluate_pronunciation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_text: userText,
+                target_text: targetText
+            })
+        });
+        const data = await resp.json();
+
+        if (data.success) {
+            displayResult(data.result);
+
+            await saveRecord(data.result.accuracy, data.result.feedback);
+        } else {
+            throw new Error(data.error);
         }
+    } catch (e) {
+        console.error('评估失败:', e);
+
+        const resultDiv = document.getElementById('transcriptionResult');
+        resultDiv.innerHTML = `評估失敗：${e.message}，請重試`;
+        resultDiv.style.color = '#e74c3c';
     }
+}
 
     function displayResult(result){
         const card = document.getElementById('resultCard');
