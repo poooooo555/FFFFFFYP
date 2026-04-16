@@ -238,57 +238,74 @@
         });
 
         async function loadRetryExercise(exerciseId, topic) {
-            try {
-                const userId = localStorage.getItem('user_id');
+    try {
+        const userId = localStorage.getItem('user_id');
 
-                document.getElementById('loadingSection').style.display = 'block';
-                document.getElementById('dialogueContent').innerHTML = '';
 
-                const response = await fetch('/retry_listening', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        exercise_id: exerciseId
-                    })
-                });
+        document.getElementById('loadingSection').style.display = 'block';
+        document.getElementById('dialogueContent').innerHTML = '';
+        document.getElementById('questionArea').style.display = 'none';
+        document.getElementById('audioControlSection').style.display = 'none';
+        document.getElementById('result').innerHTML = '';
 
-                const result = await response.json();
 
-                if (result.success) {
-                    currentExerciseId = result.exercise_id;
-                    currentTopic = topic || result.topic;
-                    currentExercise = {
-                        exercise_id: result.exercise_id,
-                        dialogue: result.dialogue,
-                        question: result.question,
-                        options: result.options,
-                        correct_answer: result.correct_answer
-                    };
+        const response = await fetch('/retry_listening', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: userId,
+                exercise_id: exerciseId,
+                topic: decodeURIComponent(topic)
+            })
+        });
 
-                    const topicInput = document.getElementById('topicInput');
-                    if (topicInput && currentTopic) {
-                        topicInput.value = currentTopic;
-                    }
+        const result = await response.json();
 
-                    displayDialogue(result.dialogue);
-                    displayQuestion(result);
-                    document.getElementById('audioControlSection').style.display = 'block';
-                    document.getElementById('playAllBtn').disabled = false;
+        if (result.success) {
 
-                    alert('正在重做錯題，請重新回答！');
-                } else {
-                    throw new Error(result.error);
-                }
+            currentExerciseId = result.exercise_id;
+            currentTopic = result.topic || decodeURIComponent(topic);
+            currentExercise = {
+                exercise_id: result.exercise_id,
+                dialogue: result.dialogue,
+                question: result.question,
+                options: result.options,
+                correct_answer: result.correct_answer
+            };
 
-            } catch (error) {
-                console.error('載入重做題目失敗:', error);
-                document.getElementById('dialogueContent').innerHTML =
-                    `<div class="error">載入失敗：${error.message}</div>`;
-            } finally {
-                document.getElementById('loadingSection').style.display = 'none';
+
+            const topicInput = document.getElementById('topicInput');
+            if (topicInput && currentTopic) {
+                topicInput.value = currentTopic;
             }
+
+
+            displayDialogue(result.dialogue);
+            displayQuestion({
+                question: result.question,
+                options: result.options,
+                correct_answer: result.correct_answer
+            });
+
+
+            document.getElementById('audioControlSection').style.display = 'block';
+            document.getElementById('playAllBtn').disabled = false;
+
+
+            document.getElementById('loadingSection').style.display = 'none';
+
+
+        } else {
+            throw new Error(result.error || '加載失敗');
         }
+
+    } catch (error) {
+        console.error('載入重做題目失敗:', error);
+        document.getElementById('loadingSection').style.display = 'none';
+        document.getElementById('dialogueContent').innerHTML =
+            `<div class="error">載入失敗：${error.message}，請返回首頁重試。</div>`;
+    }
+}
 
         // Simple text-to-speech function
         function speakText(text) {
