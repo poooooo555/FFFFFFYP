@@ -850,8 +850,9 @@ def generate_listening():
         data = request.json
         topic = data.get('topic', '學習')
         api_key = os.getenv("DEEPSEEK_API_KEY")
+        user_id = data.get('user_id')
 
-        # 正确的 prompt - 用于生成对话和选择题
+
         prompt = f"""請根據主題「{topic}」生成一段普通話對話和一個選擇題。
 
 要求：
@@ -882,11 +883,17 @@ def generate_listening():
         }
 
         response = requests.post(
-            "https://api.deepseek.com/chat/completions",  # 注意是 /chat/completions
+            "https://api.deepseek.com/chat/completions",
             headers=headers,
             json=payload,
             timeout=30
         )
+
+
+        dialogue = ""
+        question = ""
+        options = []
+        correct_answer = ""
 
         if response.status_code == 200:
             result = response.json()
@@ -894,18 +901,49 @@ def generate_listening():
             import json
             exercise_data = json.loads(content)
 
-            return jsonify({
-                "success": True,
-                "dialogue": exercise_data.get("dialogue", ""),
-                "question": exercise_data.get("question", ""),
-                "options": exercise_data.get("options", []),
-                "correct_answer": exercise_data.get("correct_answer", "")
-            })
+            dialogue = exercise_data.get("dialogue", "")
+            question = exercise_data.get("question", "")
+            options = exercise_data.get("options", [])
+            correct_answer = exercise_data.get("correct_answer", "")
         else:
-            return jsonify({"success": False, "error": f"API 错误: {response.status_code}"}), 500
+
+            print(f"API 调用失败，使用模拟数据: {response.status_code}")
+            dialogue = f"A: 你好！今天我們來聊聊{topic}。\nB: 好啊，我很有興趣。\nA: 你覺得{topic}重要嗎？\nB: 當然重要，我會繼續學習。\nA: 太好了，一起加油吧！\nB: 謝謝你的鼓勵！"
+            question = f"他們在討論什麼主題？"
+            options = [f"A. {topic}", "B. 工作", "C. 旅行", "D. 美食"]
+            correct_answer = f"A. {topic}"
+
+
+        exercise_record = {
+            "topic": topic,
+            "dialogue": dialogue,
+            "question": question,
+            "options": options,
+            "correct_answer": correct_answer,
+            "created_by": user_id,
+            "created_at": datetime.now(),
+            "used_count": 0
+        }
+
+        insert_result = listening_exercises.insert_one(exercise_record)
+        exercise_id = str(insert_result.inserted_id)
+
+        print(f"聆聽練習題目已保存: {exercise_id}, 主題: {topic}")
+
+
+        return jsonify({
+            "success": True,
+            "exercise_id": exercise_id,
+            "dialogue": dialogue,
+            "question": question,
+            "options": options,
+            "correct_answer": correct_answer
+        })
 
     except Exception as e:
         print(f"Error: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"success": False, "error": str(e)}), 500
 
 
@@ -930,14 +968,24 @@ def save_listening_record():
         if not topic:
             return jsonify({'success': False, 'error': '缺少主题参数'})
 
+
         if not exercise_id or exercise_id == 'null' or exercise_id == 'undefined' or exercise_id == '':
 
-            exercise_id = f"mock_{int(datetime.now().timestamp())}"
-            print(f"生成新的 exercise_id: {exercise_id}")
+            if listening_exercises:
+
+                recent_exercise = listening_exercises.find_one({"topic": topic}, sort=[("created_at", -1)])
+                if recent_exercise:
+                    exercise_id = str(recent_exercise['_id'])
+                    print(f"找到已存在的 exercise_id: {exercise_id}")
+                else:
+                    exercise_id = f"mock_{int(datetime.now().timestamp())}"
+                    print(f"生成新的 mock exercise_id: {exercise_id}")
+            else:
+                exercise_id = f"mock_{int(datetime.now().timestamp())}"
+                print(f"生成新的 mock exercise_id: {exercise_id}")
 
 
         if not correct_answer and options:
-
             for opt in options:
                 if 'correct' in opt.lower() or '对' in opt:
                     correct_answer = opt
@@ -960,8 +1008,17 @@ def save_listening_record():
             "created_at": datetime.now()
         }
 
-        # 保存到数据库
+
         result = listening_records.insert_one(record)
+
+
+        try:
+            listening_exercises.update_one(
+                {"_id": ObjectId(exercise_id)},
+                {"$inc": {"used_count": 1}}
+            )
+        except:
+            pass
 
         print(f"聆聽記錄已保存: {result.inserted_id}")
         print(f"  - exercise_id: {exercise_id}")
@@ -997,26 +1054,30 @@ def retry_listening():
             return generate_mock_listening_exercise(topic)
 
 
-        if exercise_id.startswith('auto_generated_'):
+        if exercise_id.startswith('auto_generated_') or exercise_id.startswith('mock_'):
             print("自動生成的 ID，使用模擬數據")
             return generate_mock_listening_exercise(topic)
 
 
         from bson import ObjectId
+        exercise = None
+
         try:
 
             if ObjectId.is_valid(exercise_id):
                 exercise = listening_exercises.find_one({'_id': ObjectId(exercise_id)})
             else:
-                exercise = None
-        except:
+
+                exercise = listening_exercises.find_one({'exercise_id': exercise_id})
+        except Exception as e:
+            print(f"查找题目时出错: {e}")
             exercise = None
 
         if not exercise:
-            print(f"找不到題目: {exercise_id}，使用模擬數據")
+            print(f"找不到题目: {exercise_id}，使用模擬數據")
             return generate_mock_listening_exercise(topic)
 
-        print(f"找到題目: {exercise['_id']}")
+        print(f"找到题目: {exercise['_id']}")
 
         return jsonify({
             'success': True,
@@ -1033,6 +1094,7 @@ def retry_listening():
         import traceback
         traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)})
+
 
 
 def generate_mock_listening_exercise(topic):

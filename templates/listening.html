@@ -447,60 +447,61 @@
 
         // Generate Dialogue
         async function generateDialogue() {
-            try {
-                const topicInput = document.getElementById('topicInput');
-                const topic = topicInput.value.trim() || '學習';
-                const userId = localStorage.getItem('user_id');  // 可能為 null
+    try {
+        const topicInput = document.getElementById('topicInput');
+        const topic = topicInput.value.trim() || '學習';
+        const userId = localStorage.getItem('user_id');
 
-                currentTopic = topic;
+        currentTopic = topic;
 
-                document.getElementById('loadingSection').style.display = 'block';
-                document.getElementById('dialogueContent').innerHTML = '';
-                document.getElementById('questionArea').style.display = 'none';
-                document.getElementById('audioControlSection').style.display = 'none';
-                document.getElementById('playAllBtn').disabled = true;
-                document.getElementById('result').innerHTML = '';
-                document.getElementById('nextBtn').style.display = 'none';
+        document.getElementById('loadingSection').style.display = 'block';
+        document.getElementById('dialogueContent').innerHTML = '';
+        document.getElementById('questionArea').style.display = 'none';
+        document.getElementById('audioControlSection').style.display = 'none';
+        document.getElementById('playAllBtn').disabled = true;
+        document.getElementById('result').innerHTML = '';
+        document.getElementById('nextBtn').style.display = 'none';
 
-                const response = await fetch('/generate_listening', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        topic: topic,
-                        user_id: userId  // 可以為 null
-                    })
-                });
+        const response = await fetch('/generate_listening', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                topic: topic,
+                user_id: userId
+            })
+        });
 
-                const result = await response.json();
+        const result = await response.json();
 
-                if (result.success) {
-                    currentExerciseId = result.exercise_id;
-                    currentExercise = {
-                        exercise_id: result.exercise_id,
-                        dialogue: result.dialogue,
-                        question: result.question,
-                        options: result.options,
-                        correct_answer: result.correct_answer
-                    };
+        if (result.success) {
 
-                    displayDialogue(result.dialogue);
-                    displayQuestion(result);
-                    document.getElementById('audioControlSection').style.display = 'block';
-                    document.getElementById('playAllBtn').disabled = false;
+            currentExerciseId = result.exercise_id;
+            currentExercise = {
+                exercise_id: result.exercise_id,
+                dialogue: result.dialogue,
+                question: result.question,
+                options: result.options,
+                correct_answer: result.correct_answer
+            };
 
-                    console.log('生成成功，exercise_id:', currentExerciseId);
-                } else {
-                    throw new Error(result.error);
-                }
+            displayDialogue(result.dialogue);
+            displayQuestion(result);
+            document.getElementById('audioControlSection').style.display = 'block';
+            document.getElementById('playAllBtn').disabled = false;
 
-            } catch (error) {
-                console.error('生成失敗:', error);
-                document.getElementById('dialogueContent').innerHTML =
-                    `<div class="error">錯誤: ${error.message}</div>`;
-            } finally {
-                document.getElementById('loadingSection').style.display = 'none';
-            }
+            console.log('生成成功，exercise_id:', currentExerciseId);
+        } else {
+            throw new Error(result.error);
         }
+
+    } catch (error) {
+        console.error('生成失敗:', error);
+        document.getElementById('dialogueContent').innerHTML =
+            `<div class="error">錯誤: ${error.message}</div>`;
+    } finally {
+        document.getElementById('loadingSection').style.display = 'none';
+    }
+}
 
         // Showing the dialogue
         function displayDialogue(dialogue) {
