@@ -35,9 +35,7 @@ class VoiceService:
             print(f"模型加載失敗: {e}")
             print("使用模擬語音識別模式")
 
-    def transcribe_audio(self, duration: int = 15, target_word: str = "") -> Tuple[str, float]:
-        print(f"開始普通話語音識別，時長: {duration}秒")
-
+    def transcribe_audio(self, duration: int = 10, target_word: str = "") -> Tuple[str, float]:
 
         if not self.model or not WHISPER_AVAILABLE:
             return self._simulate_transcription(target_word)
@@ -47,27 +45,22 @@ class VoiceService:
             if audio_data is None:
                 return "錄音失敗", 0.0
 
-            print("正在分析音頻數據（普通話模式）...")
-
-
             result = self.model.transcribe(
                 audio_data,
                 language='zh',
                 task='transcribe',
-                fp16=False,
-                initial_prompt="請用普通話回答。"
+                fp16=False
             )
 
             transcription = result["text"].strip()
-            print(f"原始識別結果: {transcription}")
 
-            confidence = self._calculate_mandarin_confidence(transcription, target_word)
 
-            print(f"普通話識別結果: {transcription} (置信度: {confidence:.1f}%)")
+            confidence = result.get("segments", [{}])[0].get("confidence", 0.5) * 100
+
             return transcription, confidence
 
         except Exception as e:
-            print(f"語音識別失敗，使用模擬模式: {e}")
+            print(f"語音識別失敗: {e}")
             return self._simulate_transcription(target_word)
 
     def _simulate_transcription(self, target_word: str) -> Tuple[str, float]:
@@ -171,54 +164,65 @@ class VoiceService:
         if not text:
             return ""
 
+        import re
+
         cleaned = re.sub(r'[^\u4e00-\u9fff]', '', text)
         return cleaned
 
     def evaluate_pronunciation(self, user_text: str, target_text: str) -> dict:
+        """
+        评估发音准确度 - 基于字符匹配的精确算法
+        """
+        # 清理文本，只保留中文字符
         user_clean = self._clean_text(user_text)
         target_clean = self._clean_text(target_text)
 
+        # 如果目标文本为空
         if not target_clean:
             return {
                 "accuracy": 0.0,
                 "user_text": user_text,
                 "target_text": target_text,
                 "feedback": "目標文本為空",
-                "char_accuracy": 0.0
+                "matched_chars": 0,
+                "total_chars": 0
             }
 
-
-        correct_chars = 0
+        # 计算匹配的字符数（按位置逐个比较）
+        matched_chars = 0
+        total_chars = len(target_clean)
         min_len = min(len(user_clean), len(target_clean))
+
         for i in range(min_len):
             if user_clean[i] == target_clean[i]:
-                correct_chars += 1
+                matched_chars += 1
 
-        char_accuracy = (correct_chars / len(target_clean)) * 100 if target_clean else 0
+        # 准确率 = 匹配字符数 / 目标总字符数 × 100
+        accuracy = (matched_chars / total_chars) * 100 if total_chars > 0 else 0
 
-
+        # 生成反馈信息
         if user_clean == target_clean:
+            feedback = "完美！發音完全正確！"
             accuracy = 100.0
-            feedback = "非常標準！"
-        elif char_accuracy >= 80:
-            accuracy = char_accuracy
-            feedback = "很準確，注意細節！"
-        elif char_accuracy >= 60:
-            accuracy = char_accuracy
-            feedback = "基本正確"
-        elif char_accuracy >= 40:
-            accuracy = char_accuracy
-            feedback = "需要加強練習"
+        elif accuracy >= 80:
+            feedback = f"很好！準確率 {accuracy:.1f}%"
+        elif accuracy >= 60:
+            feedback = f"不錯！準確率 {accuracy:.1f}%"
+        elif accuracy >= 40:
+            feedback = f"加油！準確率 {accuracy:.1f}%"
         else:
-            accuracy = char_accuracy
-            feedback = "建議重複練習"
+            feedback = f"需要加強！準確率 {accuracy:.1f}%"
+
+        print(f"發音評估: 目標='{target_clean}', 用戶='{user_clean}'")
+        print(f"匹配字符: {matched_chars}/{total_chars} = {accuracy:.1f}%")
 
         return {
             "accuracy": round(accuracy, 1),
             "user_text": user_text,
             "target_text": target_text,
             "feedback": feedback,
-            "char_accuracy": round(char_accuracy, 1)
+            "matched_chars": matched_chars,
+            "total_chars": total_chars
         }
 
 
