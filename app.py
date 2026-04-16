@@ -30,7 +30,7 @@ PINYIN_RECORDS_COLLECTION = "pinyin_training_records"
 
 
 DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")
-MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/")
+MONGO_URI = "mongodb+srv://mandarin_practice:passw0rd@cluster0.osacctj.mongodb.net/mandarin_practice?retryWrites=true&w=majority"
 
 
 print("檢查文件夾結構...")
