@@ -844,12 +844,12 @@ def generate_listening():
     try:
         data = request.json
         topic = data.get('topic', '學習')
-        api_key = os.getenv("DEEPSEEK_API_KEY")  # 確保 Render 有填呢個
+        api_key = os.getenv("DEEPSEEK_API_KEY")
 
         if not api_key:
             return jsonify({"success": False, "error": "API Key 未設定"}), 500
 
-        # 直接用 requests 呼叫，唔使裝複雜嘅 SDK，最啱 Render 免費版/Starter 版
+        # 调用 DeepSeek API
         response = requests.post(
             "https://api.deepseek.com/chat/completions",
             headers={
@@ -859,22 +859,49 @@ def generate_listening():
             json={
                 "model": "deepseek-chat",
                 "messages": [
-                    {"role": "system", "content": "你是一個普通話老師。請根據主題生成一段A和B的對話，並出一個選擇題。"},
+                    {"role": "system",
+                     "content": "你是一個普通話老師。請根據主題生成一段A和B的對話（約6-8句），並出一個選擇題。必須返回JSON格式。"},
                     {"role": "user", "content": f"主題：{topic}"}
                 ],
-                "response_format": {"type": "json_object"}  # 如果你想要 JSON 回傳
+                "response_format": {"type": "json_object"}
             },
             timeout=30
         )
 
-        result = response.json()
-        # 這裡根據你前端需要的格式來 return 內容
-        # ... (解析 result 並 return)
-        return jsonify(
-            {"success": True, "dialogue": "...", "question": "...", "options": [...], "correct_answer": "..."})
+        if response.status_code == 200:
+            result = response.json()
+            content = result["choices"][0]["message"]["content"]
+
+            # 解析 AI 返回的 JSON
+            import json
+            exercise_data = json.loads(content)
+
+            # 保存到数据库（可选）
+            exercise_id = None
+            if MONGO_ENABLED:
+                insert_result = listening_exercises.insert_one({
+                    "topic": topic,
+                    "dialogue": exercise_data.get("dialogue", ""),
+                    "question": exercise_data.get("question", ""),
+                    "options": exercise_data.get("options", []),
+                    "correct_answer": exercise_data.get("correct_answer", ""),
+                    "created_at": datetime.now()
+                })
+                exercise_id = str(insert_result.inserted_id)
+
+            return jsonify({
+                "success": True,
+                "exercise_id": exercise_id,
+                "dialogue": exercise_data.get("dialogue", ""),
+                "question": exercise_data.get("question", ""),
+                "options": exercise_data.get("options", []),
+                "correct_answer": exercise_data.get("correct_answer", "")
+            })
+        else:
+            return jsonify({"success": False, "error": f"API 调用失败: {response.status_code}"}), 500
 
     except Exception as e:
-        print(f"Error: {str(e)}")  # 呢句會顯示喺 Render Logs
+        print(f"Error: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
 
 
