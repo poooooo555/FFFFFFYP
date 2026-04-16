@@ -925,32 +925,29 @@ def save_listening_record():
         options = data.get('options', [])
         dialogue = data.get('dialogue', '')
 
-        # 检查必要参数
+
         if not user_id:
             return jsonify({'success': False, 'error': '用户未登录'})
 
         if not topic:
             return jsonify({'success': False, 'error': '缺少主题参数'})
 
-        # 处理 exercise_id 为空的情况
         if not exercise_id or exercise_id == 'null' or exercise_id == 'undefined' or exercise_id == '':
-            # 生成一个唯一的 exercise_id
-            import hashlib
-            unique_str = f"{user_id}_{topic}_{datetime.now().timestamp()}"
-            exercise_id = hashlib.md5(unique_str.encode()).hexdigest()[:16]
+
+            exercise_id = f"mock_{int(datetime.now().timestamp())}"
             print(f"生成新的 exercise_id: {exercise_id}")
 
-        # 处理 correct_answer 为空的情况
+
         if not correct_answer and options:
-            # 如果正确答䅁为空，尝试从选项中推断
+
             for opt in options:
                 if 'correct' in opt.lower() or '对' in opt:
                     correct_answer = opt
                     break
             if not correct_answer and options:
-                correct_answer = options[0]  # 默认使用第一个选项
+                correct_answer = options[0]
 
-        # 构建记录
+
         record = {
             "user_id": user_id,
             "topic": topic,
@@ -996,46 +993,32 @@ def retry_listening():
 
         print(f"重做聆聽練習: exercise_id={exercise_id}, topic={topic}")
 
-        # 处理无效的 exercise_id
+
         if not exercise_id or exercise_id == 'null' or exercise_id == 'undefined' or exercise_id == '':
-            print("exercise_id 无效，使用模拟数据")
-            # 生成模拟的练习数据
-            mock_dialogue = f"A: 你好！今天我们来聊聊{topic}。\nB: 好啊，我很有兴趣。\nA: 你觉得{topic}重要吗？\nB: 当然重要，我会继续学习。\nA: 太好了，一起加油吧！\nB: 谢谢你的鼓励！"
+            print("exercise_id 無效，使用模擬數據")
+            return generate_mock_listening_exercise(topic)
 
-            return jsonify({
-                'success': True,
-                'exercise_id': f"mock_{int(datetime.now().timestamp())}",
-                'topic': topic,
-                'dialogue': mock_dialogue,
-                'question': f"他们在讨论什么主题？",
-                'options': [f"A. {topic}", "B. 工作", "C. 旅行", "D. 美食"],
-                'correct_answer': f"A. {topic}"
-            })
 
-        # 尝试从数据库查找
+        if exercise_id.startswith('auto_generated_'):
+            print("自動生成的 ID，使用模擬數據")
+            return generate_mock_listening_exercise(topic)
+
+
         from bson import ObjectId
         try:
-            exercise = listening_exercises.find_one({'_id': ObjectId(exercise_id)})
+
+            if ObjectId.is_valid(exercise_id):
+                exercise = listening_exercises.find_one({'_id': ObjectId(exercise_id)})
+            else:
+                exercise = None
         except:
-            # 如果 ObjectId 转换失败，尝试用字符串查找
-            exercise = listening_exercises.find_one({'exercise_id': exercise_id})
+            exercise = None
 
         if not exercise:
-            print(f"找不到题目: {exercise_id}")
-            # 返回模拟数据
-            mock_dialogue = f"A: 让我们来学习{topic}吧！\nB: 好的，我准备好了。\nA: 你有什么问题吗？\nB: 没有，我们开始吧！"
+            print(f"找不到題目: {exercise_id}，使用模擬數據")
+            return generate_mock_listening_exercise(topic)
 
-            return jsonify({
-                'success': True,
-                'exercise_id': f"mock_{int(datetime.now().timestamp())}",
-                'topic': topic,
-                'dialogue': mock_dialogue,
-                'question': f"关于{topic}，他们准备做什么？",
-                'options': [f"A. 开始学习{topic}", "B. 去旅行", "C. 吃午饭", "D. 看电影"],
-                'correct_answer': f"A. 开始学习{topic}"
-            })
-
-        print(f"找到题目: {exercise['_id']}")
+        print(f"找到題目: {exercise['_id']}")
 
         return jsonify({
             'success': True,
@@ -1052,6 +1035,23 @@ def retry_listening():
         import traceback
         traceback.print_exc()
         return jsonify({'success': False, 'error': str(e)})
+
+
+def generate_mock_listening_exercise(topic):
+    if not topic or topic == '':
+        topic = "學習"
+
+    mock_dialogue = f"A: 你好！今天我們來聊聊{topic}。\nB: 好啊，我很有興趣。\nA: 你覺得{topic}重要嗎？\nB: 當然重要，我會繼續學習。\nA: 太好了，一起加油吧！\nB: 謝謝你的鼓勵！"
+
+    return jsonify({
+        'success': True,
+        'exercise_id': f"mock_{int(datetime.now().timestamp())}",
+        'topic': topic,
+        'dialogue': mock_dialogue,
+        'question': f"他們在討論什麼主題？",
+        'options': [f"A. {topic}", "B. 工作", "C. 旅行", "D. 美食"],
+        'correct_answer': f"A. {topic}"
+    })
 
 
 @app.route('/pinyin_practice')
