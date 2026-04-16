@@ -660,6 +660,7 @@ def start_recording():
         })
 
 
+
 @app.route('/evaluate_pronunciation', methods=['POST'])
 def evaluate_pronunciation_route():
     try:
@@ -669,16 +670,14 @@ def evaluate_pronunciation_route():
 
         print(f"評估發音: 用戶說='{user_text}', 目標='{target_text}'")
 
+
         if VOICE_ENABLED and voice_service:
             result = voice_service.evaluate_pronunciation(user_text, target_text)
         else:
-            user_clean = user_text
-            target_clean = target_text
-            matched = 0
-            min_len = min(len(user_clean), len(target_clean))
-            for i in range(min_len):
-                if user_clean[i] == target_clean[i]:
-                    matched += 1
+
+            user_clean = voice_service._clean_text(user_text) if voice_service else user_text
+            target_clean = voice_service._clean_text(target_text) if voice_service else target_text
+            matched = sum(1 for i in range(min(len(user_clean), len(target_clean))) if user_clean[i] == target_clean[i])
             accuracy = (matched / len(target_clean)) * 100 if target_clean else 0
             result = {
                 'accuracy': round(accuracy, 1),
@@ -698,7 +697,6 @@ def evaluate_pronunciation_route():
             'success': False,
             'error': str(e)
         })
-
 
 def save_speaking_record(user_id, word, score, accuracy, exercise_data):
 

@@ -170,14 +170,11 @@ class VoiceService:
         return cleaned
 
     def evaluate_pronunciation(self, user_text: str, target_text: str) -> dict:
-        """
-        评估发音准确度 - 基于字符匹配的精确算法
-        """
-        # 清理文本，只保留中文字符
+
         user_clean = self._clean_text(user_text)
         target_clean = self._clean_text(target_text)
 
-        # 如果目标文本为空
+
         if not target_clean:
             return {
                 "accuracy": 0.0,
@@ -188,7 +185,7 @@ class VoiceService:
                 "total_chars": 0
             }
 
-        # 计算匹配的字符数（按位置逐个比较）
+
         matched_chars = 0
         total_chars = len(target_clean)
         min_len = min(len(user_clean), len(target_clean))
@@ -197,10 +194,10 @@ class VoiceService:
             if user_clean[i] == target_clean[i]:
                 matched_chars += 1
 
-        # 准确率 = 匹配字符数 / 目标总字符数 × 100
+
         accuracy = (matched_chars / total_chars) * 100 if total_chars > 0 else 0
 
-        # 生成反馈信息
+
         if user_clean == target_clean:
             feedback = "完美！發音完全正確！"
             accuracy = 100.0
