@@ -377,39 +377,56 @@
         }
 
         // Save listening records to database
-        async function saveListeningRecord(topic, isCorrect, userAnswer, correctAnswer, question) {
-        const userId = checkUserLoggedIn();
-        if (!userId) {
-            console.log('用戶未登入，跳過保存記錄');
-            return;  // 直接返回，不保存
-        }
-
-        try {
-            const response = await fetch('/save_listening_record', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: userId,
-                    topic: topic,
-                    is_correct: isCorrect,
-                    user_answer: userAnswer,
-                    correct_answer: correctAnswer,
-                    question: question
-                })
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                console.log('聆聽記錄保存成功');
-            } else {
-                console.log('保存記錄失敗:', result.error);
-            }
-        } catch (error) {
-            console.error('保存記錄時出錯:', error);
-        }
+       async function saveListeningRecord(topic, isCorrect, userAnswer, correctAnswer, question) {
+    const userId = checkUserLoggedIn();
+    if (!userId) {
+        console.log('用戶未登入，跳過保存記錄');
+        return;
     }
+
+    try {
+        // 获取当前的 exercise_id
+        const exerciseId = currentExerciseId || 'auto_generated_' + Date.now();
+
+        // 获取对话内容
+        const dialogueLines = document.querySelectorAll('.dialogue-line');
+        let dialogueText = '';
+        dialogueLines.forEach(line => {
+            dialogueText += line.querySelector('.dialogue-text').textContent + '\n';
+        });
+
+        const response = await fetch('/save_listening_record', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                topic: topic,
+                exercise_id: exerciseId,  // 确保传递 exercise_id
+                user_answer: userAnswer,
+                correct_answer: correctAnswer,
+                question: question,
+                is_correct: isCorrect,
+                options: currentExercise ? currentExercise.options : [],
+                dialogue: dialogueText
+            })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            console.log('聆聽記錄保存成功', result.exercise_id);
+            // 更新当前的 exercise_id
+            if (result.exercise_id) {
+                currentExerciseId = result.exercise_id;
+            }
+        } else {
+            console.log('保存記錄失敗:', result.error);
+        }
+    } catch (error) {
+        console.error('保存記錄時出錯:', error);
+    }
+}
 
         // Generate Dialogue
         async function generateDialogue() {
