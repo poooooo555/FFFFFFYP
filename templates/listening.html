@@ -564,69 +564,44 @@
 
         // Check answer
         function checkAnswer(selectedOption, correctAnswer, question) {
-            const isCorrect = selectedOption === correctAnswer;
-            const userId = localStorage.getItem('user_id');
-            const resultDiv = document.getElementById('result');
-            const nextBtn = document.getElementById('nextBtn');
+    const isCorrect = selectedOption === correctAnswer;
+    const userId = localStorage.getItem('user_id');
+    const resultDiv = document.getElementById('result');
+    const nextBtn = document.getElementById('nextBtn');
 
-            // 獲取當前對話內容
-            const dialogueLines = document.querySelectorAll('.dialogue-line');
-            let dialogueText = '';
-            dialogueLines.forEach(line => {
-                dialogueText += line.querySelector('.dialogue-text').textContent + '\n';
-            });
+    // 获取当前对话内容
+    const dialogueLines = document.querySelectorAll('.dialogue-line');
+    let dialogueText = '';
+    dialogueLines.forEach(line => {
+        dialogueText += line.querySelector('.dialogue-text').textContent + '\n';
+    });
 
-            // 如果有用戶 ID 才保存記錄
-            if (userId) {
-                fetch('/save_listening_record', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        topic: currentTopic,
-                        exercise_id: currentExerciseId,
-                        user_answer: selectedOption,
-                        correct_answer: correctAnswer,
-                        question: question,
-                        is_correct: isCorrect,
-                        options: currentExercise.options,
-                        dialogue: dialogueText
-                    })
-                });
-            } else {
-                console.log('未登入用戶，不保存記錄');
-            }
+    // 保存记录
+    if (userId) {
+        saveListeningRecord(currentTopic, isCorrect, selectedOption, correctAnswer, question);
+    }
 
-            // 顯示結果
-            if (isCorrect) {
-                resultDiv.innerHTML = `<div class="result correct">回答正確！</div>`;
-                nextBtn.style.display = 'block';
-            } else {
-                resultDiv.innerHTML = `
-                    <div class="result incorrect">
-                        回答錯誤！正確答案是: <span class="correct-answer">${correctAnswer}</span>
-                        <button class="retry-btn" onclick="retryThisQuestion()" style="
-                            background: #4caf50;
-                            color: white;
-                            border: none;
-                            padding: 8px 16px;
-                            border-radius: 6px;
-                            margin-left: 15px;
-                            cursor: pointer;
-                            font-weight: bold;
-                        ">
-                            <i class="fas fa-redo-alt"></i> 重做此題
-                        </button>
-                    </div>
-                `;
-                nextBtn.style.display = 'none';
-            }
+    // 显示结果
+    if (isCorrect) {
+        resultDiv.innerHTML = `<div class="result correct">回答正確！</div>`;
+        nextBtn.style.display = 'block';
+    } else {
+        resultDiv.innerHTML = `
+            <div class="result incorrect">
+                回答錯誤！正確答案是: <span class="correct-answer">${correctAnswer}</span>
+                <button class="retry-btn" onclick="retryThisQuestion()">
+                    <i class="fas fa-redo-alt"></i> 重做此題
+                </button>
+            </div>
+        `;
+        nextBtn.style.display = 'none';
+    }
 
-
-            document.querySelectorAll('.option').forEach(option => {
-                option.style.pointerEvents = 'none';
-            });
-        }
+    // 禁用选项
+    document.querySelectorAll('.option').forEach(option => {
+        option.style.pointerEvents = 'none';
+    });
+}
 
         // Next question
         function nextExercise() {
