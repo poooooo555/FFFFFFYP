@@ -846,64 +846,62 @@ def generate_listening():
         topic = data.get('topic', '學習')
         api_key = os.getenv("DEEPSEEK_API_KEY")
 
-        if not api_key:
-            return jsonify({"success": False, "error": "API Key 未設定"}), 500
+        # 正确的 prompt - 用于生成对话和选择题
+        prompt = f"""請根據主題「{topic}」生成一段普通話對話和一個選擇題。
 
-        # 调用 DeepSeek API
+要求：
+1. 對話要有 A 和 B 兩個人，約 4-6 句
+2. 問題要基於對話內容
+3. 選項必須以 "A. ", "B. ", "C. ", "D. " 開頭
+4. correct_answer 必須與 options 中的某個選項**完全一致**（包括字母前綴，如 "B. 嫦娥奔月"）
+
+請以 JSON 格式輸出，不要有其他文字：
+
+{{
+  "dialogue": "A: 對話內容\\nB: 對話內容",
+  "question": "問題內容",
+  "options": ["A. 選項1", "B. 選項2", "C. 選項3", "D. 選項4"],
+  "correct_answer": "B. 選項2"
+}}"""
+
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
+
+        payload = {
+            "model": "deepseek-chat",
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.7,
+            "response_format": {"type": "json_object"}
+        }
+
         response = requests.post(
-            "https://api.deepseek.com/chat/completions",
-            headers={
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json"
-            },
-            json={
-                "model": "deepseek-chat",
-                "messages": [
-                    {"role": "system",
-                     "content": "你是一個普通話老師。請根據主題生成一段A和B的對話（約6-8句），並出一個選擇題。必須返回JSON格式。"},
-                    {"role": "user", "content": f"主題：{topic}"}
-                ],
-                "response_format": {"type": "json_object"}
-            },
+            "https://api.deepseek.com/chat/completions",  # 注意是 /chat/completions
+            headers=headers,
+            json=payload,
             timeout=30
         )
 
         if response.status_code == 200:
             result = response.json()
             content = result["choices"][0]["message"]["content"]
-
-            # 解析 AI 返回的 JSON
             import json
             exercise_data = json.loads(content)
 
-            # 保存到数据库（可选）
-            exercise_id = None
-            if MONGO_ENABLED:
-                insert_result = listening_exercises.insert_one({
-                    "topic": topic,
-                    "dialogue": exercise_data.get("dialogue", ""),
-                    "question": exercise_data.get("question", ""),
-                    "options": exercise_data.get("options", []),
-                    "correct_answer": exercise_data.get("correct_answer", ""),
-                    "created_at": datetime.now()
-                })
-                exercise_id = str(insert_result.inserted_id)
-
             return jsonify({
                 "success": True,
-                "exercise_id": exercise_id,
                 "dialogue": exercise_data.get("dialogue", ""),
                 "question": exercise_data.get("question", ""),
                 "options": exercise_data.get("options", []),
                 "correct_answer": exercise_data.get("correct_answer", "")
             })
         else:
-            return jsonify({"success": False, "error": f"API 调用失败: {response.status_code}"}), 500
+            return jsonify({"success": False, "error": f"API 错误: {response.status_code}"}), 500
 
     except Exception as e:
         print(f"Error: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
-
 
 @app.route('/save_listening_record', methods=['POST'])
 def save_listening_record():
@@ -1696,8 +1694,7 @@ def generate_article():
 
         print(f"AI 生成文章，主題: {topic}")
 
-        import requests
-
+        # 正确的 prompt - 只生成文章，不要选择题格式
         prompt = f"""請用中文寫一篇約200字的短文，主題是「{topic}」。文章要適合普通話朗讀練習，內容通順、用詞適中。只輸出文章內容，不要有任何解釋或額外說明。"""
 
         headers = {
