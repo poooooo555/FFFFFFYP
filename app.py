@@ -42,11 +42,10 @@ else:
     print("警告: templates 文件夾不存在!")
 
 try:
-    # 3. 使用 MONGO_URI 連線 (這條路徑會自動適應本地或雲端)
+
     client = MongoClient(MONGO_URI)
 
-    # 4. 指定 Database 名稱
-    # 如果你在 Atlas 叫 mandarin_practice，這裡就維持不變
+
     db = client['mandarin_practice']
 
     users = db["users"]
@@ -669,7 +668,6 @@ def evaluate_pronunciation_route():
 
         print(f"評估發音: 用戶說='{user_text}', 目標='{target_text}'")
 
-        # 直接使用字符匹配算法，不依赖外部服务
         import re
 
         def clean_text(text):
@@ -1863,7 +1861,6 @@ def generate_article():
 
         print(f"AI 生成文章，主題: {topic}")
 
-        # 正确的 prompt - 只生成文章，不要选择题格式
         prompt = f"""請用中文寫一篇約200字的短文，主題是「{topic}」。文章要適合普通話朗讀練習，內容通順、用詞適中。只輸出文章內容，不要有任何解釋或額外說明。"""
 
         headers = {
@@ -2147,7 +2144,7 @@ def get_rankings():
 
         from bson import ObjectId
 
-        # 1. 拼音統計
+
         pinyin_pipeline = [
             {"$group": {
                 "_id": "$user_id",

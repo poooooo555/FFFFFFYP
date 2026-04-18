@@ -402,10 +402,10 @@
     }
 
     try {
-        // 获取当前的 exercise_id
+
         const exerciseId = currentExerciseId || 'auto_generated_' + Date.now();
 
-        // 获取对话内容
+
         const dialogueLines = document.querySelectorAll('.dialogue-line');
         let dialogueText = '';
         dialogueLines.forEach(line => {
@@ -433,7 +433,7 @@
         const result = await response.json();
         if (result.success) {
             console.log('聆聽記錄保存成功', result.exercise_id);
-            // 更新当前的 exercise_id
+
             if (result.exercise_id) {
                 currentExerciseId = result.exercise_id;
             }
@@ -580,26 +580,24 @@
             questionArea.style.display = 'block';
         }
 
-        // Check answer
         function checkAnswer(selectedOption, correctAnswer, question) {
     const isCorrect = selectedOption === correctAnswer;
     const userId = localStorage.getItem('user_id');
     const resultDiv = document.getElementById('result');
     const nextBtn = document.getElementById('nextBtn');
 
-    // 获取当前对话内容
     const dialogueLines = document.querySelectorAll('.dialogue-line');
     let dialogueText = '';
     dialogueLines.forEach(line => {
         dialogueText += line.querySelector('.dialogue-text').textContent + '\n';
     });
 
-    // 保存记录
+
     if (userId) {
         saveListeningRecord(currentTopic, isCorrect, selectedOption, correctAnswer, question);
     }
 
-    // 显示结果
+
     if (isCorrect) {
         resultDiv.innerHTML = `<div class="result correct">回答正確！</div>`;
         nextBtn.style.display = 'block';
