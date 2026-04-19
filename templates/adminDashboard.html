@@ -533,7 +533,7 @@
                 tableHTML += `
                     <tr>
                         <td><strong>${user.username}</strong></td>
-                        <td>${user.email}</td>
+                        <td>${user.email && user.email !== 'undefined' ? user.email : 'undefined'}</td>
                         <td><span class="role-badge ${roleClass}">${roleText}</span></td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td>${user.created_at}</td>

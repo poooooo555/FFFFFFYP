@@ -138,8 +138,18 @@
             border-radius: 40px;
             cursor: pointer;
             font-size: 0.9rem;
+            transition: all 0.2s;
         }
         .record-btn:hover { background: #1e3c72; }
+        .record-btn.recording {
+            background: #e74c3c;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
 
         .result-badge { margin-top: 10px; padding: 8px; border-radius: 12px; font-size: 0.85rem; }
         .submit-btn {
@@ -198,6 +208,21 @@
             border-color: #2a5298;
             color: white;
         }
+
+        .speaking-status {
+            margin-left: 12px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+        .speaking-status.recording {
+            color: #e74c3c;
+        }
+        .speaking-status.success {
+            color: #27ae60;
+        }
+        .speaking-status.error {
+            color: #e74c3c;
+        }
     </style>
 </head>
 <body>
@@ -229,6 +254,9 @@
     let pinyinPracticeType = 'initial';
     let userAnswers = {};
     let currentQuestions = { easy: [], medium: [], hard: [] };
+
+    // 記錄每個發音題目的錄音狀態
+    let speakingRecognitions = {};
 
     const pinyinBank = {
         easy: {
@@ -300,18 +328,17 @@
     ];
 
     const speakingBank = [
-    { word: "你好", pinyin: "nǐhǎo" }, { word: "謝謝", pinyin: "xièxie" }, { word: "再見", pinyin: "zàijiàn" },
-    { word: "老師", pinyin: "lǎoshī" }, { word: "學生", pinyin: "xuésheng" }, { word: "北京", pinyin: "běijīng" },
-    { word: "上海", pinyin: "shànghǎi" }, { word: "廣州", pinyin: "guǎngzhōu" }, { word: "深圳", pinyin: "shēnzhèn" },
-    { word: "香港", pinyin: "xiānggǎng" }, { word: "澳門", pinyin: "àomén" }, { word: "台灣", pinyin: "táiwān" },
-    { word: "朋友", pinyin: "péngyou" }, { word: "家人", pinyin: "jiārén" }, { word: "父母", pinyin: "fùmǔ" },
-    { word: "天氣", pinyin: "tiānqì" }, { word: "陽光", pinyin: "yángguāng" }, { word: "下雨", pinyin: "xiàyǔ" },
-    { word: "電腦", pinyin: "diànnǎo" }, { word: "手機", pinyin: "shǒujī" }, { word: "網絡", pinyin: "wǎngluò" },
-    { word: "學習", pinyin: "xuéxí" }, { word: "工作", pinyin: "gōngzuò" }, { word: "生活", pinyin: "shēnghuó" },
-    { word: "快樂", pinyin: "kuàilè" }, { word: "幸福", pinyin: "xìngfú" }, { word: "健康", pinyin: "jiànkāng" },
-    { word: "平安", pinyin: "píngān" }, { word: "成功", pinyin: "chénggōng" }, { word: "努力", pinyin: "nǔlì" }
-];
-
+        { word: "你好", pinyin: "nǐhǎo" }, { word: "謝謝", pinyin: "xièxie" }, { word: "再見", pinyin: "zàijiàn" },
+        { word: "老師", pinyin: "lǎoshī" }, { word: "學生", pinyin: "xuésheng" }, { word: "北京", pinyin: "běijīng" },
+        { word: "上海", pinyin: "shànghǎi" }, { word: "廣州", pinyin: "guǎngzhōu" }, { word: "深圳", pinyin: "shēnzhèn" },
+        { word: "香港", pinyin: "xiānggǎng" }, { word: "澳門", pinyin: "àomén" }, { word: "台灣", pinyin: "táiwān" },
+        { word: "朋友", pinyin: "péngyou" }, { word: "家人", pinyin: "jiārén" }, { word: "父母", pinyin: "fùmǔ" },
+        { word: "天氣", pinyin: "tiānqì" }, { word: "陽光", pinyin: "yángguāng" }, { word: "下雨", pinyin: "xiàyǔ" },
+        { word: "電腦", pinyin: "diànnǎo" }, { word: "手機", pinyin: "shǒujī" }, { word: "網絡", pinyin: "wǎngluò" },
+        { word: "學習", pinyin: "xuéxí" }, { word: "工作", pinyin: "gōngzuò" }, { word: "生活", pinyin: "shēnghuó" },
+        { word: "快樂", pinyin: "kuàilè" }, { word: "幸福", pinyin: "xìngfú" }, { word: "健康", pinyin: "jiànkāng" },
+        { word: "平安", pinyin: "píngān" }, { word: "成功", pinyin: "chénggōng" }, { word: "努力", pinyin: "nǔlì" }
+    ];
 
     function getRandomQuestions(bank, count, type = null) {
         let source = bank;
@@ -333,7 +360,6 @@
     }
 
     function renderPinyinPhase() {
-
         if (currentQuestions.easy?.length === 0) {
             currentQuestions.easy = {
                 initial: getRandomQuestions(pinyinBank.easy, 3, 'initial'),
@@ -585,6 +611,161 @@
         renderSpeakingPhase();
     }
 
+    async function startSpeakingRecording(word, id, btnElement) {
+    // 如果已經有進行中的錄音，先停止
+    if (speakingRecognitions[id] && speakingRecognitions[id].isRecording) {
+        try {
+            speakingRecognitions[id].recognition.abort();
+        } catch(e) {}
+        delete speakingRecognitions[id];
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        const resultDiv = document.getElementById(`speaking_result_${id}`);
+        resultDiv.innerHTML = '<span style="color:#ef4444">✗ 您的瀏覽器不支援語音識別</span>';
+        return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'zh-CN';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.continuous = false;  // 👈 加呢行，確保單次錄音
+
+    const statusSpan = document.getElementById(`speaking_status_${id}`);
+    const resultDiv = document.getElementById(`speaking_result_${id}`);
+
+    btnElement.textContent = '錄音中...';
+    btnElement.classList.add('recording');
+    btnElement.disabled = true;
+    statusSpan.textContent = '請大聲朗讀詞語...';
+    statusSpan.className = 'speaking-status recording';
+    resultDiv.innerHTML = '';
+
+    speakingRecognitions[id] = {
+        isRecording: true,
+        recognition: recognition
+    };
+
+    // 設定 timeout，防止錄音卡住
+    const timeoutId = setTimeout(() => {
+        if (speakingRecognitions[id] && speakingRecognitions[id].isRecording) {
+            statusSpan.textContent = '錄音超時，請重試';
+            statusSpan.className = 'speaking-status error';
+            stopSpeakingRecording(id, btnElement);
+        }
+    }, 10000);
+
+    recognition.onresult = async (event) => {
+        clearTimeout(timeoutId);
+        const userText = event.results[0][0].transcript;
+        const confidence = event.results[0][0].confidence * 100;
+
+        statusSpan.textContent = `識別結果: ${userText} (${confidence.toFixed(1)}%)`;
+
+        await evaluateSpeakingPronunciation(userText, word, id);
+        stopSpeakingRecording(id, btnElement);
+    };
+
+    recognition.onerror = (event) => {
+        clearTimeout(timeoutId);
+        console.error('語音識別錯誤:', event.error);
+
+        let errorMsg = '';
+        switch(event.error) {
+            case 'not-allowed':
+                errorMsg = '請允許麥克風權限';
+                break;
+            case 'no-speech':
+                errorMsg = '沒有偵測到語音，請再試一次';
+                break;
+            case 'audio-capture':
+                errorMsg = '無法擷取音訊，請檢查麥克風';
+                break;
+            case 'aborted':
+                errorMsg = '錄音被中斷，請重試';
+                break;
+            default:
+                errorMsg = `識別錯誤: ${event.error}`;
+        }
+        statusSpan.textContent = errorMsg;
+        statusSpan.className = 'speaking-status error';
+        resultDiv.innerHTML = `<span style="color:#ef4444">✗ ${errorMsg}</span>`;
+        stopSpeakingRecording(id, btnElement);
+    };
+
+    recognition.onend = () => {
+        clearTimeout(timeoutId);
+        if (speakingRecognizations[id] && speakingRecognitions[id].isRecording) {
+            // 如果 onresult 冇被呼叫，即係冇偵測到語音
+            if (!speakingRecognitions[id].hasResult) {
+                statusSpan.textContent = '沒有偵測到語音，請再試一次';
+                statusSpan.className = 'speaking-status error';
+            }
+            stopSpeakingRecording(id, btnElement);
+        }
+    };
+
+    recognition.start();
+}
+
+    function stopSpeakingRecording(id, btnElement) {
+    if (speakingRecognitions[id]) {
+        speakingRecognitions[id].isRecording = false;
+        delete speakingRecognitions[id];
+    }
+
+    if (btnElement) {
+        btnElement.textContent = '開始錄音';
+        btnElement.classList.remove('recording');
+        btnElement.disabled = false;
+    }
+
+    const statusSpan = document.getElementById(`speaking_status_${id}`);
+    if (statusSpan && !statusSpan.textContent.includes('識別結果') && !statusSpan.textContent.includes('錯誤')) {
+        statusSpan.textContent = '點擊按鈕開始錄音';
+        statusSpan.className = 'speaking-status';
+    }
+}
+
+    async function evaluateSpeakingPronunciation(userText, targetWord, id) {
+    try {
+        const response = await fetch('/evaluate_pronunciation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_text: userText,
+                target_text: targetWord
+            })
+        });
+
+        const data = await response.json();
+        const accuracy = data.result?.accuracy || 0;
+        const feedback = data.result?.feedback || '';
+
+        const resultDiv = document.getElementById(`speaking_result_${id}`);
+
+        if (accuracy >= 70) {
+            resultDiv.innerHTML = `<span style="color:#10b981">✓ 發音良好 (${accuracy}%)<br>${feedback}</span>`;
+        } else {
+            resultDiv.innerHTML = `<span style="color:#ef4444">✗ 需要加強 (${accuracy}%)<br>${feedback}</span>`;
+        }
+
+        userAnswers[`speaking_${id}`] = { accuracy, userText, targetWord };
+
+        // 標記有結果
+        if (speakingRecognitions[id]) {
+            speakingRecognitions[id].hasResult = true;
+        }
+
+    } catch (error) {
+        console.error('評估發音失敗:', error);
+        const resultDiv = document.getElementById(`speaking_result_${id}`);
+        resultDiv.innerHTML = '<span style="color:#ef4444">✗ 評估失敗，請重試</span>';
+    }
+}
+
     function renderSpeakingPhase() {
         const selectedSpeaking = getRandomQuestions(speakingBank, 3);
 
@@ -603,7 +784,7 @@
                 <div class="question">
                     <div class="question-text">朗讀詞語：「${q.word}」 (${q.pinyin})</div>
                     <button class="record-btn" data-word="${q.word}" data-id="${i}">開始錄音</button>
-                    <span id="speaking_status_${i}" style="margin-left: 12px; font-size:0.85rem;"></span>
+                    <span id="speaking_status_${i}" class="speaking-status">點擊按鈕開始錄音</span>
                     <div class="result-badge" id="speaking_result_${i}"></div>
                 </div>
             `;
@@ -618,39 +799,10 @@
         for (let i = 0; i < selectedSpeaking.length; i++) {
             const btn = document.querySelector(`.record-btn[data-id="${i}"]`);
             if (btn) {
-                btn.onclick = async function() {
-                    const word = this.dataset.word;
-                    const id = this.dataset.id;
-                    const statusSpan = document.getElementById(`speaking_status_${id}`);
-                    statusSpan.innerText = '錄音中...';
-
-                    try {
-                        const recordRes = await fetch('/start_recording', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ duration: 3, target_word: word })
-                        });
-                        const recordData = await recordRes.json();
-                        if (recordData.success) {
-                            const evalRes = await fetch('/evaluate_pronunciation', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ user_text: recordData.transcription, target_text: word })
-                            });
-                            const evalData = await evalRes.json();
-                            const accuracy = evalData.result?.accuracy || 0;
-                            statusSpan.innerText = `識別: ${recordData.transcription} (${accuracy}%)`;
-                            userAnswers[`speaking_${id}`] = { accuracy, userText: recordData.transcription };
-                            const resultDiv = document.getElementById(`speaking_result_${id}`);
-                            if (accuracy >= 70) {
-                                resultDiv.innerHTML = `<span style="color:#10b981">✓ 發音良好 (${accuracy}%)</span>`;
-                            } else {
-                                resultDiv.innerHTML = `<span style="color:#ef4444">✗ 需要加強 (${accuracy}%)</span>`;
-                            }
-                        }
-                    } catch (err) {
-                        statusSpan.innerText = '錄音失敗';
-                    }
+                const word = btn.dataset.word;
+                const id = parseInt(btn.dataset.id);
+                btn.onclick = function() {
+                    startSpeakingRecording(word, id, btn);
                 };
             }
         }

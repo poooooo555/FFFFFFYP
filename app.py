@@ -1346,6 +1346,7 @@ def get_all_users():
         all_users = list(users.find({}, {
             '_id': 1,
             'username': 1,
+            'email': 1,
             'role': 1,
             'is_locked': 1,
             'created_at': 1
@@ -1356,6 +1357,7 @@ def get_all_users():
             formatted_users.append({
                 'id': str(user['_id']),
                 'username': user['username'],
+                'email': user.get('email', 'undefined'),
                 'role': user.get('role', 'user'),
                 'is_locked': user.get('is_locked', False),
                 'created_at': user['created_at'].strftime('%Y-%m-%d %H:%M:%S')
