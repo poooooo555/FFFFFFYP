@@ -206,9 +206,12 @@
             padding: 15px;
             background: #f4f6f6;
             border-radius: 8px;
+            display: flex;
+            gap: 10px;
         }
 
         .audio-btn {
+            flex: 1;
             padding: 10px 20px;
             background: #9b59b6;
             color: white;
@@ -216,12 +219,27 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 1rem;
-            margin-right: 10px;
             transition: background 0.3s ease;
         }
 
         .audio-btn:hover {
             background: #8e44ad;
+        }
+
+        .stop-audio-btn {
+            flex: 1;
+            padding: 10px 20px;
+            background: #e67e22;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+
+        .stop-audio-btn:hover {
+            background: #d35400;
         }
 
         .highlight-ao {
@@ -250,12 +268,10 @@
             font-weight: bold;
         }
 
-
         @media (max-width: 768px) {
             .initials-grid {
                 grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             }
-
             .example-list {
                 grid-template-columns: 1fr;
             }
@@ -269,7 +285,6 @@
     align-items: flex-start;
 }
 
-/* 收起时显示的按钮 */
 .side-menu-toggle {
     writing-mode: vertical-rl;
     text-orientation: mixed;
@@ -310,7 +325,6 @@
     transform: rotate(90deg);
 }
 
-/* 展开的面板 */
 .side-menu-panel {
     width: 0;
     overflow: hidden;
@@ -323,13 +337,11 @@
     overflow-y: auto;
 }
 
-/* 展开状态 */
 .side-menu-panel.open {
     width: 240px;
     padding: 14px;
 }
 
-/* 每个项目 */
 .side-menu-item {
     display: block;
     text-decoration: none;
@@ -364,7 +376,6 @@
     color: #2c3e50;
 }
 
-/* 左侧菜单图示尺寸，不影响你原本 nav-icon */
 .side-icon {
     width: 34px;
     height: 34px;
@@ -372,7 +383,6 @@
     flex-shrink: 0;
 }
 
-/* 手机版避免遮挡内容 */
 @media (max-width: 768px) {
     .side-function-menu {
         top: 140px;
@@ -601,7 +611,7 @@
         <div class="instructions">
             <h3>使用說明</h3>
             <p>1. 每個聲母卡片包含10個範例字，涵蓋不同韻母組合（包括ao、ai等）</p>
-            <p>2. 點擊「播放發音」按鈕可聆聽標準普通話發音</p>
+            <p>2. 點擊「播放發音」按鈕可聆聽標準普通話發音，點擊「暫停播放」可立即停止當前卡片的發音</p>
             <p>3. 使用篩選按鈕可快速找到包含特定韻母的聲母練習</p>
             <p>4. 每個範例字包含拼音標注，紅色拼音為ao/ai韻母</p>
         </div>
@@ -621,7 +631,7 @@
         </div>
 
         <footer>
-            <p>普通話水平測試訓練工具 | 專為粵語使用者設計</p>
+            <p>普通話水平測試訓練工具</p>
         </footer>
     </div>
 
@@ -986,13 +996,31 @@
             }
         ];
 
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', function() {
-            renderInitials(initialsData);
-            setupFilterButtons();
-        });
+        let currentSpeechQueue = [];
+        let currentTimeouts = [];
 
-        // Rendering initial consonant cards
+        function stopAllAudio() {
+            window.speechSynthesis.cancel();
+            currentTimeouts.forEach(timeout => clearTimeout(timeout));
+            currentTimeouts = [];
+            currentSpeechQueue = [];
+        }
+
+        function playExamples(charsArray) {
+            stopAllAudio();
+            if (!charsArray || charsArray.length === 0) return;
+            const words = Array.isArray(charsArray) ? charsArray : [charsArray];
+            words.forEach((char, index) => {
+                const timeoutId = setTimeout(() => {
+                    const utterance = new SpeechSynthesisUtterance(char);
+                    utterance.lang = 'zh-CN';
+                    utterance.rate = 0.8;
+                    window.speechSynthesis.speak(utterance);
+                }, index * 800);
+                currentTimeouts.push(timeoutId);
+            });
+        }
+
         function renderInitials(data) {
             const container = document.getElementById('initialsContainer');
             container.innerHTML = '';
@@ -1002,41 +1030,32 @@
                 card.className = 'initial-card';
                 card.dataset.initial = initial.symbol;
 
-                // Check if it contains the vowel letters ao or ai.
                 const hasAO = initial.examples.some(example =>
                     example.pinyin.includes('ao') || example.pinyin.includes('āo') ||
                     example.pinyin.includes('áo') || example.pinyin.includes('ǎo') ||
                     example.pinyin.includes('ào')
                 );
-
                 const hasAI = initial.examples.some(example =>
                     example.pinyin.includes('ai') || example.pinyin.includes('āi') ||
                     example.pinyin.includes('ái') || example.pinyin.includes('ǎi') ||
                     example.pinyin.includes('ài')
                 );
-
                 card.dataset.hasAO = hasAO;
                 card.dataset.hasAI = hasAI;
-
-                // Determine if it is a difficult initial consonant
                 const difficultInitials = ['zh', 'ch', 'sh', 'z', 'c', 's'];
                 card.dataset.isDifficult = difficultInitials.includes(initial.symbol);
 
-                // Build a sample character HTML
                 let examplesHTML = '';
                 initial.examples.forEach(example => {
-                    // Check if pinyin has "ao" or "ai"
                     const isAO = example.pinyin.includes('ao') || example.pinyin.includes('āo') ||
                                 example.pinyin.includes('áo') || example.pinyin.includes('ǎo') ||
                                 example.pinyin.includes('ào');
                     const isAI = example.pinyin.includes('ai') || example.pinyin.includes('āi') ||
                                 example.pinyin.includes('ái') || example.pinyin.includes('ǎi') ||
                                 example.pinyin.includes('ài');
-
                     let exampleClass = 'example-item';
                     if (isAO) exampleClass += ' highlight-ao';
                     if (isAI) exampleClass += ' highlight-ai';
-
                     examplesHTML += `
                         <div class="${exampleClass}">
                             ${example.char}
@@ -1045,6 +1064,7 @@
                     `;
                 });
 
+                const charsList = initial.examples.map(e => e.char);
                 card.innerHTML = `
                     <div class="card-header">
                         <div class="initial-symbol">${initial.symbol}</div>
@@ -1059,37 +1079,31 @@
                             <p>${initial.hint}</p>
                         </div>
                         <div class="audio-section">
-                            <button class="audio-btn" onclick="playExamples(['${initial.examples.map(e => e.char).join("','")}'])">播放範例</button>
+                            <button class="audio-btn" onclick="playExamples(['${charsList.join("','")}'])">播放發音</button>
+                            <button class="stop-audio-btn" onclick="stopAllAudio()">暫停播放</button>
+                        </div>
+                    </div>
                 `;
-
                 container.appendChild(card);
             });
         }
 
-        // Set up filter button
         function setupFilterButtons() {
             const filterButtons = document.querySelectorAll('.filter-btn');
-
             filterButtons.forEach(button => {
                 button.addEventListener('click', function() {
-                    // Remove active class from all buttons
                     filterButtons.forEach(btn => btn.classList.remove('active'));
-                    // Add active class to current button
                     this.classList.add('active');
-
                     const filter = this.dataset.filter;
                     filterInitials(filter);
                 });
             });
         }
 
-        // Filter initials
         function filterInitials(filter) {
             const cards = document.querySelectorAll('.initial-card');
-
             cards.forEach(card => {
                 let showCard = true;
-
                 switch(filter) {
                     case 'ao':
                         showCard = card.dataset.hasAO === 'true';
@@ -1105,57 +1119,21 @@
                         showCard = true;
                         break;
                 }
-
                 card.style.display = showCard ? 'block' : 'none';
             });
         }
 
-        // Play pronunciation function (mock)
-        function playInitial(initial) {
-            // Connect Voice API
-            const msg = new SpeechSynthesisUtterance(`${initial}`);
-            msg.lang = 'zh-CN';
-            msg.rate = 0.8;
-            window.speechSynthesis.speak(msg);
-
-        }
-
-        function playExamples(chars) {
-            // Connect Voice API
-            const words = Array.isArray(chars) ? chars : [chars];
-            words.forEach((char, index) => {
-                setTimeout(() => {
-                    const msg = new SpeechSynthesisUtterance(char);
-                    msg.lang = 'zh-CN';
-                    msg.rate = 0.8;
-                    window.speechSynthesis.speak(msg);
-                }, index * 800);
-            });
-
-        }
-        function showGuide() {
-  if (!localStorage.getItem("hideGuide")) {
-    document.getElementById("userGuideModal").style.display = "block";
-  }
-}
-
-function closeGuide() {
-  if (document.getElementById("dontShowAgain").checked) {
-    localStorage.setItem("hideGuide", "true");
-  }
-  document.getElementById("userGuideModal").style.display = "none";
-}
-
-window.onload = showGuide;
+        document.addEventListener('DOMContentLoaded', function() {
+            renderInitials(initialsData);
+            setupFilterButtons();
+        });
 
         function toggleSideMenu() {
             const panel = document.getElementById('sideMenuPanel');
             const arrow = document.getElementById('sideMenuArrow');
-
             panel.classList.toggle('open');
             arrow.classList.toggle('rotate');
         }
-
     </script>
 </body>
 </html>
